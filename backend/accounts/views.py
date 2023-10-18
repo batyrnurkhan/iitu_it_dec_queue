@@ -33,18 +33,3 @@ def profile_view(request):
         "role": user.role,
         "manager_type": user.manager_type
     }, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-def call_next_ticket(request):
-    manager = request.user
-    if not manager.role == CustomUser.MANAGER:
-        return Response({"error": "You are not a manager."}, status=status.HTTP_400_BAD_REQUEST)
-
-    workplace = ManagerWorkplace.objects.get(manager=manager)
-    if workplace.current_serving < workplace.last_ticket:
-        workplace.current_serving += 1
-        workplace.save()
-        return Response({"current_serving": workplace.current_serving}, status=status.HTTP_200_OK)
-    else:
-        return Response({"error": "No more tickets to serve."}, status=status.HTTP_400_BAD_REQUEST)

@@ -29,3 +29,12 @@ class ManagerWorkplace(models.Model):
     manager = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     current_serving = models.IntegerField(default=0)
     last_ticket = models.IntegerField(default=0)
+
+
+class ManagerActionLog(models.Model):
+    manager = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    action = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.manager.username} ({self.manager.manager_type}) - {self.action} at {self.timestamp}"
