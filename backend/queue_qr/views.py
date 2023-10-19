@@ -144,7 +144,8 @@ def call_next(request):
         # Log the action for calling a ticket
         log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.")
         log.save()
-
+        log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.",
+                               ticket_number=ticket.number)
         return Response(response_data, status=status.HTTP_200_OK)
 
     except Queue.DoesNotExist:
