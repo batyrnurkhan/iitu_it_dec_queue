@@ -12,6 +12,8 @@ from accounts.models import ManagerActionLog
 from gtts import gTTS
 from django.conf import settings
 import os
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to join the queue
 def join_queue(request):
@@ -147,6 +149,9 @@ def call_next(request):
 
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 from django.http import JsonResponse
 @api_view(['POST'])

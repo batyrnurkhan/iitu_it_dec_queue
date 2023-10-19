@@ -8,6 +8,7 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .models import CustomUser, ManagerWorkplace
+from queue_qr.models import QueueTicket
 
 
 @api_view(['POST'])
@@ -22,14 +23,23 @@ def login_view(request):
     else:
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def profile_view(request):
     user = request.user
-    return Response({
+    response_data = {
         "username": user.username,
         "email": user.email,
         "role": user.role,
         "manager_type": user.manager_type
-    }, status=status.HTTP_200_OK)
+    }
+
+    # If the user is a manager, add tickets and other related data to the response
+    if user.role == "MANAGER":
+        tickets = QueueTicket.objects.filter(queue__type=user.manager_type).values_list('number', flat=True)
+        response_data["tickets"] = list(tickets)
+        # Add any other manager-specific data here
+
+    return Response(response_data, status=status.HTTP_200_OK)
