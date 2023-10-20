@@ -38,3 +38,17 @@ class ManagerActionLog(models.Model):
     ticket_number = models.PositiveIntegerField(null=True, blank=True)  # Add this field
     def __str__(self):
         return f"{self.manager.username} ({self.manager.manager_type}) - {self.action} at {self.timestamp}"
+
+
+from datetime import date
+
+class DailyTicketReport(models.Model):
+    manager = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    date = models.DateField(default=date.today)
+    ticket_count = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('manager', 'date')
+
+    def __str__(self):
+        return f"{self.manager.username} - {self.date} - {self.ticket_count} tickets"

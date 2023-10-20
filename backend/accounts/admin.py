@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, ManagerActionLog
+from .models import CustomUser, ManagerActionLog, DailyTicketReport
 
 # UserAdmin customization for CustomUser
 @admin.register(CustomUser)
@@ -32,3 +32,10 @@ class ManagerActionLogAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+@admin.register(DailyTicketReport)
+class DailyTicketReportAdmin(admin.ModelAdmin):
+    list_display = ['manager', 'date', 'ticket_count']
+    list_filter = ['manager', 'date']
+    search_fields = ['manager__username']

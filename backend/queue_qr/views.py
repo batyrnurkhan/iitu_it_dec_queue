@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -8,11 +10,11 @@ from django.http import HttpResponse
 from io import BytesIO
 from rest_framework.authtoken.models import Token
 from django.db.models import Count
-from accounts.models import ManagerActionLog
+from accounts.models import ManagerActionLog, DailyTicketReport
 from gtts import gTTS
 from django.conf import settings
 import os
-
+from django.utils import timezone
 
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to join the queue
@@ -138,18 +140,27 @@ def call_next(request):
             "audio_url": audio_url
         }
 
+        increment_ticket_count(request.user)
+
         # Delete the served ticket from the QueueTicket model
         ticket.delete()
 
         # Log the action for calling a ticket
-        log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.")
-        log.save()
         log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.",
                                ticket_number=ticket.number)
+        log.save()
+        #log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.",
+        #                       ticket_number=ticket.number)
         return Response(response_data, status=status.HTTP_200_OK)
 
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+# When a manager calls a ticket
+def increment_ticket_count(manager):
+    report, created = DailyTicketReport.objects.get_or_create(manager=manager, date=date.today(), defaults={'ticket_count': 0})
+    report.ticket_count += 1
+    report.save()
 
 
 
