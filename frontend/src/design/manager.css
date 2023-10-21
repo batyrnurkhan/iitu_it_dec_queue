@@ -1,0 +1,78 @@
+/* styles/profile.css */
+
+.profileRoot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f4f4;
+    height: 100vh;
+    width: 100%;
+}
+
+.profile__qr,
+.profile__in_process,
+.profile__in_queue {
+    display: flex;
+    justify-content: space-between;
+    width: 70%;
+    margin-bottom: 20px;
+}
+
+.profile__green_box {
+    background-color: #4CAF50; /* green */
+    color: #FFF;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile__gray_box_l,
+.profile__gray_box_r {
+    background-color: #9E9E9E; /* gray */
+    color: #FFF;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+button {
+    background-color: #009688; /* teal */
+    color: #FFF;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #00796B;
+}
+
+.profile__logo {
+    margin-top: auto;
+    padding: 20px;
+}
+
+.profile__logo a {
+    text-decoration: none;
+    color: #333;
+}
+
+.profile__logo a:hover {
+    text-decoration: underline;
+}

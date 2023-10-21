@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../styles/homePage.css';
 
 function HomePage() {
     const [queues, setQueues] = useState([]);
@@ -18,12 +19,11 @@ function HomePage() {
     return (
         <div>
             <h1>Current Queues</h1>
-            {/* Display the details of all queues */}
             {queues.map(queue => (
                 <div key={queue.type}>
                     <h2>{queue.type} Queue</h2>
-                    <p>Current Number: {queue.current_number}</p>
-                    <p>Ticket Numbers: {queue.ticket_numbers.join(', ')}</p>
+                    <p>Current Number: {queue["\"Сейчас обслуживается талон\""]}</p>
+                    <p>Ticket Numbers: {queue["Зарегестрированные талоны"].join(', ')}</p>
                 </div>
             ))}
         </div>
