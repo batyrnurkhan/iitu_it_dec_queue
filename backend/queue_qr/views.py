@@ -1,5 +1,7 @@
 from datetime import date
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -29,9 +31,24 @@ def join_queue(request):
 
         # Create a ticket with the new ticket number
         ticket = QueueTicket.objects.create(queue=queue, number=new_ticket_number)
+
+        # Send live update that a new ticket is created
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "live_updates",
+            {
+                "type": "send_live_update",
+                "message": f"New ticket {ticket.number} created for {queue_type} queue."
+            }
+        )
+
         return Response({"ticket": ticket.number, "token": ticket.token}, status=status.HTTP_200_OK)
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])  # So anyone can view the queue

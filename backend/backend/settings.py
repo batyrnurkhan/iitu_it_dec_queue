@@ -163,3 +163,18 @@ SIMPLE_JWT = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+
+ASGI_APPLICATION = 'backend.routing.application'
+
+# Configuring Channels to use Redis as our channel layer backend
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
+DEFAULT_CHANNEL_LAYER = "default"
