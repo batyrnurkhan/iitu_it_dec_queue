@@ -23,7 +23,7 @@ function App() {
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/queues" element={<QueuesPage />} />
                 <Route path="/join-queue" element={<JoinQueuePage />} />
-                <Route path="/" exact element={<QueuesPage/>} />
+                <Route path="/" exact element={<HomePage/>} />
             </Routes>
           </div>
         </Router>

@@ -9,14 +9,14 @@ function JoinQueuePage() {
         axios.post('http://localhost:8000/queue/join-queue/', { type: queueType }, {
             headers: {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
-
             }
         })
-        .then(response => {
-            // Redirect to home page after joining a queue
-            navigate('/');
-        })
-        .catch(error => console.error("Error joining queue:", error));
+            .then(response => {
+                // TODO: Emit a WebSocket message here if not done on the server-side.
+                // Redirect to home page after joining a queue
+                navigate('/');
+            })
+            .catch(error => console.error("Error joining queue:", error));
     };
 
     return (
