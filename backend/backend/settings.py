@@ -36,7 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
+
     'django.contrib.staticfiles',
+
     'accounts',
     'corsheaders',
     'rest_framework',
@@ -44,7 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'queue_qr',
     'qrcode',
-    'channels'
+    'channels',
 ]
 
 
@@ -63,6 +66,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'backend.urls'
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",  # Allow your frontend to connect
+]
 
 TEMPLATES = [
     {
@@ -82,7 +88,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
+ASGI_APPLICATION = "backend.routing.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -165,9 +171,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
-ASGI_APPLICATION = 'backend.routing.application'
+DEFAULT_CHANNEL_LAYER = "default"
 
-# Configuring Channels to use Redis as our channel layer backend
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -176,5 +182,3 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-DEFAULT_CHANNEL_LAYER = "default"

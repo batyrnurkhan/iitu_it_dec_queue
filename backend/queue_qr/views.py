@@ -32,16 +32,12 @@ def join_queue(request):
         # Create a ticket with the new ticket number
         ticket = QueueTicket.objects.create(queue=queue, number=new_ticket_number)
 
-        # Send live update that a new ticket is created
-        from channels.layers import get_channel_layer
-        from asgiref.sync import async_to_sync
-
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "live_updates",
+            "queues",
             {
-                "type": "send_live_update",
-                "message": f"New ticket {ticket.number} created for {queue_type} queue."
+                "type": "send_queue_update",
+                "text": {"message": f"New ticket {ticket.number} created for {queue_type} queue."}
             }
         )
 
@@ -129,7 +125,6 @@ def call_next(request):
             # Log the action for calling an empty queue
             log = ManagerActionLog(manager=request.user, action="CALLED EMPTY QUEUE.")
             log.save()
-
             return Response({"message": "Queue is empty.", "current_number": 0}, status=status.HTTP_200_OK)
 
         # Update the current serving number for the queue
@@ -147,7 +142,6 @@ def call_next(request):
 
         path_to_save = os.path.join(settings.MEDIA_ROOT, audio_filename)
         tts.save(path_to_save)
-
         audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
 
         # Return the ticket number, token, and audio URL to the manager
@@ -166,8 +160,16 @@ def call_next(request):
         log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.",
                                ticket_number=ticket.number)
         log.save()
-        #log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.",
-        #                       ticket_number=ticket.number)
+
+        # WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            'queue_updates',
+            {
+                'type': 'queue.update',
+                'message': f"Ticket {ticket.number} is being called in the {queue_type} queue."
+            }
+        )
         return Response(response_data, status=status.HTTP_200_OK)
 
     except Queue.DoesNotExist:
