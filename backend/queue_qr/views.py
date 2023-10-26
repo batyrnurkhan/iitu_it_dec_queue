@@ -161,15 +161,18 @@ def call_next(request):
                                ticket_number=ticket.number)
         log.save()
 
-        # WebSocket notification
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            'queue_updates',
+            "queues",
             {
-                'type': 'queue.update',
-                'message': f"Ticket {ticket.number} is being called in the {queue_type} queue."
+                "type": "send_queue_update",
+                "text": {
+                    "type": "ticket_called",
+                    "message": f"Ticket {ticket.number} is being called in the {queue_type} queue."
+                }
             }
         )
+
         return Response(response_data, status=status.HTTP_200_OK)
 
     except Queue.DoesNotExist:

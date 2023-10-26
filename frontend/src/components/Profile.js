@@ -1,11 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/profile.css'
+import '../styles/profile.css';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
 function Profile() {
     const [userData, setUserData] = useState({});
+    const [socket, setSocket] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
+        const ws = new ReconnectingWebSocket('ws://localhost:8000/ws/call-next/');
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("Received message:", data);
+            if (data.action && data.action === "call_next" && data.ticket_number) {
+                setUserData(prevState => ({
+                    ...prevState,
+                    calledTicket: data.ticket_number
+                }));
+            }
+        };
+
+        setSocket(ws); // <-- set the socket state
 
         axios.get('http://localhost:8000/profile/', {
             headers: {
@@ -18,11 +35,13 @@ function Profile() {
             .catch((error) => {
                 console.error("Error fetching profile data:", error);
             });
+
+        return () => {
+            ws.close();
+        };
     }, []);
 
-
     const handleCallNext = () => {
-        // Make an API request to the /call-next/ endpoint
         axios.post('http://localhost:8000/queue/call-next/', {
             type: userData["manager_type"]
         }, {
@@ -31,15 +50,13 @@ function Profile() {
             }
         })
             .then(response => {
-                // Update the state with the newly called ticket
                 setUserData(prevState => ({
                     ...prevState,
                     calledTicket: response.data["ticket"]
                 }));
+                socket && socket.send(JSON.stringify({ action: 'call_next', ticket_number: response.data["ticket"] }));
 
-                // Check if audio_url is present in the response
                 if (response.data["audio_url"]) {
-                    // Create a new audio object and play it
                     const audio = new Audio(response.data["audio_url"]);
                     audio.play();
                 } else {
@@ -50,7 +67,6 @@ function Profile() {
                 console.error("Error calling the next ticket:", error);
             });
     };
-
 
     return (
         <div className="profileRoot">
@@ -87,7 +103,7 @@ function Profile() {
             </div>
 
             <div className="profile__logo">
-                <a href=""><h1>Logout</h1></a>
+                <a href="/logout"><h1>Logout</h1></a> {/* Update this href to correct logout route */}
             </div>
         </div>
     );

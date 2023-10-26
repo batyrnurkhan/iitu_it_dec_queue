@@ -5,7 +5,7 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 function HomePage() {
     const [queues, setQueues] = useState([]);
 
-    useEffect(() => {
+    const fetchQueues = () => {
         axios.get('http://localhost:8000/queue/queues/')
             .then(response => {
                 setQueues(response.data);
@@ -13,29 +13,56 @@ function HomePage() {
             .catch(error => {
                 console.error("Error fetching queue data:", error);
             });
+    };
 
-        const wsUrl = 'ws://localhost:8000/ws/queues/';
-        const socket = new ReconnectingWebSocket(wsUrl);
+    useEffect(() => {
+        fetchQueues();  // Initial fetch
 
-        socket.addEventListener('message', (event) => {
+        // Setting up WebSocket for queues
+        const queuesSocketUrl = 'ws://localhost:8000/ws/queues/';
+        const queuesSocket = new ReconnectingWebSocket(queuesSocketUrl);
+
+        queuesSocket.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
+            console.log("Received WebSocket message:", data);
             if (Array.isArray(data)) {
                 setQueues(data);
             } else if (data.message && data.message.includes("New ticket")) {
-                // For simplicity, we're fetching the queues again after receiving such a message.
-                // This guarantees our local state is always in sync with the server.
-                axios.get('http://localhost:8000/queue/queues/')
-                    .then(response => {
-                        setQueues(response.data);
-                    })
-                    .catch(error => {
-                        console.error("Error fetching queue data after WebSocket message:", error);
-                    });
+                fetchQueues();
+            } else if (data.type === 'ticket_called') {
+                // Extracting ticket number and queue type from the message
+                const messageParts = data.message.split(" ");
+                const ticketNumber = parseInt(messageParts[1], 10);  // Ticket number should be at index 1
+                const queueType = messageParts[messageParts.length - 2];  // Queue type should be the second last part
+
+                setQueues(prevQueues => {
+                    const updatedQueues = [...prevQueues];
+                    const targetQueue = updatedQueues.find(q => q['Очередь'] === queueType);
+                    if (targetQueue) {
+                        targetQueue['Зарегестрированные талоны'] = targetQueue['Зарегестрированные талоны'].filter(ticket => ticket !== ticketNumber);
+                        targetQueue['Сейчас обслуживается талон'] = ticketNumber;  // Set the called ticket as the current number
+                    }
+                    return updatedQueues;
+                });
+            }
+        });
+
+
+        // Setting up WebSocket for call-next
+        // Note: Depending on your design, you might not need this anymore since the above handler is taking care of ticket calls as well
+        const callNextSocketUrl = 'ws://localhost:8000/ws/call-next/';
+        const callNextSocket = new ReconnectingWebSocket(callNextSocketUrl);
+
+        callNextSocket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+            if (data.action && data.action === "call_next") {
+                fetchQueues();  // You might want to re-evaluate the need for this fetch based on the above updates
             }
         });
 
         return () => {
-            socket.close();
+            queuesSocket.close();
+            callNextSocket.close();
         };
     }, []);
 
