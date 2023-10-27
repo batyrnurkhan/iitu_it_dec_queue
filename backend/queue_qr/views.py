@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Queue, QueueTicket
+from .models import Queue, QueueTicket, ApiStatus
 import qrcode
 from django.http import HttpResponse
 from io import BytesIO
@@ -17,17 +17,29 @@ from gtts import gTTS
 from django.conf import settings
 import os
 from django.utils import timezone
+from rest_framework import permissions
+def api_enabled_required(func):
+    def wrapper(request, *args, **kwargs):
+        api_status, created = ApiStatus.objects.get_or_create(name='API_STATUS')
+        if not api_status.status:
+            return JsonResponse({'error': 'API is currently disabled.'}, status=403)
+        return func(request, *args, **kwargs)
+    return wrapper
+
+
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Allow anyone to join the queue
+@permission_classes([AllowAny])
+@api_enabled_required
 def join_queue(request):
     queue_type = request.data.get('type')
     try:
         queue = Queue.objects.get(type=queue_type)
 
         # Get the last ticket number across all queues without updating the current number of the queue
-        last_ticket_number = QueueTicket.objects.order_by('-number').first().number if QueueTicket.objects.exists() else 0
-        new_ticket_number = last_ticket_number + 1
+        last_ticket_number = QueueTicket.objects.order_by(
+            '-number').first().number if QueueTicket.objects.exists() else 0
+        new_ticket_number = 1 if last_ticket_number >= 500 else last_ticket_number + 1
 
         # Create a ticket with the new ticket number
         ticket = QueueTicket.objects.create(queue=queue, number=new_ticket_number)
@@ -47,7 +59,8 @@ def join_queue(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # So anyone can view the queue
+@permission_classes([AllowAny])
+@api_enabled_required
 def get_queues(request):
     queues = Queue.objects.all().annotate(ticket_count=Count('queueticket'))
     result = []
@@ -71,7 +84,8 @@ def get_queues(request):
     return Response(result)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])#ну тут просто генерация qr
+@permission_classes([AllowAny])
+@api_enabled_required
 def generate_qr(request):
     img = qrcode.make('http://localhost:3000/join-queue/')
     response = HttpResponse(content_type="image/png")
@@ -79,6 +93,8 @@ def generate_qr(request):
     return response
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+@api_enabled_required
 def current_serving(request):
     queues = Queue.objects.all()
     data = {}
@@ -87,7 +103,7 @@ def current_serving(request):
     return Response(data)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # тут просто рестарт очереди
+@permission_classes([IsAuthenticated])
 def reset_queue(request):
     queue_type = request.data.get('type')
     try:

@@ -15,6 +15,12 @@ class Queue(models.Model):
     current_number = models.IntegerField(default=0)
     currently_serving = models.IntegerField(default=0)
 
+    def reset_tickets(self):
+        self.queueticket_set.all().delete()  # Delete all associated tickets
+        self.current_number = 0
+        self.currently_serving = 0
+        self.save()
+
     def __str__(self):
         return self.type
 
@@ -26,3 +32,10 @@ class QueueTicket(models.Model):
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     number = models.PositiveIntegerField()
     served = models.BooleanField(default=False)
+
+class ApiStatus(models.Model):
+    status = models.BooleanField(default=True)
+    name = models.CharField(max_length=200, default='API_STATUS')  # Just a name to identify
+
+    def __str__(self):
+        return "Enabled" if self.status else "Disabled"
