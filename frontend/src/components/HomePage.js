@@ -67,15 +67,36 @@ function HomePage() {
     }, []);
 
     return (
-        <div>
-            <h1>Current Queues</h1>
-            {queues.map(queue => (
-                <div key={queue.type}>
-                    <h2>{queue.type} Queue</h2>
-                    <p>Current Number: {queue["\"Сейчас обслуживается талон\""]}</p>
-                    <p>Ticket Numbers: {queue["Зарегестрированные талоны"].join(', ')}</p>
+        <div className="main">
+            <div className="in_process">
+                <h1 className="text_in">В процессе</h1>
+                {queues.map(queue => (
+                    queue["Сейчас обслуживается талон"] ? (
+                        <div key={queue.Очередь} className="green_box">
+                            <p className="list_text_style">{queue["Сейчас обслуживается талон"]} к {queue["Очередь"]} менеджеру</p>
+                        </div>
+                    ) : null
+                ))}
+            </div>
+            <div className="in_queue">
+                <div className="line1"></div>
+                <div className="line2"></div>
+                <h1 className="text_in">Ожидающие</h1>
+                <div className="right">
+                    {queues.map(queue => (
+                        Array.isArray(queue["Зарегестрированные талоны"]) && queue["Зарегестрированные талоны"].map(ticket => (
+                            <div className="gray_box_l" key={ticket}>
+                                <p className="list_text_style">{ticket}</p>
+                            </div>
+                        ))
+                    ))}
                 </div>
-            ))}
+            </div>
+
+            <div className="qr">
+                <img src="http://localhost:8000/queue/generate-qr/" alt="QR Code for joining queue" />
+            </div>
+
         </div>
     );
 }
