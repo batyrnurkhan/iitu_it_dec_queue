@@ -39,7 +39,8 @@ def join_queue(request):
         # Get the last ticket number across all queues without updating the current number of the queue
         last_ticket_number = QueueTicket.objects.order_by(
             '-number').first().number if QueueTicket.objects.exists() else 0
-        new_ticket_number = 1 if last_ticket_number >= 500 else last_ticket_number + 1
+        new_ticket_number = (last_ticket_number % 500) + 1
+
 
         # Create a ticket with the new ticket number
         ticket = QueueTicket.objects.create(queue=queue, number=new_ticket_number)
@@ -68,20 +69,16 @@ def get_queues(request):
     for queue in queues:
         ticket_numbers = list(queue.queueticket_set.values_list('number', flat=True))
 
-        if not ticket_numbers:
-            result.append({
-                'Очередь': queue.type,
-                'Сейчас обслуживается талон': 0,
-                'Зарегестрированные талоны': []
-            })
-        else:
-            result.append({
-                'Очередь': queue.type,
-                'Сейчас обслуживается талон': queue.current_number,  # This is the ticket number called most recently
-                'Зарегестрированные талоны': ticket_numbers
-            })
+        result.append({
+            'Очередь': queue.type,
+            'Сейчас обслуживается талон': queue.current_number,
+            'Зарегестрированные талоны': ticket_numbers,
+            "manager_table": queue.manager.table.name if queue.manager and queue.manager.table else ""
+
+        })
 
     return Response(result)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -131,17 +128,52 @@ def call_next(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Fetch the queue based on the type
         queue = Queue.objects.get(type=queue_type)
 
+        # If there are no tickets and the queue is dynamically created, delete it
+        if not QueueTicket.objects.filter(queue=queue).exists() and queue.dynamic_created:
+            queue.delete()
+            # Notify the frontend that a queue was removed
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "queues",
+                {
+                    "type": "send_queue_update",
+                    "text": {
+                        "type": "queue_deleted",
+                        "message": f"Queue {queue_type} has been removed."
+                    }
+                }
+            )
+            return Response({"message": "Queue is empty and has been removed."}, status=status.HTTP_200_OK)
+
         # Get the oldest (first-in) ticket from the QueueTicket model for the specific queue
-        ticket = QueueTicket.objects.filter(queue=queue).order_by('id').first()
+        ticket = QueueTicket.objects.filter(queue=queue).order_by('number').first()
 
         if not ticket:
-            # Log the action for calling an empty queue
-            log = ManagerActionLog(manager=request.user, action="CALLED EMPTY QUEUE.")
-            log.save()
-            return Response({"message": "Queue is empty.", "current_number": 0}, status=status.HTTP_200_OK)
+            # If the queue does not have a manager assigned, create a new queue for the manager
+            if not queue.manager:
+                new_queue = Queue.objects.create(type=queue_type, dynamic_created=True)
+                new_queue.manager = request.user
+                new_queue.save()
+                # Notify the frontend about the new queue
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    "queues",
+                    {
+                        "type": "send_queue_update",
+                        "text": {
+                            "type": "new_queue_created",
+                            "message": f"New queue {queue_type} created for manager {request.user.username}."
+                        }
+                    }
+                )
+                return Response({"message": "Queue was empty. A new queue has been created."}, status=status.HTTP_200_OK)
+            else:
+                # Log the action for calling an empty queue
+                log = ManagerActionLog(manager=request.user, action="CALLED EMPTY QUEUE.")
+                log.save()
+                return Response({"message": "Queue is empty.", "current_number": 0}, status=status.HTTP_200_OK)
 
         # Update the current serving number for the queue
         queue.current_number = ticket.number
@@ -164,7 +196,8 @@ def call_next(request):
         response_data = {
             "ticket": ticket.number,
             "token": ticket.token,
-            "audio_url": audio_url
+            "audio_url": audio_url,
+            "manager_username": request.user.username
         }
 
         increment_ticket_count(request.user)
@@ -189,10 +222,14 @@ def call_next(request):
             }
         )
 
+        queue.manager = request.user
+        queue.save()
+
         return Response(response_data, status=status.HTTP_200_OK)
 
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # When a manager calls a ticket
 def increment_ticket_count(manager):

@@ -1,5 +1,5 @@
 from django.db import models
-
+from accounts.models import ManagerWorkplace
 class Queue(models.Model):
     BACHELOR = 'BACHELOR'
     MASTER = 'MASTER'
@@ -14,7 +14,14 @@ class Queue(models.Model):
     type = models.CharField(max_length=10, choices=QUEUE_CHOICES)
     current_number = models.IntegerField(default=0)
     currently_serving = models.IntegerField(default=0)
-
+    workplace = models.ForeignKey(ManagerWorkplace, on_delete=models.CASCADE, null=True, blank=True)
+    manager = models.ForeignKey(
+        'accounts.CustomUser',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='managed_queues'
+    )
     def reset_tickets(self):
         self.queueticket_set.all().delete()  # Delete all associated tickets
         self.current_number = 0

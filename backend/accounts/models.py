@@ -1,6 +1,14 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
+class Table(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
 class CustomUser(AbstractUser):
     ADMIN = 'ADMIN'
     TERMINAL = 'TERMINAL'
@@ -24,6 +32,7 @@ class CustomUser(AbstractUser):
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=TERMINAL)
     manager_type = models.CharField(max_length=10, choices=MANAGER_TYPE_CHOICES, blank=True, null=True)
+    table = models.ForeignKey(Table, on_delete=models.SET_NULL, blank=True, null=True)
 
 class ManagerWorkplace(models.Model):
     manager = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -37,7 +46,7 @@ class ManagerActionLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     ticket_number = models.PositiveIntegerField(null=True, blank=True)  # Add this field
     def __str__(self):
-        return f"{self.manager.username} ({self.manager.manager_type}) - {self.action} at {self.timestamp}"
+        return f"{self.manager.username} ({self.manager.table.name}) ({self.manager.manager_type}) - {self.action} at {self.timestamp}"
 
 
 from datetime import date

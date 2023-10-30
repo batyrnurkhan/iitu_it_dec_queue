@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .models import CustomUser, ManagerWorkplace
+
 from queue_qr.models import QueueTicket
 
 
