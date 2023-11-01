@@ -1,5 +1,5 @@
 from datetime import date
-
+import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework import status
@@ -66,16 +66,30 @@ def get_queues(request):
     queues = Queue.objects.all().annotate(ticket_count=Count('queueticket'))
     result = []
 
+    # Retrieve all currently serving tickets across all queues
+    all_currently_serving_tickets = []
+
     for queue in queues:
-        ticket_numbers = list(queue.queueticket_set.values_list('number', flat=True))
+        ticket_numbers = list(queue.queueticket_set.filter(served=False).values_list('number', flat=True))
+
+        # Get currently serving tickets for this queue
+        serving_tickets = queue.queueticket_set.filter(served=True).select_related('serving_manager')
+
+        for serving_ticket in serving_tickets:
+            all_currently_serving_tickets.append({
+                'ticket_number': serving_ticket.number,
+                'manager_username': serving_ticket.serving_manager.username if serving_ticket.serving_manager else None
+            })
 
         result.append({
             'Очередь': queue.type,
-            'Сейчас обслуживается талон': queue.current_number,
             'Зарегестрированные талоны': ticket_numbers,
-            "manager_table": queue.manager.table.name if queue.manager and queue.manager.table else ""
-
         })
+
+    # Add all currently serving tickets to the response
+    result.append({
+        'Все обслуживаемые талоны': all_currently_serving_tickets
+    })
 
     return Response(result)
 
@@ -115,120 +129,72 @@ def reset_queue(request):
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
 
+from django.db import transaction
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def call_next(request):
     queue_type = request.data.get('type')
 
-    # Check if manager's type matches the queue type
-    if request.user.manager_type != queue_type:
-        return Response({
-            "error": f"A {request.user.manager_type} manager can only call the {request.user.manager_type} queue."
-        }, status=status.HTTP_400_BAD_REQUEST)
-
     try:
         queue = Queue.objects.get(type=queue_type)
+        # Get the next ticket that hasn't been served yet
+        ticket = QueueTicket.objects.filter(queue=queue, served=False).order_by('number').first()
 
-        # If there are no tickets and the queue is dynamically created, delete it
-        if not QueueTicket.objects.filter(queue=queue).exists() and queue.dynamic_created:
-            queue.delete()
-            # Notify the frontend that a queue was removed
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "queues",
-                {
-                    "type": "send_queue_update",
-                    "text": {
-                        "type": "queue_deleted",
-                        "message": f"Queue {queue_type} has been removed."
-                    }
-                }
-            )
-            return Response({"message": "Queue is empty and has been removed."}, status=status.HTTP_200_OK)
+        if ticket is None:
+            return Response({"message": "Queue is empty."}, status=status.HTTP_200_OK)
 
-        # Get the oldest (first-in) ticket from the QueueTicket model for the specific queue
-        ticket = QueueTicket.objects.filter(queue=queue).order_by('number').first()
+        # Mark the ticket as served and save the serving manager
+        ticket.served = True
+        ticket.serving_manager = request.user
+        ticket.save()
 
-        if not ticket:
-            # If the queue does not have a manager assigned, create a new queue for the manager
-            if not queue.manager:
-                new_queue = Queue.objects.create(type=queue_type, dynamic_created=True)
-                new_queue.manager = request.user
-                new_queue.save()
-                # Notify the frontend about the new queue
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
-                    "queues",
-                    {
-                        "type": "send_queue_update",
-                        "text": {
-                            "type": "new_queue_created",
-                            "message": f"New queue {queue_type} created for manager {request.user.username}."
-                        }
-                    }
-                )
-                return Response({"message": "Queue was empty. A new queue has been created."}, status=status.HTTP_200_OK)
-            else:
-                # Log the action for calling an empty queue
-                log = ManagerActionLog(manager=request.user, action="CALLED EMPTY QUEUE.")
-                log.save()
-                return Response({"message": "Queue is empty.", "current_number": 0}, status=status.HTTP_200_OK)
-
-        # Update the current serving number for the queue
-        queue.current_number = ticket.number
+        # Update the currently serving number for the queue
+        queue.currently_serving = ticket.number
         queue.save()
 
-        # Generate voice-over
-        text_to_speak = f"Талон {ticket.number} подойдите к менеджеру номер 1"
-        tts = gTTS(text=text_to_speak, lang='ru')
+        # Remove any previously served tickets by the same manager except the current one
+        QueueTicket.objects.filter(queue=queue, served=True, serving_manager=request.user).exclude(number=ticket.number).delete()
+
+        # Generate and save the announcement
+        text_to_speak = f"Ticket number {ticket.number}, please go to manager {request.user.username}."
+        tts = gTTS(text=text_to_speak, lang='en')
         audio_filename = f"ticket_{ticket.number}.mp3"
-
-        # Check if the directory exists, if not create it
-        if not os.path.exists(settings.MEDIA_ROOT):
-            os.makedirs(settings.MEDIA_ROOT)
-
-        path_to_save = os.path.join(settings.MEDIA_ROOT, audio_filename)
-        tts.save(path_to_save)
+        audio_path = os.path.join(settings.MEDIA_ROOT, audio_filename)
+        tts.save(audio_path)
         audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
 
-        # Return the ticket number, token, and audio URL to the manager
-        response_data = {
-            "ticket": ticket.number,
-            "token": ticket.token,
-            "audio_url": audio_url,
-            "manager_username": request.user.username
-        }
-
-        increment_ticket_count(request.user)
-
-        # Delete the served ticket from the QueueTicket model
-        ticket.delete()
-
-        # Log the action for calling a ticket
-        log = ManagerActionLog(manager=request.user, action=f"Called next ticket in {queue_type} queue.",
+        # Log the action
+        log = ManagerActionLog(manager=request.user, action=f"Called ticket number {ticket.number}.",
                                ticket_number=ticket.number)
         log.save()
 
+        # Notify via WebSocket
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "queues",
             {
-                "type": "send_queue_update",
-                "text": {
-                    "type": "ticket_called",
-                    "message": f"Ticket {ticket.number} is being called in the {queue_type} queue."
+                "type": "queue.ticket_called",  # This type must match the method name in the consumer
+                "message": {
+                    "queue_type": queue_type,
+                    "ticket_number": ticket.number,
+                    "manager_username": request.user.username
                 }
             }
         )
 
-        queue.manager = request.user
-        queue.save()
-
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response({
+            "ticket_number": ticket.number,
+            "audio_url": audio_url
+        }, status=status.HTTP_200_OK)
 
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
 
 # When a manager calls a ticket

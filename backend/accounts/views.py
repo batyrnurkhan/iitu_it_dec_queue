@@ -43,3 +43,13 @@ def profile_view(request):
         # Add any other manager-specific data here
 
     return Response(response_data, status=status.HTTP_200_OK)
+
+
+from django.contrib.auth import logout
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    # Logout the user
+    logout(request)
+    return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)

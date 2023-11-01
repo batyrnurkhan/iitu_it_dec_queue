@@ -22,6 +22,13 @@ class QueueConsumer(AsyncWebsocketConsumer):
     async def send_queue_update(self, event):
         await self.send(text_data=json.dumps(event["text"]))
 
+    async def queue_ticket_called(self, event):
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'type': 'ticket_called',
+            'data': event['message']
+        }))
+
 
 
 class CallNextConsumer(AsyncWebsocketConsumer):
