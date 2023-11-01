@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-
+import logo from '../static/logo.png';
 function HomePage() {
     const [queues, setQueues] = useState([]);
 
@@ -16,87 +16,107 @@ function HomePage() {
     };
 
     useEffect(() => {
-        fetchQueues();  // Initial fetch
-
-        // Setting up WebSocket for queues
+        fetchQueues();
         const queuesSocketUrl = 'ws://localhost:8000/ws/queues/';
         const queuesSocket = new ReconnectingWebSocket(queuesSocketUrl);
 
-        queuesSocket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-            console.log("Received WebSocket message:", data);
-            if (Array.isArray(data)) {
-                setQueues(data);
-            } else if (data.message && data.message.includes("New ticket")) {
-                fetchQueues();
-            } else if (data.type === 'ticket_called') {
-                // Extracting ticket number and queue type from the message
-                const messageParts = data.message.split(" ");
-                const ticketNumber = parseInt(messageParts[1], 10);  // Ticket number should be at index 1
-                const queueType = messageParts[messageParts.length - 2];  // Queue type should be the second last part
+        queuesSocket.onerror = (errorEvent) => {
+            console.error("WebSocket error observed:", errorEvent);
+        };
 
-                setQueues(prevQueues => {
-                    const updatedQueues = [...prevQueues];
-                    const targetQueue = updatedQueues.find(q => q['Очередь'] === queueType);
-                    if (targetQueue) {
-                        targetQueue['Зарегестрированные талоны'] = targetQueue['Зарегестрированные талоны'].filter(ticket => ticket !== ticketNumber);
-                        targetQueue['Сейчас обслуживается талон'] = ticketNumber;  // Set the called ticket as the current number
-                    }
-                    return updatedQueues;
-                });
+        queuesSocket.onmessage = (event) => {
+            console.log("WebSocket message received:", event.data);
+            try {
+                const data = JSON.parse(event.data);
+                console.log("Parsed data:", data);
+
+                if (data.type === 'ticket_called' && data.data && data.data.queue_type) {
+                    setQueues(prevQueues => {
+                        return prevQueues.map(queue => {
+                            if (queue['Очередь'] === data.data.queue_type) {
+                                const updatedRegisteredTickets = queue['Зарегестрированные талоны'].filter(ticket =>
+                                    String(ticket) !== String(data.data.ticket_number)
+                                );
+                                return {
+                                    ...queue,
+                                    'Зарегестрированные талоны': updatedRegisteredTickets,
+                                };
+                            }
+                            else if (queue['Все обслуживаемые талоны']) {
+                                const updatedServedTickets = queue['Все обслуживаемые талоны'].filter(ticket =>
+                                    ticket.manager_username !== data.data.manager_username
+                                );
+                                updatedServedTickets.push({
+                                    ticket_number: data.data.ticket_number,
+                                    manager_username: data.data.manager_username
+                                });
+                                return {
+                                    ...queue,
+                                    'Все обслуживаемые талоны': updatedServedTickets
+                                };
+                            }
+                            return queue;
+                        });
+                    });
+                }
+                else if (data.message && data.message.includes("New ticket")) {
+                    fetchQueues();
+                }
+            } catch (error) {
+                console.error("Error handling WebSocket message:", error);
             }
-        });
-
-
-        // Setting up WebSocket for call-next
-        // Note: Depending on your design, you might not need this anymore since the above handler is taking care of ticket calls as well
-        const callNextSocketUrl = 'ws://localhost:8000/ws/call-next/';
-        const callNextSocket = new ReconnectingWebSocket(callNextSocketUrl);
-
-        callNextSocket.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-            if (data.action && data.action === "call_next") {
-                fetchQueues();  // You might want to re-evaluate the need for this fetch based on the above updates
-            }
-        });
+        };
 
         return () => {
             queuesSocket.close();
-            callNextSocket.close();
         };
     }, []);
 
+
     return (
-        <div className="main">
-            <div className="in_process">
-                <h1 className="text_in">В процессе</h1>
-                {queues.map(queue => (
-                    queue["Сейчас обслуживается талон"] ? (
-                        <div key={queue.Очередь} className="green_box">
-                            <p className="list_text_style">{queue["Сейчас обслуживается талон"]} к {queue["Очередь"]} менеджеру</p>
-                        </div>
-                    ) : null
-                ))}
+
+        <div className="wrapper">
+            <img src={logo} alt="Logo" className="logo" />
+            <div className="qr-card">
+                <h2>Сканируй QR чтобы встать в очередь</h2>
+                <p>--__--</p>
+                <div className="qr-image-container">
+                    <img src="http://localhost:8000/queue/generate-qr/" alt="QR Code for joining queue" />
+                </div>
             </div>
-            <div className="in_queue">
-                <div className="line1"></div>
-                <div className="line2"></div>
-                <h1 className="text_in">Ожидающие</h1>
-                <div className="right">
-                    {queues.map(queue => (
-                        Array.isArray(queue["Зарегестрированные талоны"]) && queue["Зарегестрированные талоны"].map(ticket => (
-                            <div className="gray_box_l" key={ticket}>
-                                <p className="list_text_style">{ticket}</p>
-                            </div>
-                        ))
+
+            <div className="called-tickets-container">
+                <h2>Все обслуживаемые талоны</h2>
+                <div className="called-ticket-list">
+                    {queues.flatMap(queue => (
+                        Array.isArray(queue["Все обслуживаемые талоны"])
+                            ? queue["Все обслуживаемые талоны"].map(ticket => (
+                                <div className="called-ticket" key={ticket.ticket_number}>
+                                    <div className="arrow-container">
+                                        <p className="list_text_style">{ticket.ticket_number}</p>
+                                    </div>
+                                    <p>{ticket.manager_username || "Manager info not available"}</p>
+                                </div>
+                            ))
+                            : []
                     ))}
                 </div>
             </div>
 
-            <div className="qr">
-                <img src="http://localhost:8000/queue/generate-qr/" alt="QR Code for joining queue" />
+            <div className="queue-container">
+                <h2>Ожидающие</h2>
+                <div className="ticket-list">
+                    {queues.flatMap(queue => (
+                        Array.isArray(queue["Зарегестрированные талоны"])
+                            ? queue["Зарегестрированные талоны"].slice(0, 6).map(ticket => ( /* Only take the first 12 tickets */
+                                <div className="ticket" key={ticket}>
+                                    <p className="list_text_style">{ticket}</p>
+                                </div>
+                            ))
+                            : []
+                    ))}
+                </div>
             </div>
-
         </div>
     );
 }

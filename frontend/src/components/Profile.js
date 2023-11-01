@@ -52,7 +52,7 @@ function Profile() {
             .then(response => {
                 setUserData(prevState => ({
                     ...prevState,
-                    calledTicket: response.data["ticket"]
+                    calledTicket: response.data["ticket_number"]
                 }));
                 socket && socket.send(JSON.stringify({ action: 'call_next', ticket_number: response.data["ticket"] }));
 
@@ -68,42 +68,58 @@ function Profile() {
             });
     };
 
+    const handleLogout = () => {
+        axios.post('http://localhost:8000/logout/', {}, {
+            headers: {
+                'Authorization': `Token ${localStorage.getItem('access_token')}`
+            }
+        })
+            .then(response => {
+                console.log("Logout successful:", response.data.message);
+                localStorage.removeItem('access_token');
+                window.location.href = '/login';
+            })
+            .catch(error => {
+                console.error("Error during logout:", error);
+            });
+    };
+
     return (
-        <div className="profileRoot">
-            <div className="profile__qr">
-                <div className="profile__green_box">
-                    <h1>{userData.username}</h1>
+        <div className="profile-container">
+            <div className="profile-header">
+                <h1 className="profile-username">{userData.username}</h1>
+                <p className="profile-user-description">Welcome to your profile</p>
+            </div>
+
+            <div className="profile-details">
+                <div className="profile-detail">
+                    <span className="detail-label">Role:</span>
+                    <span className="detail-value">{userData.role}</span>
+                </div>
+                <div className="profile-detail">
+                    <span className="detail-label">Manager Type:</span>
+                    <span className="detail-value">{userData["manager_type"]}</span>
                 </div>
             </div>
 
-            <div className="profile__in_process">
-                <div className="profile__green_box">
-                    <h1>Role: {userData.role}</h1>
-                </div>
-                <div className="profile__gray_box_l">
-                    <h1>Manager Type: {userData["manager_type"]}</h1>
-                </div>
-            </div>
-
-            <div className="profile__in_queue">
+            <div className="call-next">
                 {userData.role === "MANAGER" && (
                     <div>
                         {userData.calledTicket ? (
-                            <div className="profile__green_box">
-                                <h1>Last called ticket: {userData.calledTicket}</h1>
-                                <button onClick={handleCallNext}>Call Next</button>
+                            <div>
+                                <span className="detail-label">Last called ticket:</span>
+                                <span className="detail-value last-called-ticket">{userData.calledTicket}</span>
+                                <button className="call-next-button" onClick={handleCallNext}>Call Next</button>
                             </div>
                         ) : (
-                            <div className="profile__green_box">
-                                <button onClick={handleCallNext}>Call Next</button>
-                            </div>
+                            <button className="call-next-button" onClick={handleCallNext}>Call Next</button>
                         )}
                     </div>
                 )}
             </div>
 
-            <div className="profile__logo">
-                <a href="/logout"><h1>Logout</h1></a> {/* Update this href to correct logout route */}
+            <div className="logout">
+                <button onClick={handleLogout} className="logout-button">Logout</button>
             </div>
         </div>
     );
