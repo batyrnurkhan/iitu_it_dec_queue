@@ -66,32 +66,36 @@ def get_queues(request):
     queues = Queue.objects.all().annotate(ticket_count=Count('queueticket'))
     result = []
 
-    # Retrieve all currently serving tickets across all queues
-    all_currently_serving_tickets = []
+    # Dictionary to keep track of the latest ticket per manager
+    latest_tickets_per_manager = {}
 
     for queue in queues:
         ticket_numbers = list(queue.queueticket_set.filter(served=False).values_list('number', flat=True))
 
         # Get currently serving tickets for this queue
-        serving_tickets = queue.queueticket_set.filter(served=True).select_related('serving_manager')
+        serving_tickets = queue.queueticket_set.filter(served=True).select_related('serving_manager').order_by('-id')
 
         for serving_ticket in serving_tickets:
-            all_currently_serving_tickets.append({
-                'ticket_number': serving_ticket.number,
-                'manager_username': serving_ticket.serving_manager.username if serving_ticket.serving_manager else None
-            })
+            manager_username = serving_ticket.serving_manager.username if serving_ticket.serving_manager else 'Unknown'
+            # Update the dictionary only if this ticket is the latest for the manager
+            if manager_username not in latest_tickets_per_manager:
+                latest_tickets_per_manager[manager_username] = {
+                    'ticket_number': serving_ticket.number,
+                    'manager_username': manager_username
+                }
 
         result.append({
             'Очередь': queue.type,
             'Зарегестрированные талоны': ticket_numbers,
         })
 
-    # Add all currently serving tickets to the response
+    # Add only the latest tickets for each manager to the response
     result.append({
-        'Все обслуживаемые талоны': all_currently_serving_tickets
+        'Все обслуживаемые талоны': list(latest_tickets_per_manager.values())
     })
 
     return Response(result)
+
 
 
 @api_view(['GET'])
@@ -136,7 +140,6 @@ from django.db import transaction
 @permission_classes([IsAuthenticated])
 def call_next(request):
     queue_type = request.data.get('type')
-
     try:
         queue = Queue.objects.get(type=queue_type)
         # Get the next ticket that hasn't been served yet
@@ -154,20 +157,16 @@ def call_next(request):
         queue.currently_serving = ticket.number
         queue.save()
 
-        # Remove any previously served tickets by the same manager except the current one
-        QueueTicket.objects.filter(queue=queue, served=True, serving_manager=request.user).exclude(number=ticket.number).delete()
-
         # Generate and save the announcement
-        text_to_speak = f"Ticket number {ticket.number}, please go to manager {request.user.username}."
-        tts = gTTS(text=text_to_speak, lang='en')
+        text_to_speak = f"Талон под номером {ticket.number}, подойдите к {request.user.username}."
+        tts = gTTS(text=text_to_speak, lang='ru')
         audio_filename = f"ticket_{ticket.number}.mp3"
         audio_path = os.path.join(settings.MEDIA_ROOT, audio_filename)
         tts.save(audio_path)
         audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
 
         # Log the action
-        log = ManagerActionLog(manager=request.user, action=f"Called ticket number {ticket.number}.",
-                               ticket_number=ticket.number)
+        log = ManagerActionLog(manager=request.user, action=f"Called ticket number {ticket.number}.", ticket_number=ticket.number)
         log.save()
 
         # Notify via WebSocket
@@ -175,11 +174,12 @@ def call_next(request):
         async_to_sync(channel_layer.group_send)(
             "queues",
             {
-                "type": "queue.ticket_called",  # This type must match the method name in the consumer
+                "type": "queue.ticket_called",
                 "message": {
                     "queue_type": queue_type,
                     "ticket_number": ticket.number,
-                    "manager_username": request.user.username
+                    "manager_username": request.user.username,
+                    "audio_url": audio_url
                 }
             }
         )
