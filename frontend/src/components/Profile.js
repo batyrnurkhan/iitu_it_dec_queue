@@ -6,6 +6,8 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 function Profile() {
     const [userData, setUserData] = useState({});
     const [socket, setSocket] = useState(null);
+    const [audioQueue, setAudioQueue] = useState([]);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
@@ -19,10 +21,13 @@ function Profile() {
                     ...prevState,
                     calledTicket: data.ticket_number
                 }));
+                if (data.audio_url) {
+                    setAudioQueue(prevQueue => [...prevQueue, data.audio_url]);
+                }
             }
         };
 
-        setSocket(ws); // <-- set the socket state
+        setSocket(ws);
 
         axios.get('http://localhost:8000/profile/', {
             headers: {
@@ -41,9 +46,25 @@ function Profile() {
         };
     }, []);
 
+    useEffect(() => {
+        if (audioQueue.length > 0 && !isPlaying) {
+            setIsPlaying(true);
+            const audio = new Audio(audioQueue[0]);
+            audio.play().then(() => {
+                // Playback started successfully
+            }).catch(error => {
+                console.error("Error playing the audio:", error);
+            });
+            audio.onended = () => {
+                setIsPlaying(false);
+                setAudioQueue(prevQueue => prevQueue.slice(1));
+            };
+        }
+    }, [audioQueue, isPlaying]);
+
     const handleCallNext = () => {
         axios.post('http://localhost:8000/queue/call-next/', {
-            type: userData["manager_type"]
+            type: userData.manager_type
         }, {
             headers: {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
@@ -52,16 +73,10 @@ function Profile() {
             .then(response => {
                 setUserData(prevState => ({
                     ...prevState,
-                    calledTicket: response.data["ticket_number"]
+                    calledTicket: response.data.ticket_number
                 }));
-                socket && socket.send(JSON.stringify({ action: 'call_next', ticket_number: response.data["ticket"] }));
-
-                if (response.data["audio_url"]) {
-                    const audio = new Audio(response.data["audio_url"]);
-                    audio.play();
-                } else {
-                    console.error("No audio_url found in the response.");
-                }
+                // Send message over the socket if needed
+                // socket.send(JSON.stringify({ action: 'call_next', ticket_number: response.data.ticket_number }));
             })
             .catch(error => {
                 console.error("Error calling the next ticket:", error);
@@ -98,7 +113,7 @@ function Profile() {
                 </div>
                 <div className="profile-detail">
                     <span className="detail-label">Manager Type:</span>
-                    <span className="detail-value">{userData["manager_type"]}</span>
+                    <span className="detail-value">{userData.manager_type}</span>
                 </div>
             </div>
 

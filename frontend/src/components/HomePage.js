@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logo from '../static/logo.png';
+
 function HomePage() {
     const [queues, setQueues] = useState([]);
-
+    const [audioQueue, setAudioQueue] = useState([]);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [audioAllowed, setAudioAllowed] = useState(false);
     const fetchQueues = () => {
         axios.get('http://localhost:8000/queue/queues/')
             .then(response => {
@@ -13,6 +16,10 @@ function HomePage() {
             .catch(error => {
                 console.error("Error fetching queue data:", error);
             });
+    };
+
+    const enableAudio = () => {
+        setAudioAllowed(true);
     };
 
     useEffect(() => {
@@ -58,6 +65,10 @@ function HomePage() {
                             return queue;
                         });
                     });
+
+                    if (data.data.audio_url) {
+                        setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
+                    }
                 }
                 else if (data.message && data.message.includes("New ticket")) {
                     fetchQueues();
@@ -72,6 +83,26 @@ function HomePage() {
         };
     }, []);
 
+    useEffect(() => {
+        if (!isPlaying && audioQueue.length > 0) {
+            setIsPlaying(true);
+            const audio = new Audio(audioQueue[0]);
+            const playPromise = audio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Playback started successfully
+                }).catch(error => {
+                    console.error("Error playing the audio:", error);
+                });
+
+                audio.onended = () => {
+                    setAudioQueue(prevQueue => prevQueue.slice(1));
+                    setIsPlaying(false);
+                };
+            }
+        }
+    }, [audioQueue, isPlaying, audioAllowed]);
 
     return (
 
@@ -106,17 +137,33 @@ function HomePage() {
             <div className="queue-container">
                 <h2>Ожидающие</h2>
                 <div className="ticket-list">
-                    {queues.flatMap(queue => (
-                        Array.isArray(queue["Зарегестрированные талоны"])
-                            ? queue["Зарегестрированные талоны"].slice(0, 6).map(ticket => ( /* Only take the first 12 tickets */
-                                <div className="ticket" key={ticket}>
-                                    <p className="list_text_style">{ticket}</p>
-                                </div>
-                            ))
-                            : []
-                    ))}
+                    {
+                        (() => {
+                            let ticketCount = 0; // Variable to keep track of the total number of tickets displayed
+                            const tickets = [];
+
+                            queues.flatMap(queue => (
+                                Array.isArray(queue["Зарегестрированные талоны"]) &&
+                                queue["Зарегестрированные талоны"].forEach(ticket => {
+                                    if (ticketCount < 12) { // Check if the limit is reached
+                                        tickets.push(
+                                            <div className="ticket" key={ticket}>
+                                                <p className="list_text_style">{ticket}</p>
+                                            </div>
+                                        );
+                                        ticketCount++; // Increment the counter
+                                    }
+                                })
+                            ));
+
+                            return tickets; // Return the array of ticket components
+                        })()
+                    }
                 </div>
             </div>
+            {!audioAllowed && (
+                <button onClick={enableAudio}>Enable Sound Notifications</button>
+            )}
         </div>
     );
 }
