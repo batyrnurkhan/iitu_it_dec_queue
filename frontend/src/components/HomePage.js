@@ -7,7 +7,7 @@ function HomePage() {
     const [queues, setQueues] = useState([]);
     const [audioQueue, setAudioQueue] = useState([]);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [audioAllowed, setAudioAllowed] = useState(false);
+    const [audioAllowed, setAudioAllowed] = useState(true);
     const fetchQueues = () => {
         axios.get('http://localhost:8000/queue/queues/')
             .then(response => {
@@ -84,25 +84,26 @@ function HomePage() {
     }, []);
 
     useEffect(() => {
-        if (!isPlaying && audioQueue.length > 0) {
-            setIsPlaying(true);
-            const audio = new Audio(audioQueue[0]);
-            const playPromise = audio.play();
+    // Only attempt to play audio if audio is allowed, not currently playing, and there's something in the queue
+    if (audioAllowed && !isPlaying && audioQueue.length > 0) {
+        setIsPlaying(true);
+        const audio = new Audio(audioQueue[0]);
+        const playPromise = audio.play();
 
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    // Playback started successfully
-                }).catch(error => {
-                    console.error("Error playing the audio:", error);
-                });
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Playback started successfully
+            }).catch(error => {
+                console.error("Error playing the audio:", error);
+            });
 
-                audio.onended = () => {
-                    setAudioQueue(prevQueue => prevQueue.slice(1));
-                    setIsPlaying(false);
-                };
-            }
+            audio.onended = () => {
+                setAudioQueue(prevQueue => prevQueue.slice(1));
+                setIsPlaying(false);
+            };
         }
-    }, [audioQueue, isPlaying, audioAllowed]);
+    }
+}, [audioQueue, isPlaying, audioAllowed]);
 
     return (
 
