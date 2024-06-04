@@ -7,28 +7,27 @@ import QueuesPage from './components/QueuesPage';
 import JoinQueuePage from './components/JoinQueuePage';
 
 import {AudioContext} from "./context/AudioContext";
+import TicketDisplayPage from "./components/TicketDisplayPage";
 
 function App() {
-
     const [audioUrl, setAudioUrl] = useState(undefined);
-
     return (
-
         <AudioContext.Provider value={{ audioUrl, setAudioUrl }}>
-          <Router>
-            <div className="App">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/queues" element={<QueuesPage />} />
-                <Route path="/join-queue" element={<JoinQueuePage />} />
-                <Route path="/" exact element={<HomePage/>} />
-            </Routes>
-          </div>
-        </Router>
+            <Router>
+                <div className="App">
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/home" element={<HomePage />} />
+                        <Route path="/queues" element={<QueuesPage />} />
+                        <Route path="/join-queue" element={<JoinQueuePage />} />
+                        <Route path="/ticket" element={<TicketDisplayPage />} />
+                        <Route path="/" exact element={<HomePage/>} />
+                    </Routes>
+                </div>
+            </Router>
         </AudioContext.Provider>
-  );
+    );
 }
 
 export default App;

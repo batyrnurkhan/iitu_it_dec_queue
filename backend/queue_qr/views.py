@@ -3,7 +3,7 @@ import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Queue, QueueTicket, ApiStatus
@@ -31,18 +31,17 @@ def api_enabled_required(func):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @api_enabled_required
+@authentication_classes([])
 def join_queue(request):
     queue_type = request.data.get('type')
     try:
         queue = Queue.objects.get(type=queue_type)
 
-        # Get the last ticket number across all queues without updating the current number of the queue
         last_ticket_number = QueueTicket.objects.order_by(
             '-number').first().number if QueueTicket.objects.exists() else 0
         new_ticket_number = (last_ticket_number % 500) + 1
 
 
-        # Create a ticket with the new ticket number
         ticket = QueueTicket.objects.create(queue=queue, number=new_ticket_number)
 
         channel_layer = get_channel_layer()
@@ -66,18 +65,15 @@ def get_queues(request):
     queues = Queue.objects.all().annotate(ticket_count=Count('queueticket'))
     result = []
 
-    # Dictionary to keep track of the latest ticket per manager
     latest_tickets_per_manager = {}
 
     for queue in queues:
         ticket_numbers = list(queue.queueticket_set.filter(served=False).values_list('number', flat=True))
 
-        # Get currently serving tickets for this queue
         serving_tickets = queue.queueticket_set.filter(served=True).select_related('serving_manager').order_by('-id')
 
         for serving_ticket in serving_tickets:
             manager_username = serving_ticket.serving_manager.username if serving_ticket.serving_manager else 'Unknown'
-            # Update the dictionary only if this ticket is the latest for the manager
             if manager_username not in latest_tickets_per_manager:
                 latest_tickets_per_manager[manager_username] = {
                     'ticket_number': serving_ticket.number,
@@ -89,7 +85,6 @@ def get_queues(request):
             'Зарегестрированные талоны': ticket_numbers,
         })
 
-    # Add only the latest tickets for each manager to the response
     result.append({
         'Все обслуживаемые талоны': list(latest_tickets_per_manager.values())
     })
@@ -126,14 +121,12 @@ def reset_queue(request):
         queue.current_number = 0
         queue.save()
 
-        # Удаление очереди
         QueueTicket.objects.filter(queue=queue).delete()
 
         return Response({"message": f"{queue_type} queue has been reset."}, status=status.HTTP_200_OK)
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
 
-from django.db import transaction
 
 
 @api_view(['POST'])
@@ -142,22 +135,18 @@ def call_next(request):
     queue_type = request.data.get('type')
     try:
         queue = Queue.objects.get(type=queue_type)
-        # Get the next ticket that hasn't been served yet
         ticket = QueueTicket.objects.filter(queue=queue, served=False).order_by('number').first()
 
         if ticket is None:
             return Response({"message": "Queue is empty."}, status=status.HTTP_200_OK)
 
-        # Mark the ticket as served and save the serving manager
         ticket.served = True
         ticket.serving_manager = request.user
         ticket.save()
 
-        # Update the currently serving number for the queue
         queue.currently_serving = ticket.number
         queue.save()
 
-        # Generate and save the announcement
         text_to_speak = f"Талон под номером {ticket.number}, подойдите к {request.user.username}."
         tts = gTTS(text=text_to_speak, lang='ru')
         audio_filename = f"ticket_{ticket.number}.mp3"
@@ -165,11 +154,9 @@ def call_next(request):
         tts.save(audio_path)
         audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
 
-        # Log the action
         log = ManagerActionLog(manager=request.user, action=f"Called ticket number {ticket.number}.", ticket_number=ticket.number)
         log.save()
 
-        # Notify via WebSocket
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "queues",

@@ -6,18 +6,16 @@ function JoinQueuePage() {
     const navigate = useNavigate();
 
     const handleJoin = (queueType) => {
-        axios.post('http://localhost:8000/queue/join-queue/', { type: queueType }, {
-            headers: {
-                'Authorization': `Token ${localStorage.getItem('access_token')}`
-            }
-        })
-            .then(response => {
-                // TODO: Emit a WebSocket message here if not done on the server-side.
-                // Redirect to home page after joining a queue
-                navigate('/');
-            })
-            .catch(error => console.error("Error joining queue:", error));
-    };
+    axios.post('http://localhost:8000/queue/join-queue/', { type: queueType }, {
+        headers: {
+            'Authorization': `Token ${localStorage.getItem('access_token')}`
+        }
+    })
+    .then(response => {
+        navigate('/ticket', { state: { ticketNumber: response.data.ticket, queueType: queueType } });
+    })
+    .catch(error => console.error("Error joining queue:", error));
+};
 
     return (
         <div className="join-queue-container">
