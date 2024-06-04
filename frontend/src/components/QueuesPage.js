@@ -8,7 +8,7 @@ function QueuesPage() {
     console.log(queues);
 
     const fetchQueues = () => {
-        axios.get('http://localhost:8000/queue/queues/', {
+        axios.get('http://10.8.1.53:8001/queue/queues/', {
             headers: {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
 
@@ -56,7 +56,7 @@ function QueuesPage() {
             </div>
 
             <div className="qr">
-                <img src="http://localhost:8000/queue/generate-qr/" alt="QR Code for joining queue" />
+                <img src="http://10.8.1.53:8001/queue/generate-qr/" alt="QR Code for joining queue" />
             </div>
 
         </div>
