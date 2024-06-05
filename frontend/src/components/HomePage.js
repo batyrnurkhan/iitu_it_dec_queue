@@ -9,7 +9,7 @@ function HomePage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioAllowed, setAudioAllowed] = useState(true);
     const fetchQueues = () => {
-        axios.get('http://10.8.1.53:8001/queue/queues/')
+        axios.get('http://localhost:8000/queue/queues/')
             .then(response => {
                 setQueues(response.data);
             })
@@ -24,7 +24,7 @@ function HomePage() {
 
     useEffect(() => {
         fetchQueues();
-        const queuesSocketUrl = 'ws://10.8.1.53:8001/ws/queues/';
+        const queuesSocketUrl = 'ws://localhost:8000/ws/queues/';
         const queuesSocket = new ReconnectingWebSocket(queuesSocketUrl);
 
         queuesSocket.onerror = (errorEvent) => {
@@ -113,7 +113,7 @@ function HomePage() {
                 <h2>Сканируй QR чтобы встать в очередь</h2>
                 <p>--__--</p>
                 <div className="qr-image-container">
-                    <img src="http://10.8.1.53:8001/queue/generate-qr/" alt="QR Code for joining queue" />
+                    <img src="http://localhost:8000/queue/generate-qr/" alt="QR Code for joining queue" />
                 </div>
             </div>
 

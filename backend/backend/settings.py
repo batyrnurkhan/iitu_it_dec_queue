@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8)^erp75w_1vx#4th=h=@*cshsoiy9zlni6$40r@6d+bc!l3lj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['198.211.99.20', 'localhost', '127.0.0.1', 'queue.iitu.edu.kz']
 
@@ -175,7 +175,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('redis', 6379)],  # Previously might have been ('localhost', 6379)
+            "hosts": [('localhost', 6381)],  # Previously might have been ('localhost', 6379)
         },
     },
 }

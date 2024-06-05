@@ -10,7 +10,7 @@ function Login() {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        axios.post('http://10.8.1.53:8001/login/', {
+        axios.post('http://localhost:8000/login/', {
             username: username,
             password: password,
         })

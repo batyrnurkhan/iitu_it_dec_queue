@@ -11,7 +11,7 @@ function Profile() {
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
-        const ws = new ReconnectingWebSocket('ws://10.8.1.53:8001/ws/call-next/');
+        const ws = new ReconnectingWebSocket('ws://localhost:8000/ws/call-next/');
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -29,7 +29,7 @@ function Profile() {
 
         setSocket(ws);
 
-        axios.get('http://10.8.1.53:8001/profile/', {
+        axios.get('http://localhost:8000/profile/', {
             headers: {
                 'Authorization': `Token ${token}`
             }
@@ -63,7 +63,7 @@ function Profile() {
     }, [audioQueue, isPlaying]);
 
     const handleCallNext = () => {
-        axios.post('http://10.8.1.53:8001/queue/call-next/', {
+        axios.post('http://localhost:8000/queue/call-next/', {
             type: userData.manager_type
         }, {
             headers: {
@@ -84,7 +84,7 @@ function Profile() {
     };
 
     const handleLogout = () => {
-        axios.post('http://10.8.1.53:8001/logout/', {}, {
+        axios.post('http://localhost:8000/logout/', {}, {
             headers: {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
             }

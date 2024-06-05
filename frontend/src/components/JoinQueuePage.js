@@ -6,7 +6,7 @@ function JoinQueuePage() {
     const navigate = useNavigate();
 
     const handleJoin = (queueType) => {
-    axios.post('http://10.8.1.53:8001/queue/join-queue/', { type: queueType }, {
+    axios.post('http://localhost:8000/queue/join-queue/', { type: queueType }, {
         headers: {
             'Authorization': `Token ${localStorage.getItem('access_token')}`
         }
