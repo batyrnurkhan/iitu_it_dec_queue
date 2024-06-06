@@ -85,7 +85,7 @@ function Profile() {
     };
 
     const handleLogout = () => {
-        axios.post('http://localhost:8000/logout/', {}, {
+        axios.post(config.logoutUrl, {}, {
             headers: {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
             }

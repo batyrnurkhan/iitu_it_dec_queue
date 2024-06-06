@@ -181,3 +181,34 @@ CHANNEL_LAYERS = {
 }
 
 #"hosts": [('localhost', 6379)],
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'django_websockets.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.channels': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        # Optionally, add more loggers for other components of Django as needed
+    }
+}

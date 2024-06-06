@@ -25,7 +25,7 @@ function HomePage() {
 
     useEffect(() => {
         fetchQueues();
-        const queuesSocketUrl = 'ws://localhost:8000/ws/queues/';
+        const queuesSocketUrl = config.queuesSocketUrl;
         const queuesSocket = new ReconnectingWebSocket(queuesSocketUrl);
 
         queuesSocket.onerror = (errorEvent) => {
@@ -85,7 +85,6 @@ function HomePage() {
     }, []);
 
     useEffect(() => {
-    // Only attempt to play audio if audio is allowed, not currently playing, and there's something in the queue
     if (audioAllowed && !isPlaying && audioQueue.length > 0) {
         setIsPlaying(true);
         const audio = new Audio(audioQueue[0]);

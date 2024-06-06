@@ -1,38 +1,50 @@
 import asyncio
-from multiprocessing import managers
-
-import websockets
 import json
+import logging
+from multiprocessing import managers
+import websockets
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, filename='websocket_server.log', filemode='w',
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Client:
     def __init__(self, websocket):
         self.websocket = websocket
         self.manager = None
         self.coupon = None
+        logging.debug("New client initialized")
 
     def set_manager(self, manager):
         self.manager = manager
+        logging.debug(f"Manager set: {manager}")
 
     def set_coupon(self, coupon):
         self.coupon = coupon
+        logging.debug(f"Coupon set: {coupon}")
 
     async def on_call(self):
-
-        await self.websocket.send(json.dumps({
+        message = json.dumps({
             "type": "advice",
             "coupon": self.coupon
-        }))
+        })
+        await self.websocket.send(message)
+        logging.debug(f"Message sent to client: {message}")
 
 class Manager:
     def __init__(self, websocket):
         self.websocket = websocket
         self.clients = {}
+        logging.debug("Manager: New client initialized")
+
 
     def add_client(self, client):
         self.clients[client.coupon] = client
+        logging.debug("Manager: New client added")
 
     def remove_client(self, client):
         del self.clients[client.coupon]
+        logging.debug("Manager: client removed")
 
     def call_client(self, coupon):
         client = self.clients.get(coupon)
