@@ -113,7 +113,7 @@ function HomePage() {
                 <h2>Сканируй QR чтобы встать в очередь</h2>
                 <p>--__--</p>
                 <div className="qr-image-container">
-                    <img src="http://localhost:8000/queue/generate-qr/" alt="QR Code for joining queue" />
+                    <img src="https://queue.iitu.edu.kz/queue/generate-qr/" alt="QR Code for joining queue" />
                 </div>
             </div>
 
