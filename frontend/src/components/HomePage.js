@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import logo from '../static/logo.png';
+import {config} from "../config";
 
 function HomePage() {
     const [queues, setQueues] = useState([]);
@@ -9,7 +10,7 @@ function HomePage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioAllowed, setAudioAllowed] = useState(true);
     const fetchQueues = () => {
-        axios.get('http://localhost:8000/queue/queues/')
+        axios.get(config.fetchQueuesUrl)
             .then(response => {
                 setQueues(response.data);
             })

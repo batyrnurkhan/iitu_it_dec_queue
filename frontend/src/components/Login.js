@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/login.css';
+import {config} from "../config";
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+     const handleSubmit = (event) => {
         event.preventDefault();
 
-        axios.post('http://localhost:8000/login/', {
+        axios.post(config.loginUrl, {
             username: username,
             password: password,
         })

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/homePage.css';
+import {config} from "../config";
 //import logo from '../logos/logo2.png';
 
 function QueuesPage() {
@@ -8,10 +9,9 @@ function QueuesPage() {
     console.log(queues);
 
     const fetchQueues = () => {
-        axios.get('http://localhost:8000/queue/queues/', {
+        axios.get(config.fetchQueuesUrl, {
             headers: {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
-
             }
         })
         .then(response => setQueues(response.data))
@@ -26,20 +26,16 @@ function QueuesPage() {
 
     return (
         <div className="main">
-
-
-
             <div className="in_process">
-    <h1 className="text_in">В процессе</h1>
-    {queues.map(queue => (
-        queue["Сейчас обслуживается талон"] ? (
-            <div key={queue.Очередь} className="green_box">
-                <p className="list_text_style">{queue["Сейчас обслуживается талон"]} к {queue["Очередь"]} менеджеру</p>
+                <h1 className="text_in">В процессе</h1>
+                {queues.map(queue => (
+                    queue["Сейчас обслуживается талон"] ? (
+                        <div key={queue.Очередь} className="green_box">
+                            <p className="list_text_style">{queue["Сейчас обслуживается талон"]} к {queue["Очередь"]} менеджеру</p>
+                        </div>
+                    ) : null
+                ))}
             </div>
-        ) : null
-    ))}
-</div>
-
             <div className="in_queue">
                 <div className="line1"></div>
                 <div className="line2"></div>
@@ -56,9 +52,8 @@ function QueuesPage() {
             </div>
 
             <div className="qr">
-                <img src="http://localhost:8000/queue/generate-qr/" alt="QR Code for joining queue" />
+                <img src={config.generateQrUrl} alt="QR Code for joining queue" />
             </div>
-
         </div>
     );
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/profile.css';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import {config} from "../config";
 
 function Profile() {
     const [userData, setUserData] = useState({});
@@ -11,7 +12,7 @@ function Profile() {
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
-        const ws = new ReconnectingWebSocket('ws://localhost:8000/ws/call-next/');
+        const ws = new ReconnectingWebSocket(config.wsCallNextUrl);
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -29,7 +30,7 @@ function Profile() {
 
         setSocket(ws);
 
-        axios.get('http://localhost:8000/profile/', {
+        axios.get(config.profileUrl, {
             headers: {
                 'Authorization': `Token ${token}`
             }
@@ -63,7 +64,7 @@ function Profile() {
     }, [audioQueue, isPlaying]);
 
     const handleCallNext = () => {
-        axios.post('http://localhost:8000/queue/call-next/', {
+        axios.post(config.callNextUrl, {
             type: userData.manager_type
         }, {
             headers: {
@@ -92,7 +93,7 @@ function Profile() {
             .then(response => {
                 console.log("Logout successful:", response.data.message);
                 localStorage.removeItem('access_token');
-                window.location.href = '/login';
+                window.location.href = config.logoutRedirectUrl;
             })
             .catch(error => {
                 console.error("Error during logout:", error);
