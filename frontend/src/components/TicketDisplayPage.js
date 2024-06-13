@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import axiosInstance from "../axiosInstance";
 import '../styles/TicketDisplayPage.css';
 import logo from "../static/logo.png";
 import { config } from "../config";
@@ -12,7 +13,6 @@ function TicketDisplayPage() {
     const { ticketNumber, queueType } = location.state || {};
     const [audioUrl, setAudioUrl] = useState('');
     const [managerUsername, setManagerUsername] = useState('');
-    const [isTicketCalled, setIsTicketCalled] = useState(false);
 
     const translateManagerUsername = (username) => {
         const regex = /^stol(\d+)$/i;
@@ -22,15 +22,6 @@ function TicketDisplayPage() {
         }
         return username;
     };
-
-    useEffect(() => {
-        const savedTicketCalled = localStorage.getItem('isTicketCalled') === 'true';
-        const savedManagerUsername = localStorage.getItem('managerUsername');
-        setIsTicketCalled(savedTicketCalled);
-        if (savedManagerUsername) {
-            setManagerUsername(savedManagerUsername);
-        }
-    }, []);
 
     useEffect(() => {
         const rws = new ReconnectingWebSocket(config.queuesSocketUrl);
@@ -43,11 +34,7 @@ function TicketDisplayPage() {
             const data = JSON.parse(message.data);
             if (data.type === 'ticket_called' && data.data.ticket_number === ticketNumber) {
                 setAudioUrl(data.data.audio_url);
-                const translatedUsername = translateManagerUsername(data.data.manager_username);
-                setManagerUsername(translatedUsername);
-                setIsTicketCalled(true);
-                localStorage.setItem('isTicketCalled', 'true');
-                localStorage.setItem('managerUsername', translatedUsername);
+                setManagerUsername(translateManagerUsername(data.data.manager_username));
                 const audio = new Audio(data.data.audio_url);
                 audio.play();
             }
@@ -71,7 +58,7 @@ function TicketDisplayPage() {
 
     return (
         <div>
-            {isTicketCalled ? (
+            {audioUrl ? (
                 <div className="ticket-display-container">
                     <img src={logo} alt="Logo" className="logo" />
                     <h1>ПОДОЙДИТЕ К МЕНЕДЖЕРУ</h1>

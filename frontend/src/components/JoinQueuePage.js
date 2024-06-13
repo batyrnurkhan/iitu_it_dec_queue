@@ -6,8 +6,6 @@ import logo from "../static/logo.png";
 import axiosInstance from "../axiosInstance";
 
 function JoinQueuePage() {
-    document.title = "JOIN"
-
     const navigate = useNavigate();
 
     const handleJoin = (queueType) => {

@@ -17,6 +17,7 @@ from gtts import gTTS
 from django.conf import settings
 import os
 import logging
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +138,22 @@ def reset_queue(request):
 
 
 
+def increment_ticket_count(manager):
+    report, created = DailyTicketReport.objects.get_or_create(
+        manager=manager, date=date.today(), defaults={'ticket_count': 0}
+    )
+    report.ticket_count += 1
+    report.save()
+
+
+def log_manager_action(manager, action_description, ticket_number=None):
+    ManagerActionLog.objects.create(
+        manager=manager,
+        action=action_description,
+        ticket_number=ticket_number,
+        timestamp=timezone.now()
+    )
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def call_next(request):
@@ -180,6 +197,10 @@ def call_next(request):
         # Log the WebSocket message
         logger.debug(f"WebSocket message sent for ticket {ticket.number} in queue {queue_type}")
 
+        # Increment the ticket count in daily report
+        increment_ticket_count(request.user)
+        action_description = f"Вызван талон: {ticket.number}"
+        log_manager_action(request.user, action_description, ticket.number)
         return Response({
             "ticket_number": ticket.number,
             "audio_url": audio_url
@@ -187,17 +208,6 @@ def call_next(request):
 
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
-
-# When a manager calls a ticket
-def increment_ticket_count(manager):
-    report, created = DailyTicketReport.objects.get_or_create(manager=manager, date=date.today(), defaults={'ticket_count': 0})
-    report.ticket_count += 1
-    report.save()
 
 
 
