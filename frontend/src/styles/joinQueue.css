@@ -24,7 +24,7 @@
     transition-duration: 0.4s;
     cursor: pointer;
     border-radius: 8px; /* Slightly larger border-radius for rounder corners */
-    width: 300px; /* Fixed width */
+    width: 400px; /* Fixed width */
     height: 100px; /* Fixed height */
     overflow: hidden; /* Prevents text overflow */
 }

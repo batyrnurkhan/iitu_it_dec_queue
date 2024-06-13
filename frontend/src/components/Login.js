@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/login.css';
 import {config} from "../config";
 function Login() {
+    document.title = "LOGIN"
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();

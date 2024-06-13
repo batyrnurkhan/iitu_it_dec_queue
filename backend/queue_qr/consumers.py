@@ -23,11 +23,17 @@ class QueueConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event["text"]))
 
     async def queue_ticket_called(self, event):
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'type': 'ticket_called',
-            'data': event['message']
-        }))
+        if 'queue_type' in self.scope['url_route']['kwargs']:
+            if event['message']['queue_type'] == self.queue_type:
+                await self.send(text_data=json.dumps({
+                    'type': 'ticket_called',
+                    'data': event['message']
+                }))
+        else:
+            await self.send(text_data=json.dumps({
+                'type': 'ticket_called',
+                'data': event['message']
+            }))
 
 
 
@@ -47,3 +53,4 @@ class CallNextConsumer(AsyncWebsocketConsumer):
                 'message': 'Ticket 12 is being called in the BACHELOR queue.'
             }
             await self.send(text_data=json.dumps(response))
+

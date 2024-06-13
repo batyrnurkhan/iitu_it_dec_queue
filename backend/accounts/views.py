@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import status
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -36,11 +37,22 @@ def profile_view(request):
         "manager_type": user.manager_type
     }
 
-    # If the user is a manager, add tickets and other related data to the response
     if user.role == "MANAGER":
-        tickets = QueueTicket.objects.filter(queue__type=user.manager_type).values_list('number', flat=True)
-        response_data["tickets"] = list(tickets)
-        # Add any other manager-specific data here
+        ticket_counts = QueueTicket.objects.filter(
+            queue__type=user.manager_type,
+            served=False  # Only count tickets that are not yet served
+        ).values(
+            'queue__type'
+        ).annotate(
+            count=Count('id')
+        )
+
+        ticket_count_dict = {item['queue__type']: item['count'] for item in ticket_counts}
+
+        if not ticket_count_dict:
+            response_data["ticket_counts"] = None  # Indicate that the queue is empty
+        else:
+            response_data["ticket_counts"] = ticket_count_dict
 
     return Response(response_data, status=status.HTTP_200_OK)
 

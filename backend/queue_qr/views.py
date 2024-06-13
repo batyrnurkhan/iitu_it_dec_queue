@@ -16,8 +16,11 @@ from accounts.models import ManagerActionLog, DailyTicketReport
 from gtts import gTTS
 from django.conf import settings
 import os
-from django.utils import timezone
-from rest_framework import permissions
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def api_enabled_required(func):
     def wrapper(request, *args, **kwargs):
         api_status, created = ApiStatus.objects.get_or_create(name='API_STATUS')
@@ -27,20 +30,23 @@ def api_enabled_required(func):
     return wrapper
 
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@api_enabled_required
 @authentication_classes([])
 def join_queue(request):
     queue_type = request.data.get('type')
+    if not queue_type:
+        return Response({"error": "Queue type is required"}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
         queue = Queue.objects.get(type=queue_type)
+    except Queue.DoesNotExist:
+        return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
 
+    try:
         last_ticket_number = QueueTicket.objects.order_by(
             '-number').first().number if QueueTicket.objects.exists() else 0
         new_ticket_number = (last_ticket_number % 500) + 1
-
 
         ticket = QueueTicket.objects.create(queue=queue, number=new_ticket_number)
 
@@ -54,8 +60,10 @@ def join_queue(request):
         )
 
         return Response({"ticket": ticket.number, "token": ticket.token}, status=status.HTTP_200_OK)
-    except Queue.DoesNotExist:
-        return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"Error creating queue ticket: {str(e)}")
+        return Response({"error": "An error occurred while joining the queue"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -136,7 +144,6 @@ def call_next(request):
     try:
         queue = Queue.objects.get(type=queue_type)
         ticket = QueueTicket.objects.filter(queue=queue, served=False).order_by('number').first()
-
         if ticket is None:
             return Response({"message": "Queue is empty."}, status=status.HTTP_200_OK)
 
@@ -154,8 +161,8 @@ def call_next(request):
         tts.save(audio_path)
         audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
 
-        log = ManagerActionLog(manager=request.user, action=f"Called ticket number {ticket.number}.", ticket_number=ticket.number)
-        log.save()
+        # Log the action
+        logger.debug(f"Ticket {ticket.number} called by {request.user.username}")
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
@@ -170,6 +177,8 @@ def call_next(request):
                 }
             }
         )
+        # Log the WebSocket message
+        logger.debug(f"WebSocket message sent for ticket {ticket.number} in queue {queue_type}")
 
         return Response({
             "ticket_number": ticket.number,

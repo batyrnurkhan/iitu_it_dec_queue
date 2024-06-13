@@ -1,10 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/profile.css';
+import '../styles/profile.css';  // Make sure this path is correct
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import {config} from "../config";
+import { config } from "../config";
+import logo from "../static/logo.png";
+
+const roleTranslations = {
+    "MANAGER": "Менеджер",
+    "ADMIN": "Администратор",
+    "USER": "Пользователь",
+    // Add other roles as needed
+};
+
+const typeTranslations = {
+    "BACHELOR": "Менеджер бакалавра",
+    "MASTER": "Менеджер магистратуры доктарантуры",
+    "PHD": "Менеджер по регистрации в PLATONUS",
+    // Add other types as needed
+};
 
 function Profile() {
+    document.title = "PROFILE";
+
     const [userData, setUserData] = useState({});
     const [socket, setSocket] = useState(null);
     const [audioQueue, setAudioQueue] = useState([]);
@@ -12,11 +29,16 @@ function Profile() {
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
-        const ws = new ReconnectingWebSocket(config.wsCallNextUrl);
+        const ws = new ReconnectingWebSocket(config.queuesSocketUrl);
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("Received message:", data);
+            if (data.ticket_counts) {
+                setUserData(prevState => ({
+                    ...prevState,
+                    ticket_counts: data.ticket_counts
+                }));
+            }
             if (data.action && data.action === "call_next" && data.ticket_number) {
                 setUserData(prevState => ({
                     ...prevState,
@@ -76,8 +98,6 @@ function Profile() {
                     ...prevState,
                     calledTicket: response.data.ticket_number
                 }));
-                // Send message over the socket if needed
-                // socket.send(JSON.stringify({ action: 'call_next', ticket_number: response.data.ticket_number }));
             })
             .catch(error => {
                 console.error("Error calling the next ticket:", error);
@@ -100,22 +120,43 @@ function Profile() {
             });
     };
 
+    const translatedRole = roleTranslations[userData.role] || userData.role;
+    const translatedType = typeTranslations[userData.manager_type] || userData.manager_type;
+
     return (
         <div className="profile-container">
+            <img src={logo} alt="Logo" className="logo" />
             <div className="profile-header">
                 <h1 className="profile-username">{userData.username}</h1>
-                <p className="profile-user-description">Welcome to your profile</p>
             </div>
 
             <div className="profile-details">
                 <div className="profile-detail">
-                    <span className="detail-label">Role:</span>
-                    <span className="detail-value">{userData.role}</span>
+                    <span className="detail-label">РОЛЬ</span>
+                    <span className="detail-value">{translatedRole}</span>
                 </div>
                 <div className="profile-detail">
-                    <span className="detail-label">Manager Type:</span>
-                    <span className="detail-value">{userData.manager_type}</span>
+                    <span className="detail-label">ТИП</span>
+                    <span className="detail-value">{translatedType}</span>
                 </div>
+                {userData.role === "MANAGER" && (
+                    <div className="profile-detail">
+                        <span className="detail-label">ОБНОВИТЕ ЧТОБЫ ПОСМОТРЕТЬ КОЛИЧЕСТВО ТАЛОНОВ НА ДАННЫЙ МОМЕНТ</span>
+                        <span className="detail-value">
+                            {userData.ticket_counts ? (
+                                typeof userData.ticket_counts === 'string' ? (
+                                    userData.ticket_counts
+                                ) : (
+                                    Object.entries(userData.ticket_counts).map(([type, count]) => (
+                                        `${count}`
+                                    )).join(', ')
+                                )
+                            ) : (
+                                'ОЧЕРЕДЬ ПУСТАЯ'
+                            )}
+                        </span>
+                    </div>
+                )}
             </div>
 
             <div className="call-next">
@@ -123,19 +164,19 @@ function Profile() {
                     <div>
                         {userData.calledTicket ? (
                             <div>
-                                <span className="detail-label">Last called ticket:</span>
+                                <span className="detail-label">СЕЙЧАС ОБСЛУЖИВАЕТСЯ ТАЛОН</span>
                                 <span className="detail-value last-called-ticket">{userData.calledTicket}</span>
-                                <button className="call-next-button" onClick={handleCallNext}>Call Next</button>
+                                <button className="call-next-button" onClick={handleCallNext}>СЛЕДУЮЩИЙ ТАЛОН</button>
                             </div>
                         ) : (
-                            <button className="call-next-button" onClick={handleCallNext}>Call Next</button>
+                            <button className="call-next-button" onClick={handleCallNext}>СЛЕДУЮЩИЙ ТАЛОН</button>
                         )}
                     </div>
                 )}
             </div>
 
             <div className="logout">
-                <button onClick={handleLogout} className="logout-button">Logout</button>
+                <button onClick={handleLogout} className="logout-button">ВЫЙТИ С СИСТЕМЫ</button>
             </div>
         </div>
     );

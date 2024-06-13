@@ -1,5 +1,4 @@
-
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000/api/v2';
 const WS_BASE_URL = 'ws://localhost:8000';
 
 export const config = {
@@ -14,4 +13,5 @@ export const config = {
     callNextUrl: `${API_BASE_URL}/queue/call-next/`,
     wsCallNextUrl: `${WS_BASE_URL}/ws/call-next/`,
     logoutUrl: `${API_BASE_URL}/logout/`,
+    logErrorUrl: `${API_BASE_URL}/log-error/`,
 };

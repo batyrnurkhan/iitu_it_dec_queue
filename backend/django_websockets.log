@@ -1,0 +1,814 @@
+DEBUG 2024-06-06 08:28:37,454 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-06 08:28:41,253 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52089]
+INFO 2024-06-06 08:28:41,345 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52089]
+INFO 2024-06-06 08:45:17,487 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52089]
+INFO 2024-06-06 08:45:17,925 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52515]
+INFO 2024-06-06 08:45:17,931 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52515]
+INFO 2024-06-06 08:45:17,960 runserver [mHTTP GET /queue/queues/ 200 [0.04, 127.0.0.1:52513][0m
+INFO 2024-06-06 08:45:17,988 runserver [mHTTP GET /queue/generate-qr/ 200 [0.06, 127.0.0.1:52514][0m
+INFO 2024-06-06 08:45:17,999 runserver [mHTTP GET /queue/queues/ 200 [0.03, 127.0.0.1:52513][0m
+INFO 2024-06-06 08:45:20,763 runserver [mHTTP POST /queue/join-queue/ 200 [0.02, 127.0.0.1:52513][0m
+INFO 2024-06-06 08:45:20,787 runserver [mHTTP GET /queue/queues/ 200 [0.02, 127.0.0.1:52519][0m
+WARNING 2024-06-06 08:45:34,059 runserver [33mHTTP GET / 404 [0.03, 127.0.0.1:52533][0m
+INFO 2024-06-06 08:45:35,909 runserver [32mHTTP GET /admin/ 302 [0.02, 127.0.0.1:52533][0m
+INFO 2024-06-06 08:45:36,042 runserver [mHTTP GET /admin/login/?next=/admin/ 200 [0.12, 127.0.0.1:52533][0m
+INFO 2024-06-06 08:45:36,083 runserver [36mHTTP GET /static/admin/css/base.css 304 [0.01, 127.0.0.1:52533][0m
+INFO 2024-06-06 08:45:36,085 runserver [36mHTTP GET /static/admin/css/nav_sidebar.css 304 [0.01, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:36,086 runserver [36mHTTP GET /static/admin/css/dark_mode.css 304 [0.00, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:36,115 runserver [36mHTTP GET /static/admin/css/login.css 304 [0.00, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:36,122 runserver [36mHTTP GET /static/admin/js/theme.js 304 [0.00, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:36,123 runserver [36mHTTP GET /static/admin/css/responsive.css 304 [0.00, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:36,132 runserver [36mHTTP GET /static/admin/js/nav_sidebar.js 304 [0.00, 127.0.0.1:52534][0m
+WARNING 2024-06-06 08:45:36,407 runserver [33mHTTP GET /favicon.ico 404 [0.01, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:39,788 runserver [32mHTTP POST /admin/login/?next=/admin/ 302 [0.27, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:39,821 runserver [mHTTP GET /admin/ 200 [0.03, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:39,852 runserver [36mHTTP GET /static/admin/css/base.css 304 [0.01, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:39,853 runserver [36mHTTP GET /static/admin/css/dark_mode.css 304 [0.01, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:39,854 runserver [36mHTTP GET /static/admin/css/nav_sidebar.css 304 [0.01, 127.0.0.1:52533][0m
+INFO 2024-06-06 08:45:39,857 runserver [36mHTTP GET /static/admin/css/responsive.css 304 [0.01, 127.0.0.1:52539][0m
+INFO 2024-06-06 08:45:39,858 runserver [36mHTTP GET /static/admin/js/theme.js 304 [0.01, 127.0.0.1:52540][0m
+INFO 2024-06-06 08:45:39,860 runserver [36mHTTP GET /static/admin/js/nav_sidebar.js 304 [0.01, 127.0.0.1:52541][0m
+INFO 2024-06-06 08:45:42,031 runserver [mHTTP GET /admin/accounts/customuser/ 200 [0.14, 127.0.0.1:52541][0m
+INFO 2024-06-06 08:45:42,081 runserver [36mHTTP GET /static/admin/css/base.css 304 [0.01, 127.0.0.1:52541][0m
+INFO 2024-06-06 08:45:42,084 runserver [36mHTTP GET /static/admin/css/nav_sidebar.css 304 [0.01, 127.0.0.1:52539][0m
+INFO 2024-06-06 08:45:42,085 runserver [36mHTTP GET /static/admin/css/dark_mode.css 304 [0.01, 127.0.0.1:52540][0m
+INFO 2024-06-06 08:45:42,086 runserver [36mHTTP GET /static/admin/css/responsive.css 304 [0.01, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:42,086 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.01, 127.0.0.1:52533][0m
+INFO 2024-06-06 08:45:42,099 runserver [36mHTTP GET /static/admin/js/theme.js 304 [0.00, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:42,109 runserver [36mHTTP GET /static/admin/js/nav_sidebar.js 304 [0.00, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:42,110 runserver [mHTTP GET /admin/jsi18n/ 200 [0.03, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:42,115 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:42,136 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:45,733 runserver [mHTTP GET /admin/accounts/customuser/3/change/ 200 [0.10, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:45,769 runserver [36mHTTP GET /static/admin/css/base.css 304 [0.01, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:45,771 runserver [36mHTTP GET /static/admin/css/dark_mode.css 304 [0.01, 127.0.0.1:52535][0m
+INFO 2024-06-06 08:45:45,772 runserver [36mHTTP GET /static/admin/css/responsive.css 304 [0.01, 127.0.0.1:52541][0m
+INFO 2024-06-06 08:45:45,773 runserver [36mHTTP GET /static/admin/css/nav_sidebar.css 304 [0.01, 127.0.0.1:52540][0m
+INFO 2024-06-06 08:45:45,774 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.01, 127.0.0.1:52533][0m
+INFO 2024-06-06 08:45:45,779 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.00, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:45,784 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:45,788 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:52539][0m
+INFO 2024-06-06 08:45:45,791 runserver [36mHTTP GET /static/admin/js/theme.js 304 [0.00, 127.0.0.1:52534][0m
+INFO 2024-06-06 08:45:45,794 runserver [36mHTTP GET /static/admin/js/nav_sidebar.js 304 [0.00, 127.0.0.1:52539][0m
+INFO 2024-06-06 08:45:45,836 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.00, 127.0.0.1:52539][0m
+INFO 2024-06-06 08:46:30,942 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52515]
+INFO 2024-06-06 08:46:31,256 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52571]
+INFO 2024-06-06 08:46:31,264 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52571]
+INFO 2024-06-06 08:46:31,277 runserver [mHTTP GET /queue/queues/ 200 [0.02, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:46:38,258 runserver [mHTTP OPTIONS /login/ 200 [0.00, 127.0.0.1:52572][0m
+WARNING 2024-06-06 08:46:38,505 runserver [31;1mHTTP POST /login/ 400 [0.24, 127.0.0.1:52572][0m
+WARNING 2024-06-06 08:46:39,960 runserver [31;1mHTTP POST /login/ 400 [0.26, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:46:41,776 runserver [mHTTP POST /login/ 200 [0.25, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:46:41,798 runserver [mHTTP OPTIONS /profile/ 200 [0.00, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:46:41,800 runserver [mHTTP OPTIONS /profile/ 200 [0.00, 127.0.0.1:52574][0m
+INFO 2024-06-06 08:46:41,817 runserver [mHTTP GET /profile/ 200 [0.01, 127.0.0.1:52574][0m
+INFO 2024-06-06 08:46:41,825 runserver [mHTTP GET /profile/ 200 [0.01, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:46:42,124 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52580]
+INFO 2024-06-06 08:46:42,126 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52580]
+INFO 2024-06-06 08:46:42,737 runserver [mHTTP OPTIONS /queue/call-next/ 200 [0.00, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:46:43,326 runserver [mHTTP POST /queue/call-next/ 200 [0.59, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:46:45,143 runserver [mHTTP GET /media/ticket_2.mp3 200 [0.09, 127.0.0.1:52584][0m
+INFO 2024-06-06 08:46:59,998 runserver [mHTTP POST /queue/call-next/ 200 [0.62, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:47:34,943 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52571]
+INFO 2024-06-06 08:47:34,955 runserver [mHTTP GET /queue/queues/ 200 [0.01, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:47:35,258 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52610]
+INFO 2024-06-06 08:47:35,260 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52610]
+INFO 2024-06-06 08:47:38,847 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52610]
+INFO 2024-06-06 08:47:39,060 runserver [mHTTP GET /queue/generate-qr/ 200 [0.02, 127.0.0.1:52584][0m
+INFO 2024-06-06 08:47:39,070 runserver [mHTTP GET /queue/queues/ 200 [0.01, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:47:39,087 runserver [mHTTP GET /queue/queues/ 200 [0.02, 127.0.0.1:52574][0m
+INFO 2024-06-06 08:47:39,361 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52616]
+INFO 2024-06-06 08:47:39,365 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52616]
+INFO 2024-06-06 08:47:40,646 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52580]
+INFO 2024-06-06 08:47:40,837 runserver [mHTTP GET /profile/ 200 [0.01, 127.0.0.1:52574][0m
+INFO 2024-06-06 08:47:40,848 runserver [mHTTP GET /profile/ 200 [0.01, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:47:41,132 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52623]
+INFO 2024-06-06 08:47:41,134 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52623]
+INFO 2024-06-06 08:47:41,843 runserver [mHTTP POST /queue/call-next/ 200 [0.55, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:47:42,567 runserver [mHTTP GET /media/ticket_4.mp3 200 [0.02, 127.0.0.1:52584][0m
+INFO 2024-06-06 08:47:47,951 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52616]
+INFO 2024-06-06 08:47:48,066 runserver [mHTTP GET /queue/queues/ 200 [0.02, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:47:48,288 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52626]
+INFO 2024-06-06 08:47:48,293 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52626]
+INFO 2024-06-06 08:48:45,786 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52626]
+INFO 2024-06-06 08:48:45,941 runserver [mHTTP OPTIONS /queue/queues/ 200 [0.00, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:48:45,944 runserver [mHTTP OPTIONS /queue/queues/ 200 [0.00, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:48:45,957 runserver [mHTTP GET /queue/queues/ 200 [0.01, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:48:45,975 runserver [mHTTP GET /queue/queues/ 200 [0.01, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:48:46,257 runserver [mHTTP GET /queue/generate-qr/ 200 [0.01, 127.0.0.1:52662][0m
+INFO 2024-06-06 08:48:50,464 runserver [mHTTP POST /queue/call-next/ 200 [0.48, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:48:54,139 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52675]
+INFO 2024-06-06 08:48:54,142 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52675]
+INFO 2024-06-06 08:48:55,065 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52675]
+INFO 2024-06-06 08:48:55,139 runserver [mHTTP GET /queue/generate-qr/ 200 [0.02, 127.0.0.1:52662][0m
+INFO 2024-06-06 08:48:55,143 runserver [mHTTP GET /queue/queues/ 200 [0.02, 127.0.0.1:52572][0m
+INFO 2024-06-06 08:48:55,178 runserver [mHTTP GET /queue/queues/ 200 [0.03, 127.0.0.1:52663][0m
+INFO 2024-06-06 08:48:55,426 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52679]
+INFO 2024-06-06 08:48:55,430 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52679]
+INFO 2024-06-06 08:52:20,941 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52679]
+INFO 2024-06-06 08:52:20,942 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52623]
+INFO 2024-06-06 08:52:21,257 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52734]
+INFO 2024-06-06 08:52:21,264 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52734]
+INFO 2024-06-06 08:52:21,272 runserver [mHTTP GET /profile/ 200 [0.02, 127.0.0.1:52733][0m
+INFO 2024-06-06 08:52:21,273 runserver [mHTTP GET /queue/queues/ 200 [0.02, 127.0.0.1:52732][0m
+INFO 2024-06-06 08:52:21,277 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52737]
+INFO 2024-06-06 08:52:21,278 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52737]
+INFO 2024-06-06 08:53:23,951 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52734]
+INFO 2024-06-06 08:53:24,272 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52773]
+INFO 2024-06-06 08:53:24,278 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52773]
+INFO 2024-06-06 08:53:24,288 runserver [mHTTP GET /queue/queues/ 200 [0.02, 127.0.0.1:52772][0m
+INFO 2024-06-06 08:53:44,951 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52773]
+INFO 2024-06-06 08:53:44,965 runserver [mHTTP GET /queue/queues/ 200 [0.01, 127.0.0.1:52772][0m
+INFO 2024-06-06 08:53:45,259 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52776]
+INFO 2024-06-06 08:53:45,263 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52776]
+INFO 2024-06-06 08:53:58,332 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52776]
+INFO 2024-06-06 08:53:58,506 runserver [mHTTP GET /queue/queues/ 200 [0.01, 127.0.0.1:52772][0m
+INFO 2024-06-06 08:53:58,519 runserver [mHTTP GET /queue/queues/ 200 [0.01, 127.0.0.1:52774][0m
+INFO 2024-06-06 08:53:58,809 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52799]
+INFO 2024-06-06 08:53:58,824 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52799]
+INFO 2024-06-06 08:53:58,841 runserver [mHTTP GET /queue/generate-qr/ 200 [0.03, 127.0.0.1:52798][0m
+INFO 2024-06-06 08:53:59,428 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52737]
+INFO 2024-06-06 08:53:59,573 runserver [mHTTP GET /profile/ 200 [0.01, 127.0.0.1:52774][0m
+INFO 2024-06-06 08:53:59,584 runserver [mHTTP GET /profile/ 200 [0.01, 127.0.0.1:52772][0m
+INFO 2024-06-06 08:53:59,886 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52809]
+INFO 2024-06-06 08:53:59,888 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52809]
+INFO 2024-06-06 08:54:02,216 runserver [mHTTP POST /queue/call-next/ 200 [0.61, 127.0.0.1:52772][0m
+INFO 2024-06-06 08:54:03,196 runserver [mHTTP GET /media/ticket_6.mp3 200 [0.01, 127.0.0.1:52798][0m
+DEBUG 2024-06-07 08:48:16,188 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 08:48:28,342 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52193]
+INFO 2024-06-07 08:48:28,489 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.19, 127.0.0.1:52191][0m
+INFO 2024-06-07 08:48:28,511 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.17, 127.0.0.1:52192][0m
+INFO 2024-06-07 08:48:28,529 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52193]
+INFO 2024-06-07 08:48:28,553 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:52192][0m
+INFO 2024-06-07 08:50:48,759 runserver [mHTTP OPTIONS /api/v2/queue/join-queue/ 200 [0.00, 127.0.0.1:52251][0m
+INFO 2024-06-07 08:50:48,815 runserver [mHTTP POST /api/v2/queue/join-queue/ 200 [0.05, 127.0.0.1:52251][0m
+INFO 2024-06-07 08:50:48,858 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:52251][0m
+DEBUG 2024-06-07 08:57:00,362 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 08:57:03,213 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52383]
+INFO 2024-06-07 08:57:03,331 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52383]
+DEBUG 2024-06-07 08:57:23,614 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 08:57:26,227 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52393]
+INFO 2024-06-07 08:57:26,328 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52393]
+DEBUG 2024-06-07 08:57:48,584 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 08:57:51,229 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52405]
+INFO 2024-06-07 08:57:51,330 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52405]
+DEBUG 2024-06-07 08:58:01,215 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 08:58:04,229 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52414]
+INFO 2024-06-07 08:58:04,330 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52414]
+INFO 2024-06-07 08:58:13,614 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52414]
+INFO 2024-06-07 08:58:14,043 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52440]
+INFO 2024-06-07 08:58:14,059 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52440]
+INFO 2024-06-07 08:58:14,110 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.07, 127.0.0.1:52439][0m
+INFO 2024-06-07 08:58:14,144 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:52439][0m
+INFO 2024-06-07 08:58:14,147 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.11, 127.0.0.1:52438][0m
+INFO 2024-06-07 08:59:23,518 runserver [mHTTP OPTIONS /api/v2/login/ 200 [0.00, 127.0.0.1:52484][0m
+INFO 2024-06-07 08:59:24,260 runserver [mHTTP POST /api/v2/login/ 200 [0.73, 127.0.0.1:52484][0m
+INFO 2024-06-07 08:59:24,292 runserver [mHTTP OPTIONS /api/v2/profile/ 200 [0.01, 127.0.0.1:52484][0m
+INFO 2024-06-07 08:59:24,294 runserver [mHTTP OPTIONS /api/v2/profile/ 200 [0.00, 127.0.0.1:52485][0m
+INFO 2024-06-07 08:59:24,314 runserver [mHTTP GET /api/v2/profile/ 200 [0.02, 127.0.0.1:52485][0m
+INFO 2024-06-07 08:59:24,333 runserver [mHTTP GET /api/v2/profile/ 200 [0.02, 127.0.0.1:52484][0m
+INFO 2024-06-07 08:59:24,609 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52487]
+INFO 2024-06-07 08:59:24,616 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52487]
+INFO 2024-06-07 08:59:29,923 runserver [mHTTP OPTIONS /api/v2/queue/call-next/ 200 [0.00, 127.0.0.1:52484][0m
+INFO 2024-06-07 08:59:30,949 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [1.02, 127.0.0.1:52484][0m
+INFO 2024-06-07 08:59:36,345 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52440]
+INFO 2024-06-07 08:59:36,447 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:52484][0m
+INFO 2024-06-07 08:59:36,474 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:52485][0m
+INFO 2024-06-07 08:59:36,728 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52502]
+INFO 2024-06-07 08:59:36,736 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52502]
+INFO 2024-06-07 08:59:36,754 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.02, 127.0.0.1:52501][0m
+INFO 2024-06-07 08:59:51,891 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.93, 127.0.0.1:52485][0m
+DEBUG 2024-06-07 09:00:03,469 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 09:00:07,125 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52524]
+INFO 2024-06-07 09:00:07,259 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52524]
+INFO 2024-06-07 09:00:07,281 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52530]
+INFO 2024-06-07 09:00:07,293 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52530]
+INFO 2024-06-07 09:00:07,295 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:52528][0m
+INFO 2024-06-07 09:00:07,315 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:52528][0m
+INFO 2024-06-07 09:00:07,317 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.06, 127.0.0.1:52527][0m
+INFO 2024-06-07 09:00:07,478 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52524]
+INFO 2024-06-07 09:00:07,558 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:52528][0m
+INFO 2024-06-07 09:00:07,569 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:52534][0m
+INFO 2024-06-07 09:00:07,853 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52540]
+INFO 2024-06-07 09:00:07,855 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52540]
+INFO 2024-06-07 09:00:09,337 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.85, 127.0.0.1:52534][0m
+INFO 2024-06-07 09:00:09,403 runserver [mHTTP GET /media/ticket_28.mp3 200 [0.06, 127.0.0.1:52527][0m
+DEBUG 2024-06-07 09:15:04,697 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 09:15:06,221 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52706]
+INFO 2024-06-07 09:15:06,366 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52706]
+INFO 2024-06-07 09:15:06,381 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52710]
+INFO 2024-06-07 09:15:06,382 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52710]
+DEBUG 2024-06-07 09:15:16,278 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 09:15:18,223 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52720]
+INFO 2024-06-07 09:15:18,338 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52720]
+INFO 2024-06-07 09:15:18,352 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52724]
+INFO 2024-06-07 09:15:18,353 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52724]
+INFO 2024-06-07 09:15:23,211 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52738]
+INFO 2024-06-07 09:15:23,216 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52738]
+INFO 2024-06-07 09:15:23,754 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52724]
+INFO 2024-06-07 09:15:24,347 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52749]
+INFO 2024-06-07 09:15:24,350 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52749]
+INFO 2024-06-07 09:15:24,365 runserver [mHTTP GET /api/v2/profile/ 200 [0.02, 127.0.0.1:52748][0m
+INFO 2024-06-07 09:15:24,382 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:52748][0m
+INFO 2024-06-07 09:15:25,222 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52738]
+INFO 2024-06-07 09:15:25,691 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52758]
+INFO 2024-06-07 09:15:25,694 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52758]
+INFO 2024-06-07 09:15:28,625 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52720]
+INFO 2024-06-07 09:15:28,797 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:52748][0m
+INFO 2024-06-07 09:15:28,827 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:52752][0m
+INFO 2024-06-07 09:15:29,095 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52766]
+INFO 2024-06-07 09:15:29,101 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52766]
+INFO 2024-06-07 09:15:29,133 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.06, 127.0.0.1:52765][0m
+INFO 2024-06-07 09:15:31,231 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.88, 127.0.0.1:52752][0m
+INFO 2024-06-07 09:15:31,561 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52758]
+INFO 2024-06-07 09:15:31,561 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52766]
+INFO 2024-06-07 09:15:34,232 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52770]
+INFO 2024-06-07 09:15:34,236 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52770]
+INFO 2024-06-07 09:15:34,261 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52772]
+INFO 2024-06-07 09:15:34,265 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52772]
+DEBUG 2024-06-07 09:16:25,047 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 09:16:26,235 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52791]
+INFO 2024-06-07 09:16:26,349 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52791]
+INFO 2024-06-07 09:16:26,363 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52795]
+INFO 2024-06-07 09:16:26,367 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52795]
+INFO 2024-06-07 09:16:27,216 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52797]
+INFO 2024-06-07 09:16:27,217 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52797]
+DEBUG 2024-06-07 09:16:45,217 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 09:16:46,220 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52806]
+INFO 2024-06-07 09:16:46,345 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52806]
+INFO 2024-06-07 09:16:46,653 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52810]
+INFO 2024-06-07 09:16:46,657 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52810]
+INFO 2024-06-07 09:16:47,237 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52812]
+INFO 2024-06-07 09:16:47,239 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52812]
+INFO 2024-06-07 09:16:51,722 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52812]
+INFO 2024-06-07 09:16:52,186 runserver [mHTTP GET /api/v2/profile/ 200 [0.02, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:16:52,200 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:16:52,436 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52837]
+INFO 2024-06-07 09:16:52,436 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52837]
+INFO 2024-06-07 09:16:54,140 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52837]
+INFO 2024-06-07 09:16:54,194 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:16:54,208 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:52836][0m
+INFO 2024-06-07 09:16:54,487 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:52843]
+INFO 2024-06-07 09:16:54,488 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:52843]
+INFO 2024-06-07 09:16:55,065 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52810]
+INFO 2024-06-07 09:16:55,164 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:52836][0m
+INFO 2024-06-07 09:16:55,187 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:16:55,444 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52850]
+INFO 2024-06-07 09:16:55,450 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52850]
+INFO 2024-06-07 09:16:55,489 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.04, 127.0.0.1:52849][0m
+INFO 2024-06-07 09:16:56,995 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.99, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:16:57,088 runserver [mHTTP GET /media/ticket_30.mp3 200 [0.08, 127.0.0.1:52849][0m
+INFO 2024-06-07 09:17:02,653 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.89, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:17:02,673 runserver [mHTTP GET /media/ticket_31.mp3 200 [0.01, 127.0.0.1:52849][0m
+INFO 2024-06-07 09:17:08,601 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.94, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:17:08,636 runserver [mHTTP GET /media/ticket_34.mp3 200 [0.02, 127.0.0.1:52849][0m
+INFO 2024-06-07 09:17:15,035 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [1.01, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:17:15,063 runserver [mHTTP GET /media/ticket_35.mp3 200 [0.01, 127.0.0.1:52849][0m
+INFO 2024-06-07 09:17:29,040 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.77, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:17:29,071 runserver [mHTTP GET /media/ticket_36.mp3 200 [0.02, 127.0.0.1:52849][0m
+INFO 2024-06-07 09:17:35,016 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.97, 127.0.0.1:52831][0m
+INFO 2024-06-07 09:17:35,044 runserver [mHTTP GET /media/ticket_37.mp3 200 [0.02, 127.0.0.1:52849][0m
+INFO 2024-06-07 09:17:35,056 runserver [36mHTTP GET /media/ticket_37.mp3 304 [0.01, 127.0.0.1:52851][0m
+INFO 2024-06-07 09:18:11,300 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52806]
+INFO 2024-06-07 09:18:11,612 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52878]
+INFO 2024-06-07 09:18:11,615 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52878]
+INFO 2024-06-07 09:19:54,896 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52878]
+INFO 2024-06-07 09:19:55,206 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:52905]
+INFO 2024-06-07 09:19:55,208 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:52905]
+INFO 2024-06-07 09:32:47,902 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52905]
+INFO 2024-06-07 09:32:48,211 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53033]
+INFO 2024-06-07 09:32:48,214 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53033]
+INFO 2024-06-07 09:32:50,703 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53033]
+INFO 2024-06-07 09:32:52,408 runserver [mHTTP POST /api/v2/queue/join-queue/ 200 [0.03, 127.0.0.1:53039][0m
+INFO 2024-06-07 09:32:52,452 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:53039][0m
+INFO 2024-06-07 09:32:52,735 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53042]
+INFO 2024-06-07 09:32:52,742 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53042]
+INFO 2024-06-07 09:33:20,812 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53042]
+INFO 2024-06-07 09:33:21,276 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53052]
+INFO 2024-06-07 09:33:21,278 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53052]
+INFO 2024-06-07 09:33:21,673 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53052]
+INFO 2024-06-07 09:33:22,044 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53058]
+INFO 2024-06-07 09:33:22,050 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53058]
+INFO 2024-06-07 09:33:40,431 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53058]
+INFO 2024-06-07 09:33:40,747 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53067]
+INFO 2024-06-07 09:33:40,751 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53067]
+INFO 2024-06-07 09:33:41,422 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53067]
+INFO 2024-06-07 09:33:41,916 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53071]
+INFO 2024-06-07 09:33:41,919 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53071]
+INFO 2024-06-07 09:33:48,481 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53071]
+INFO 2024-06-07 09:33:48,987 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53079]
+INFO 2024-06-07 09:33:48,990 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53079]
+INFO 2024-06-07 09:33:49,043 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53079]
+INFO 2024-06-07 09:33:49,427 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53085]
+INFO 2024-06-07 09:33:49,431 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53085]
+INFO 2024-06-07 09:33:52,520 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53085]
+INFO 2024-06-07 09:33:52,996 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53094]
+INFO 2024-06-07 09:33:53,002 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53094]
+INFO 2024-06-07 09:33:53,017 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53094]
+INFO 2024-06-07 09:33:53,440 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53098]
+INFO 2024-06-07 09:33:53,444 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53098]
+INFO 2024-06-07 09:35:18,294 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53098]
+INFO 2024-06-07 09:35:30,106 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53135]
+INFO 2024-06-07 09:35:30,112 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53135]
+INFO 2024-06-07 09:35:35,311 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53135]
+INFO 2024-06-07 09:35:36,134 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53146]
+INFO 2024-06-07 09:35:36,140 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53146]
+INFO 2024-06-07 09:35:37,480 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53146]
+INFO 2024-06-07 09:35:37,976 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53150]
+INFO 2024-06-07 09:35:37,979 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53150]
+INFO 2024-06-07 09:35:47,212 runserver [mHTTP POST /api/v2/queue/join-queue/ 200 [0.03, 127.0.0.1:53157][0m
+INFO 2024-06-07 09:35:47,246 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:53157][0m
+INFO 2024-06-07 09:35:47,535 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53160]
+INFO 2024-06-07 09:35:47,539 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53160]
+INFO 2024-06-07 09:35:52,616 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.88, 127.0.0.1:53157][0m
+INFO 2024-06-07 09:35:52,959 runserver [mHTTP GET /media/ticket_38.mp3 200 [0.02, 127.0.0.1:53164][0m
+INFO 2024-06-07 09:35:59,434 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.88, 127.0.0.1:53157][0m
+INFO 2024-06-07 09:35:59,470 runserver [mHTTP GET /media/ticket_39.mp3 200 [0.02, 127.0.0.1:53164][0m
+INFO 2024-06-07 09:51:34,240 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53160]
+INFO 2024-06-07 09:51:34,246 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:52843]
+INFO 2024-06-07 09:51:34,253 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53150]
+INFO 2024-06-07 09:51:34,256 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:52850]
+INFO 2024-06-07 09:55:55,047 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53305]
+INFO 2024-06-07 09:55:55,061 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53305]
+INFO 2024-06-07 09:55:55,078 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53315]
+INFO 2024-06-07 09:55:55,092 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53315]
+INFO 2024-06-07 09:55:55,110 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53319]
+INFO 2024-06-07 09:55:55,116 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53319]
+INFO 2024-06-07 09:55:55,132 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:53323]
+INFO 2024-06-07 09:55:55,137 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:53323]
+INFO 2024-06-07 09:56:08,045 runserver WebSocket DISCONNECT /ws/call-next/ [127.0.0.1:53323]
+INFO 2024-06-07 09:56:08,053 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53305]
+INFO 2024-06-07 09:56:08,055 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53315]
+INFO 2024-06-07 09:56:08,056 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:53319]
+INFO 2024-06-07 09:56:15,829 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53387]
+INFO 2024-06-07 09:56:15,838 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53387]
+INFO 2024-06-07 09:56:15,855 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:53393]
+INFO 2024-06-07 09:56:15,856 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:53393]
+INFO 2024-06-07 09:56:15,872 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53399]
+INFO 2024-06-07 09:56:15,877 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53399]
+INFO 2024-06-07 09:56:15,894 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:53401]
+INFO 2024-06-07 09:56:15,898 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:53401]
+DEBUG 2024-06-07 10:28:20,214 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 10:28:30,594 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:51275]
+INFO 2024-06-07 10:28:30,742 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.16, 127.0.0.1:51274][0m
+INFO 2024-06-07 10:28:30,744 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.19, 127.0.0.1:51273][0m
+INFO 2024-06-07 10:28:30,759 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:51274][0m
+INFO 2024-06-07 10:28:34,894 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:51275]
+INFO 2024-06-07 10:28:38,199 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:51295]
+INFO 2024-06-07 10:28:42,694 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:51295]
+INFO 2024-06-07 10:28:47,195 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:51304]
+INFO 2024-06-07 10:28:47,210 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:51304]
+DEBUG 2024-06-07 10:28:53,614 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 10:28:55,870 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:51323]
+INFO 2024-06-07 10:28:55,995 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:51323]
+INFO 2024-06-07 10:28:56,092 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:51323]
+INFO 2024-06-07 10:28:56,444 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:51339]
+INFO 2024-06-07 10:28:56,452 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:51339]
+INFO 2024-06-07 10:28:56,467 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:28:56,486 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:28:56,488 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.05, 127.0.0.1:51337][0m
+INFO 2024-06-07 10:29:05,583 runserver [mHTTP OPTIONS /api/v2/queue/join-queue/ 200 [0.00, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:05,605 runserver [mHTTP POST /api/v2/queue/join-queue/ 200 [0.02, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:05,626 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:05,943 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:51352]
+INFO 2024-06-07 10:29:05,947 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:51352]
+INFO 2024-06-07 10:29:31,939 runserver [mHTTP OPTIONS /api/v2/login/ 200 [0.00, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:32,290 runserver [mHTTP POST /api/v2/login/ 200 [0.35, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:32,314 runserver [mHTTP OPTIONS /api/v2/profile/ 200 [0.00, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:32,315 runserver [mHTTP OPTIONS /api/v2/profile/ 200 [0.00, 127.0.0.1:51344][0m
+INFO 2024-06-07 10:29:32,328 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:51344][0m
+INFO 2024-06-07 10:29:32,336 runserver [mHTTP GET /api/v2/profile/ 200 [0.01, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:32,645 runserver WebSocket HANDSHAKING /ws/call-next/ [127.0.0.1:51390]
+INFO 2024-06-07 10:29:32,648 runserver WebSocket CONNECT /ws/call-next/ [127.0.0.1:51390]
+INFO 2024-06-07 10:29:37,050 runserver [mHTTP OPTIONS /api/v2/queue/call-next/ 200 [0.00, 127.0.0.1:51338][0m
+INFO 2024-06-07 10:29:37,661 runserver [mHTTP POST /api/v2/queue/call-next/ 200 [0.61, 127.0.0.1:51338][0m
+WARNING 2024-06-07 10:29:37,675 runserver [33mHTTP GET /media/ticket_40.mp3 404 [0.01, 127.0.0.1:51337][0m
+WARNING 2024-06-07 10:29:48,350 runserver [33mHTTP GET /media/ticket_40.mp3 404 [0.01, 127.0.0.1:51343][0m
+DEBUG 2024-06-07 14:21:58,780 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:22:00,493 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59148]
+INFO 2024-06-07 14:22:00,641 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59148]
+INFO 2024-06-07 14:22:00,648 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.16, 127.0.0.1:59146][0m
+INFO 2024-06-07 14:22:00,667 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:59146][0m
+INFO 2024-06-07 14:22:00,677 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.19, 127.0.0.1:59147][0m
+WARNING 2024-06-07 14:22:04,411 runserver [33mHTTP GET / 404 [0.08, 127.0.0.1:59157][0m
+INFO 2024-06-07 14:22:09,133 runserver [32mHTTP GET /admin 301 [0.01, 127.0.0.1:59157][0m
+INFO 2024-06-07 14:22:09,164 runserver [32mHTTP GET /admin/ 302 [0.02, 127.0.0.1:59157][0m
+INFO 2024-06-07 14:22:09,291 runserver [mHTTP GET /admin/login/?next=/admin/ 200 [0.12, 127.0.0.1:59157][0m
+INFO 2024-06-07 14:22:09,468 runserver [mHTTP GET /static/admin/css/base.css 200 [0.14, 127.0.0.1:59157][0m
+INFO 2024-06-07 14:22:09,483 runserver [mHTTP GET /static/admin/css/login.css 200 [0.15, 127.0.0.1:59175][0m
+INFO 2024-06-07 14:22:09,485 runserver [mHTTP GET /static/admin/css/dark_mode.css 200 [0.16, 127.0.0.1:59171][0m
+INFO 2024-06-07 14:22:09,489 runserver [mHTTP GET /static/admin/css/responsive.css 200 [0.16, 127.0.0.1:59173][0m
+INFO 2024-06-07 14:22:09,490 runserver [mHTTP GET /static/admin/js/nav_sidebar.js 200 [0.02, 127.0.0.1:59157][0m
+INFO 2024-06-07 14:22:09,495 runserver [mHTTP GET /static/admin/css/nav_sidebar.css 200 [0.16, 127.0.0.1:59174][0m
+INFO 2024-06-07 14:22:09,502 runserver [mHTTP GET /static/admin/js/theme.js 200 [0.15, 127.0.0.1:59176][0m
+WARNING 2024-06-07 14:22:09,554 runserver [33mHTTP GET /favicon.ico 404 [0.01, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:13,978 runserver [mHTTP POST /admin/login/?next=/admin/ 200 [0.32, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:17,788 runserver [32mHTTP POST /admin/login/?next=/admin/ 302 [0.35, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:17,831 runserver [mHTTP GET /admin/ 200 [0.04, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:17,852 runserver [36mHTTP GET /static/admin/css/dashboard.css 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,486 runserver [mHTTP GET /admin/accounts/dailyticketreport/ 200 [0.09, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,547 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,566 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,584 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,599 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,875 runserver [mHTTP GET /admin/accounts/manageractionlog/ 200 [0.06, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,947 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:19,955 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59174][0m
+INFO 2024-06-07 14:22:19,982 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59174][0m
+INFO 2024-06-07 14:22:19,999 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:59174][0m
+INFO 2024-06-07 14:22:20,952 runserver [mHTTP GET /admin/accounts/customuser/ 200 [0.04, 127.0.0.1:59174][0m
+INFO 2024-06-07 14:22:21,032 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59174][0m
+INFO 2024-06-07 14:22:21,040 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:21,072 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:21,088 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:25,627 runserver [mHTTP GET /admin/accounts/dailyticketreport/export/? 200 [0.03, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:25,658 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:25,663 runserver [mHTTP GET /static/import_export/export_selectable_fields.js 200 [0.01, 127.0.0.1:59173][0m
+INFO 2024-06-07 14:22:25,664 runserver [mHTTP GET /static/import_export/export.css 200 [0.01, 127.0.0.1:59157][0m
+INFO 2024-06-07 14:22:25,671 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59176][0m
+INFO 2024-06-07 14:22:25,674 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59174][0m
+DEBUG 2024-06-07 14:24:38,576 runserver Daphne running, listening on 127.0.0.1:8000
+DEBUG 2024-06-07 14:26:15,343 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:26:15,717 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59339]
+INFO 2024-06-07 14:26:15,831 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59339]
+WARNING 2024-06-07 14:26:21,170 runserver [33mHTTP GET / 404 [0.02, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:28,411 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:59339]
+INFO 2024-06-07 14:26:28,830 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59367]
+INFO 2024-06-07 14:26:28,849 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59367]
+INFO 2024-06-07 14:26:28,879 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.05, 127.0.0.1:59366][0m
+INFO 2024-06-07 14:26:28,886 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.06, 127.0.0.1:59365][0m
+INFO 2024-06-07 14:26:28,895 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:59366][0m
+INFO 2024-06-07 14:26:32,678 runserver [32mHTTP GET /admin/ 302 [0.02, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:32,711 runserver [mHTTP GET /admin/login/?next=/admin/ 200 [0.03, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:38,066 runserver [32mHTTP POST /admin/login/?next=/admin/ 302 [0.25, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:38,088 runserver [mHTTP GET /admin/ 200 [0.02, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:38,113 runserver [36mHTTP GET /static/admin/css/dashboard.css 304 [0.00, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:41,040 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.02, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:41,071 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:41,081 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59343][0m
+INFO 2024-06-07 14:26:41,084 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:41,098 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:48,165 runserver [mHTTP GET /admin/accounts/table/ 200 [0.02, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:48,193 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:48,200 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:48,201 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59343][0m
+INFO 2024-06-07 14:26:49,781 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.01, 127.0.0.1:59343][0m
+INFO 2024-06-07 14:26:49,805 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59343][0m
+INFO 2024-06-07 14:26:49,813 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59343][0m
+INFO 2024-06-07 14:26:49,814 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59342][0m
+INFO 2024-06-07 14:26:51,736 runserver [mHTTP OPTIONS /api/v2/queue/join-queue/ 200 [0.00, 127.0.0.1:59366][0m
+WARNING 2024-06-07 14:26:51,747 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:59366][0m
+WARNING 2024-06-07 14:27:00,059 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:59366][0m
+WARNING 2024-06-07 14:27:00,424 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:59366][0m
+WARNING 2024-06-07 14:28:07,135 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.02, 127.0.0.1:59428][0m
+DEBUG 2024-06-07 14:28:43,768 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:28:44,250 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59444]
+INFO 2024-06-07 14:28:44,879 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:59444]
+DEBUG 2024-06-07 14:28:59,654 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:29:01,211 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59474]
+INFO 2024-06-07 14:29:01,336 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59474]
+INFO 2024-06-07 14:29:03,319 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:59474]
+INFO 2024-06-07 14:29:03,735 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59496]
+INFO 2024-06-07 14:29:03,746 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59496]
+INFO 2024-06-07 14:29:03,758 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:59495][0m
+INFO 2024-06-07 14:29:03,773 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:59495][0m
+INFO 2024-06-07 14:29:03,786 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.05, 127.0.0.1:59494][0m
+WARNING 2024-06-07 14:29:04,825 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:59495][0m
+INFO 2024-06-07 14:29:16,754 runserver [32mHTTP GET /admin/accounts/table/ 302 [0.02, 127.0.0.1:59505][0m
+INFO 2024-06-07 14:29:16,793 runserver [mHTTP GET /admin/login/?next=/admin/accounts/table/ 200 [0.03, 127.0.0.1:59505][0m
+INFO 2024-06-07 14:29:23,490 runserver [mHTTP POST /admin/login/?next=/admin/accounts/table/ 200 [0.31, 127.0.0.1:59505][0m
+INFO 2024-06-07 14:29:27,872 runserver [mHTTP POST /admin/login/?next=/admin/accounts/table/ 200 [0.34, 127.0.0.1:59505][0m
+DEBUG 2024-06-07 14:29:47,803 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:29:48,219 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59545]
+INFO 2024-06-07 14:29:48,318 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59545]
+INFO 2024-06-07 14:29:49,580 runserver [32mHTTP POST /admin/login/?next=/admin/accounts/table/ 302 [0.24, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:49,626 runserver [mHTTP GET /admin/accounts/table/ 200 [0.04, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:49,653 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:49,661 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:29:49,664 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:49,681 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:51,348 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:51,376 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:51,383 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:51,385 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:29:52,224 runserver [mHTTP GET /admin/queue_qr/queue/add/ 200 [0.09, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:29:52,253 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:29:52,261 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:29:52,262 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:29:52,268 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:00,817 runserver [mHTTP GET /admin/accounts/table/ 200 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:00,844 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:00,851 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:00,855 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:01,847 runserver [mHTTP GET /admin/accounts/table/add/ 200 [0.02, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:01,873 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:01,881 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:01,884 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:10,093 runserver [32mHTTP POST /admin/accounts/table/add/ 302 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:10,121 runserver [mHTTP GET /admin/accounts/table/ 200 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:10,153 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:10,161 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:10,162 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:10,175 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:11,153 runserver [mHTTP GET /admin/accounts/table/add/ 200 [0.02, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:11,182 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:11,189 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:11,192 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:16,409 runserver [32mHTTP POST /admin/accounts/table/add/ 302 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:16,431 runserver [mHTTP GET /admin/accounts/table/ 200 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:16,459 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:16,466 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:16,468 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:16,483 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:17,182 runserver [mHTTP GET /admin/accounts/table/add/ 200 [0.02, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:17,211 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:17,219 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:17,221 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:20,571 runserver [32mHTTP POST /admin/accounts/table/add/ 302 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:20,594 runserver [mHTTP GET /admin/accounts/table/ 200 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:20,627 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:20,634 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:20,637 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:20,650 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:21,787 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:21,816 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:21,824 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:21,825 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:22,738 runserver [mHTTP GET /admin/queue_qr/queue/add/ 200 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:22,768 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:22,777 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:30:22,779 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:22,780 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:37,749 runserver [mHTTP GET /admin/accounts/customuser/ 200 [0.03, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:37,778 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:37,787 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:37,789 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:40,291 runserver [mHTTP GET /admin/accounts/customuser/add/ 200 [0.04, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:40,314 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:40,322 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:30:40,325 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:52,350 runserver [mHTTP POST /admin/accounts/customuser/add/ 200 [0.02, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:52,375 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:52,381 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:30:52,385 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:31:04,187 runserver [mHTTP POST /admin/accounts/customuser/add/ 200 [0.02, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:31:04,212 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:31:04,219 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:04,225 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:31:13,829 runserver [32mHTTP POST /admin/accounts/customuser/add/ 302 [0.32, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:31:13,902 runserver [mHTTP GET /admin/accounts/customuser/2/change/ 200 [0.07, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:31:13,931 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.01, 127.0.0.1:59555][0m
+INFO 2024-06-07 14:31:13,934 runserver [36mHTTP GET /static/admin/js/calendar.js 304 [0.01, 127.0.0.1:59556][0m
+INFO 2024-06-07 14:31:13,935 runserver [36mHTTP GET /static/admin/js/admin/DateTimeShortcuts.js 304 [0.01, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:31:13,936 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.00, 127.0.0.1:59579][0m
+INFO 2024-06-07 14:31:13,958 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.02, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:31:13,961 runserver [mHTTP GET /admin/jsi18n/ 200 [0.03, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:13,977 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:14,002 runserver [36mHTTP GET /static/admin/img/icon-clock.svg 304 [0.00, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:31:14,002 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:33,610 runserver [32mHTTP POST /admin/accounts/customuser/2/change/ 302 [0.03, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:31:33,640 runserver [mHTTP GET /admin/accounts/customuser/ 200 [0.03, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:31:33,666 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:31:33,674 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:31:33,675 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:33,690 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:39,083 runserver [mHTTP GET /admin/accounts/customuser/add/ 200 [0.02, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:39,109 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:39,125 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59564][0m
+INFO 2024-06-07 14:31:39,126 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59578][0m
+INFO 2024-06-07 14:44:21,513 runserver [32mHTTP POST /admin/accounts/customuser/add/ 302 [0.33, 127.0.0.1:59777][0m
+INFO 2024-06-07 14:44:21,555 runserver [mHTTP GET /admin/accounts/customuser/3/change/ 200 [0.03, 127.0.0.1:59777][0m
+INFO 2024-06-07 14:44:21,594 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59777][0m
+INFO 2024-06-07 14:44:21,598 runserver [36mHTTP GET /static/admin/js/calendar.js 304 [0.00, 127.0.0.1:59780][0m
+INFO 2024-06-07 14:44:21,599 runserver [36mHTTP GET /static/admin/js/admin/DateTimeShortcuts.js 304 [0.00, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:21,607 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:21,612 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:21,616 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.00, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:21,638 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:21,667 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.00, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:21,668 runserver [36mHTTP GET /static/admin/img/icon-clock.svg 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:51,937 runserver [32mHTTP POST /admin/accounts/customuser/3/change/ 302 [0.03, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:51,965 runserver [mHTTP GET /admin/accounts/customuser/ 200 [0.02, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:51,994 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:52,002 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:52,004 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:52,021 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:52,021 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:53,937 runserver [mHTTP GET /admin/accounts/customuser/add/ 200 [0.02, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:53,968 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:44:53,977 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:44:53,985 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:45:05,389 runserver [mHTTP POST /admin/accounts/customuser/add/ 200 [0.02, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:45:05,412 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:45:05,421 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:45:05,424 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:45:11,683 runserver [32mHTTP POST /admin/accounts/customuser/add/ 302 [0.31, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:45:11,725 runserver [mHTTP GET /admin/accounts/customuser/4/change/ 200 [0.04, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:45:11,752 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.01, 127.0.0.1:59781][0m
+INFO 2024-06-07 14:45:11,756 runserver [36mHTTP GET /static/admin/js/calendar.js 304 [0.01, 127.0.0.1:59780][0m
+INFO 2024-06-07 14:45:11,756 runserver [36mHTTP GET /static/admin/js/admin/DateTimeShortcuts.js 304 [0.01, 127.0.0.1:59777][0m
+INFO 2024-06-07 14:45:11,761 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.01, 127.0.0.1:59801][0m
+INFO 2024-06-07 14:45:11,764 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59777][0m
+INFO 2024-06-07 14:45:11,768 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:45:11,784 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:45:11,810 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.00, 127.0.0.1:59778][0m
+INFO 2024-06-07 14:45:11,811 runserver [36mHTTP GET /static/admin/img/icon-clock.svg 304 [0.00, 127.0.0.1:59777][0m
+DEBUG 2024-06-07 14:45:37,484 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:45:38,218 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59812]
+INFO 2024-06-07 14:45:38,325 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59812]
+DEBUG 2024-06-07 14:45:44,558 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:45:46,216 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59822]
+INFO 2024-06-07 14:45:46,325 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59822]
+DEBUG 2024-06-07 14:46:05,318 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:46:05,555 runserver [mHTTP GET /admin/accounts/customuser/4/change/ 200 [0.10, 127.0.0.1:59847][0m
+INFO 2024-06-07 14:46:05,593 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.01, 127.0.0.1:59847][0m
+INFO 2024-06-07 14:46:05,596 runserver [36mHTTP GET /static/admin/js/admin/DateTimeShortcuts.js 304 [0.00, 127.0.0.1:59858][0m
+INFO 2024-06-07 14:46:05,597 runserver [36mHTTP GET /static/admin/js/calendar.js 304 [0.01, 127.0.0.1:59857][0m
+INFO 2024-06-07 14:46:05,601 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.00, 127.0.0.1:59847][0m
+INFO 2024-06-07 14:46:05,603 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59858][0m
+INFO 2024-06-07 14:46:05,609 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59848][0m
+INFO 2024-06-07 14:46:05,657 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.00, 127.0.0.1:59848][0m
+INFO 2024-06-07 14:46:05,658 runserver [36mHTTP GET /static/admin/img/icon-clock.svg 304 [0.00, 127.0.0.1:59858][0m
+INFO 2024-06-07 14:46:05,721 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59856]
+INFO 2024-06-07 14:46:05,782 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59856]
+DEBUG 2024-06-07 14:46:43,834 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:46:45,198 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59925]
+INFO 2024-06-07 14:46:45,524 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59925]
+INFO 2024-06-07 14:46:45,636 runserver [mHTTP GET /admin/accounts/customuser/4/change/ 200 [0.09, 127.0.0.1:59928][0m
+INFO 2024-06-07 14:46:45,691 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.02, 127.0.0.1:59928][0m
+INFO 2024-06-07 14:46:45,695 runserver [36mHTTP GET /static/admin/js/calendar.js 304 [0.01, 127.0.0.1:59930][0m
+INFO 2024-06-07 14:46:45,695 runserver [36mHTTP GET /static/admin/js/admin/DateTimeShortcuts.js 304 [0.00, 127.0.0.1:59931][0m
+INFO 2024-06-07 14:46:45,698 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.01, 127.0.0.1:59932][0m
+INFO 2024-06-07 14:46:45,707 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59932][0m
+INFO 2024-06-07 14:46:45,710 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59929][0m
+INFO 2024-06-07 14:46:45,821 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.00, 127.0.0.1:59929][0m
+INFO 2024-06-07 14:46:45,822 runserver [36mHTTP GET /static/admin/img/icon-clock.svg 304 [0.00, 127.0.0.1:59932][0m
+DEBUG 2024-06-07 14:47:11,051 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:47:11,236 runserver [mHTTP GET /admin/accounts/customuser/4/change/ 200 [0.10, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:11,272 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:11,279 runserver [36mHTTP GET /static/admin/js/calendar.js 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:11,284 runserver [36mHTTP GET /static/admin/js/admin/DateTimeShortcuts.js 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:11,290 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:11,293 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:11,295 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:11,345 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:11,346 runserver [36mHTTP GET /static/admin/img/icon-clock.svg 304 [0.00, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:12,197 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59976]
+INFO 2024-06-07 14:47:12,273 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59976]
+INFO 2024-06-07 14:47:17,511 runserver [32mHTTP POST /admin/accounts/customuser/4/change/ 302 [0.03, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:17,549 runserver [mHTTP GET /admin/accounts/customuser/ 200 [0.03, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:17,572 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:17,579 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:17,581 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:17,597 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:17,598 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:22,534 runserver [mHTTP GET /admin/accounts/customuser/add/ 200 [0.03, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:22,563 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:22,572 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:22,575 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:30,197 runserver [32mHTTP POST /admin/accounts/customuser/add/ 302 [0.32, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:30,235 runserver [mHTTP GET /admin/accounts/customuser/5/change/ 200 [0.03, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:30,269 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.01, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:30,272 runserver [36mHTTP GET /static/admin/js/admin/DateTimeShortcuts.js 304 [0.01, 127.0.0.1:59966][0m
+INFO 2024-06-07 14:47:30,273 runserver [36mHTTP GET /static/admin/img/icon-deletelink.svg 304 [0.01, 127.0.0.1:59979][0m
+INFO 2024-06-07 14:47:30,273 runserver [36mHTTP GET /static/admin/js/calendar.js 304 [0.01, 127.0.0.1:59967][0m
+INFO 2024-06-07 14:47:30,277 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:30,284 runserver [mHTTP GET /admin/jsi18n/ 200 [0.02, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:30,301 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:30,325 runserver [36mHTTP GET /static/admin/img/icon-calendar.svg 304 [0.01, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:30,325 runserver [36mHTTP GET /static/admin/img/icon-clock.svg 304 [0.00, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:36,290 runserver [32mHTTP POST /admin/accounts/customuser/5/change/ 302 [0.03, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:36,325 runserver [mHTTP GET /admin/accounts/customuser/ 200 [0.03, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:36,354 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:36,362 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:59974][0m
+INFO 2024-06-07 14:47:36,364 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:36,378 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:59968][0m
+INFO 2024-06-07 14:47:39,261 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:59976]
+INFO 2024-06-07 14:47:39,696 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:59997]
+INFO 2024-06-07 14:47:39,718 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:59997]
+INFO 2024-06-07 14:47:39,720 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:59996][0m
+INFO 2024-06-07 14:47:39,731 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:59996][0m
+INFO 2024-06-07 14:47:39,737 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.05, 127.0.0.1:59995][0m
+WARNING 2024-06-07 14:47:41,731 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:59996][0m
+DEBUG 2024-06-07 14:48:42,476 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:48:43,216 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60033]
+INFO 2024-06-07 14:48:43,328 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60033]
+DEBUG 2024-06-07 14:48:46,410 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-07 14:48:47,203 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60043]
+INFO 2024-06-07 14:48:47,315 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60043]
+WARNING 2024-06-07 14:48:53,723 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.02, 127.0.0.1:60064][0m
+DEBUG 2024-06-11 15:28:34,834 runserver Daphne running, listening on 127.0.0.1:8000
+WARNING 2024-06-11 15:28:47,157 runserver [33mHTTP GET / 404 [0.18, 127.0.0.1:60371][0m
+INFO 2024-06-11 15:28:50,939 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60391]
+INFO 2024-06-11 15:28:51,032 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.11, 127.0.0.1:60389][0m
+INFO 2024-06-11 15:28:51,034 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.10, 127.0.0.1:60390][0m
+INFO 2024-06-11 15:28:51,047 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:60390][0m
+INFO 2024-06-11 15:28:54,643 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60391]
+INFO 2024-06-11 15:28:59,008 runserver [mHTTP OPTIONS /api/v2/queue/join-queue/ 200 [0.00, 127.0.0.1:60390][0m
+WARNING 2024-06-11 15:28:59,023 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:60390][0m
+INFO 2024-06-11 15:28:59,506 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60408]
+INFO 2024-06-11 15:29:04,015 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60408]
+INFO 2024-06-11 15:29:10,492 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60427]
+INFO 2024-06-11 15:29:15,013 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60427]
+INFO 2024-06-11 15:29:22,482 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60447]
+INFO 2024-06-11 15:29:27,002 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60447]
+DEBUG 2024-06-11 15:29:34,649 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-11 15:29:36,496 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60481]
+INFO 2024-06-11 15:29:36,586 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60481]
+INFO 2024-06-11 15:29:40,043 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60481]
+INFO 2024-06-11 15:29:40,419 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60511]
+INFO 2024-06-11 15:29:40,453 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60511]
+INFO 2024-06-11 15:29:40,455 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.04, 127.0.0.1:60510][0m
+INFO 2024-06-11 15:29:40,469 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:60510][0m
+INFO 2024-06-11 15:29:40,477 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.06, 127.0.0.1:60509][0m
+WARNING 2024-06-11 15:29:42,146 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:60510][0m
+DEBUG 2024-06-11 15:30:46,529 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-11 15:30:49,521 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60560]
+INFO 2024-06-11 15:30:49,652 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60560]
+WARNING 2024-06-11 15:30:57,658 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.02, 127.0.0.1:60590][0m
+WARNING 2024-06-11 15:31:21,760 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.02, 127.0.0.1:60633][0m
+WARNING 2024-06-11 15:31:24,966 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:60638][0m
+WARNING 2024-06-11 15:31:26,235 runserver [31;1mHTTP POST /api/v2/queue/join-queue/ 400 [0.01, 127.0.0.1:60638][0m
+WARNING 2024-06-11 15:31:35,812 runserver [33mHTTP GET / 404 [0.02, 127.0.0.1:60650][0m
+WARNING 2024-06-11 15:31:38,003 runserver [33mHTTP GET / 404 [0.01, 127.0.0.1:60650][0m
+INFO 2024-06-11 15:31:39,371 runserver [32mHTTP GET /admin/ 302 [0.04, 127.0.0.1:60650][0m
+INFO 2024-06-11 15:31:39,568 runserver [mHTTP GET /admin/login/?next=/admin/ 200 [0.19, 127.0.0.1:60650][0m
+INFO 2024-06-11 15:31:39,824 runserver [mHTTP GET /static/admin/js/nav_sidebar.js 200 [0.14, 127.0.0.1:60686][0m
+INFO 2024-06-11 15:31:39,825 runserver [mHTTP GET /static/admin/js/theme.js 200 [0.14, 127.0.0.1:60685][0m
+INFO 2024-06-11 15:31:43,372 runserver [mHTTP POST /admin/login/?next=/admin/ 200 [0.24, 127.0.0.1:60650][0m
+INFO 2024-06-11 15:31:46,309 runserver [mHTTP POST /admin/login/?next=/admin/ 200 [0.24, 127.0.0.1:60692][0m
+INFO 2024-06-11 15:31:50,499 runserver [mHTTP POST /admin/login/?next=/admin/ 200 [0.22, 127.0.0.1:60692][0m
+DEBUG 2024-06-11 15:32:37,377 runserver Daphne running, listening on 127.0.0.1:8000
+INFO 2024-06-11 15:32:37,517 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60758]
+INFO 2024-06-11 15:32:37,676 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60758]
+INFO 2024-06-11 15:32:39,837 runserver [32mHTTP POST /admin/login/?next=/admin/ 302 [0.25, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:39,894 runserver [mHTTP GET /admin/ 200 [0.05, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:39,932 runserver [36mHTTP GET /static/admin/css/dashboard.css 304 [0.00, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:42,712 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.07, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:42,750 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:42,759 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60788][0m
+INFO 2024-06-11 15:32:42,763 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:42,778 runserver [36mHTTP GET /static/admin/img/tooltag-add.svg 304 [0.00, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:42,902 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60800][0m
+INFO 2024-06-11 15:32:42,942 runserver [mHTTP GET /static/admin/js/filters.js 200 [0.05, 127.0.0.1:60799][0m
+INFO 2024-06-11 15:32:46,163 runserver [mHTTP GET /admin/queue_qr/queue/add/ 200 [0.13, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:46,202 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:60788][0m
+INFO 2024-06-11 15:32:46,211 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:60788][0m
+INFO 2024-06-11 15:32:46,213 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:46,224 runserver [mHTTP GET /static/admin/js/prepopulate_init.js 200 [0.02, 127.0.0.1:60799][0m
+INFO 2024-06-11 15:32:46,234 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60800][0m
+INFO 2024-06-11 15:32:46,245 runserver [mHTTP GET /static/admin/js/change_form.js 200 [0.02, 127.0.0.1:60799][0m
+INFO 2024-06-11 15:32:54,572 runserver [32mHTTP POST /admin/queue_qr/queue/add/ 302 [0.03, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:54,613 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.03, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:54,658 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:54,664 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:60787][0m
+INFO 2024-06-11 15:32:54,665 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60788][0m
+INFO 2024-06-11 15:32:54,676 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60799][0m
+INFO 2024-06-11 15:32:54,679 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:60788][0m
+INFO 2024-06-11 15:32:58,036 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60758]
+INFO 2024-06-11 15:32:58,458 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60833]
+INFO 2024-06-11 15:32:58,473 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60833]
+INFO 2024-06-11 15:32:58,479 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:60832][0m
+INFO 2024-06-11 15:32:58,493 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:60832][0m
+INFO 2024-06-11 15:32:58,498 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.04, 127.0.0.1:60831][0m
+INFO 2024-06-11 15:33:07,403 runserver [mHTTP POST /api/v2/queue/join-queue/ 200 [0.02, 127.0.0.1:60869][0m
+INFO 2024-06-11 15:33:07,419 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:60869][0m
+INFO 2024-06-11 15:33:07,754 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60874]
+INFO 2024-06-11 15:33:07,760 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60874]
+INFO 2024-06-11 15:33:11,660 runserver [mHTTP GET /admin/queue_qr/queue/add/ 200 [0.02, 127.0.0.1:60879][0m
+INFO 2024-06-11 15:33:11,692 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:60879][0m
+INFO 2024-06-11 15:33:11,698 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:60879][0m
+INFO 2024-06-11 15:33:11,699 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60880][0m
+INFO 2024-06-11 15:33:11,712 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60881][0m
+INFO 2024-06-11 15:33:22,573 runserver [32mHTTP POST /admin/queue_qr/queue/add/ 302 [0.02, 127.0.0.1:60892][0m
+INFO 2024-06-11 15:33:22,591 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.01, 127.0.0.1:60892][0m
+INFO 2024-06-11 15:33:22,634 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:60892][0m
+INFO 2024-06-11 15:33:22,640 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:60892][0m
+INFO 2024-06-11 15:33:22,642 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60893][0m
+INFO 2024-06-11 15:33:22,654 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:60893][0m
+INFO 2024-06-11 15:33:24,232 runserver [mHTTP GET /admin/queue_qr/queue/add/ 200 [0.01, 127.0.0.1:60893][0m
+INFO 2024-06-11 15:33:24,272 runserver [36mHTTP GET /static/admin/css/forms.css 304 [0.00, 127.0.0.1:60893][0m
+INFO 2024-06-11 15:33:24,278 runserver [36mHTTP GET /static/admin/css/widgets.css 304 [0.00, 127.0.0.1:60893][0m
+INFO 2024-06-11 15:33:24,279 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60892][0m
+INFO 2024-06-11 15:33:29,962 runserver [32mHTTP POST /admin/queue_qr/queue/add/ 302 [0.02, 127.0.0.1:60902][0m
+INFO 2024-06-11 15:33:29,982 runserver [mHTTP GET /admin/queue_qr/queue/ 200 [0.02, 127.0.0.1:60902][0m
+INFO 2024-06-11 15:33:30,017 runserver [36mHTTP GET /static/admin/css/changelists.css 304 [0.00, 127.0.0.1:60902][0m
+INFO 2024-06-11 15:33:30,025 runserver [36mHTTP GET /static/admin/js/filters.js 304 [0.00, 127.0.0.1:60902][0m
+INFO 2024-06-11 15:33:30,027 runserver [mHTTP GET /admin/jsi18n/ 200 [0.01, 127.0.0.1:60903][0m
+INFO 2024-06-11 15:33:30,039 runserver [36mHTTP GET /static/admin/img/icon-yes.svg 304 [0.00, 127.0.0.1:60903][0m
+INFO 2024-06-11 15:33:31,809 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60874]
+INFO 2024-06-11 15:33:33,243 runserver [mHTTP POST /api/v2/queue/join-queue/ 200 [0.02, 127.0.0.1:60923][0m
+INFO 2024-06-11 15:33:33,290 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:60923][0m
+INFO 2024-06-11 15:33:33,589 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60926]
+INFO 2024-06-11 15:33:33,594 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60926]
+INFO 2024-06-11 15:33:41,010 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60833]
+INFO 2024-06-11 15:33:41,379 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60959]
+INFO 2024-06-11 15:33:41,391 runserver [mHTTP GET /api/v2/queue/generate-qr/ 200 [0.02, 127.0.0.1:60957][0m
+INFO 2024-06-11 15:33:41,392 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60959]
+INFO 2024-06-11 15:33:41,402 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.03, 127.0.0.1:60958][0m
+INFO 2024-06-11 15:33:41,419 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.01, 127.0.0.1:60958][0m
+INFO 2024-06-11 15:33:44,735 runserver WebSocket DISCONNECT /ws/queues/ [127.0.0.1:60926]
+INFO 2024-06-11 15:33:45,423 runserver [mHTTP POST /api/v2/queue/join-queue/ 200 [0.03, 127.0.0.1:60958][0m
+INFO 2024-06-11 15:33:45,462 runserver [mHTTP GET /api/v2/queue/queues/ 200 [0.02, 127.0.0.1:60958][0m
+INFO 2024-06-11 15:33:45,762 runserver WebSocket HANDSHAKING /ws/queues/ [127.0.0.1:60976]
+INFO 2024-06-11 15:33:45,765 runserver WebSocket CONNECT /ws/queues/ [127.0.0.1:60976]

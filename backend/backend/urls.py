@@ -3,11 +3,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from .views import log_error
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounts.urls')),
-    path('queue/', include('queue_qr.urls')),
+    path('api/v2/', include('accounts.urls')),
+    path('api/v2/', include('queue_qr.urls')),
+
+    path('api/v2/log-error/', log_error, name='log_error'),
 ]
 
 if settings.DEBUG:

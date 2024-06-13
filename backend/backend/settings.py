@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'daphne',
-
+    'import_export',
     'django.contrib.staticfiles',
 
     'accounts',
@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
+    'backend.middleware.ExceptionLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -143,6 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'backend.exception_handler.custom_exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
@@ -175,13 +176,14 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('localhost', 6379)],
+            "hosts": [('localhost', 6380)],
         },
     },
 }
 
 #"hosts": [('localhost', 6379)],
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -190,25 +192,33 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
-        'simple': {
-            'format': '{levelname} {message}',
+        'detailed': {
+            'format': '{levelname} {asctime} {module} {filename} {funcName} {lineno} {message}',
             'style': '{',
         },
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': 'django_websockets.log',
-            'formatter': 'verbose',
+            'filename': os.path.join(BASE_DIR, 'errors.log'),
+            'formatter': 'detailed',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
         },
     },
     'loggers': {
-        'django.channels': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
             'propagate': True,
         },
-        # Optionally, add more loggers for other components of Django as needed
-    }
+        'backend': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
 }
