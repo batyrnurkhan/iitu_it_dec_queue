@@ -6,7 +6,7 @@ import { useState } from "react";
 import QueuesPage from './components/QueuesPage';
 import JoinQueuePage from './components/JoinQueuePage';
 import TicketDisplayPage from "./components/TicketDisplayPage";
-import ErrorPage from "./components/ErrorPage"; // Import the ErrorPage component
+import ErrorPage from "./components/ErrorPage";
 import { AudioContext } from "./context/AudioContext";
 
 function App() {

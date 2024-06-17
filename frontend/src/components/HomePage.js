@@ -126,7 +126,7 @@ function HomePage() {
                                     <div className="arrow-container">
                                         <p className="list_text_style">{ticket.ticket_number}</p>
                                     </div>
-                                    <p>{ticket.manager_username || "Manager info not available"}</p>
+                                    <p>  {ticket.manager_username || "Manager info not available"}</p>
                                 </div>
                             ))
                             : []

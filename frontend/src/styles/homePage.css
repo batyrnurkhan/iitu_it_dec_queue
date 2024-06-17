@@ -149,11 +149,11 @@
     font-size: 24px;
 }
 
-/* Styles for the arrow container */
 .arrow-container {
     position: relative;
     display: inline-block;
-    padding-right: 20px; /* This is to make space for the arrow */
+    padding-right: 20px;
+
 }
 
 .arrow-container::before {
@@ -163,12 +163,13 @@
     right: 0;
     width: 10px;
     height: 10px;
-    background-color: #333; /* Color of the arrow. Adjust as needed */
+    background-color: #333;
     clip-path: polygon(100% 50%, 0 0, 0 100%);
     transform: translateY(-50%);
+    padding-left: 10px;
 }
 
-/* Set a fixed height for QR cards and called tickets containers */
+
 .qr-card, .called-tickets-container {
     height: 700px;
 }
