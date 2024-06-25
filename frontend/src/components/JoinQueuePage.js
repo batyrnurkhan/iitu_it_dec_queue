@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/joinQueue.css';
 import { config } from "../config";
@@ -7,6 +7,7 @@ import axiosInstance from "../axiosInstance";
 
 function JoinQueuePage() {
     const navigate = useNavigate();
+    const [message, setMessage] = useState('');
 
     const handleJoin = (queueType) => {
         axiosInstance.post(config.joinQueueUrl, { type: queueType }, {
@@ -16,9 +17,15 @@ function JoinQueuePage() {
             }
         })
         .then(response => {
-            navigate('/ticket', { state: { ticketNumber: response.data.ticket, queueType: queueType } });
+            if (response.data.message === "НЕ РАБОЧЕЕ ВРЕМЯ") {
+                setMessage(response.data.message);
+            } else {
+                navigate('/ticket', { state: { ticketNumber: response.data.ticket, queueType: queueType } });
+            }
         })
-        .catch(error => console.error("Error joining queue:", error.response ? error.response.data : error));
+        .catch(error => {
+            console.error("Error joining queue:", error.response ? error.response.data : error);
+        });
     };
 
     const handleTouch = (queueType) => {
@@ -28,9 +35,15 @@ function JoinQueuePage() {
     return (
         <div className="join-queue-container">
             <img src={logo} alt="Logo" className="logo" />
-            <button className="join-queue-button" onClick={() => handleJoin('BACHELOR')} onTouchEnd={() => handleTouch('BACHELOR')}>Очередь для бакалавров</button>
-            <button className="join-queue-button" onClick={() => handleJoin('MASTER')} onTouchEnd={() => handleTouch('MASTER')}>Очередь для магистратуры</button>
-            <button className="join-queue-button" onClick={() => handleJoin('PHD')} onTouchEnd={() => handleTouch('PHD')}>Очередь для доктарантуры</button>
+            {message ? (
+                <p className="message">{message}</p>
+            ) : (
+                <>
+                    <button className="join-queue-button" onClick={() => handleJoin('BACHELOR')} onTouchEnd={() => handleTouch('BACHELOR')}>Очередь для бакалавров</button>
+                    <button className="join-queue-button" onClick={() => handleJoin('MASTER')} onTouchEnd={() => handleTouch('MASTER')}>Очередь для магистратуры</button>
+                    <button className="join-queue-button" onClick={() => handleJoin('PHD')} onTouchEnd={() => handleTouch('PHD')}>Очередь для доктарантуры</button>
+                </>
+            )}
         </div>
     );
 }

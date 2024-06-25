@@ -8,10 +8,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
 from queue_qr.models import QueueTicket
 
-
+#dsad
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -38,6 +37,7 @@ def profile_view(request):
     }
 
     if user.role == "MANAGER":
+        # Calculate ticket counts for the manager's specific queue type
         ticket_counts = QueueTicket.objects.filter(
             queue__type=user.manager_type,
             served=False  # Only count tickets that are not yet served
@@ -55,6 +55,7 @@ def profile_view(request):
             response_data["ticket_counts"] = ticket_count_dict
 
     return Response(response_data, status=status.HTTP_200_OK)
+
 
 
 from django.contrib.auth import logout

@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
+
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.channel_layer.group_add(
@@ -18,23 +19,20 @@ class QueueConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         pass
 
-    # Handle messages from room group
     async def send_queue_update(self, event):
         await self.send(text_data=json.dumps(event["text"]))
 
     async def queue_ticket_called(self, event):
-        if 'queue_type' in self.scope['url_route']['kwargs']:
-            if event['message']['queue_type'] == self.queue_type:
-                await self.send(text_data=json.dumps({
-                    'type': 'ticket_called',
-                    'data': event['message']
-                }))
-        else:
-            await self.send(text_data=json.dumps({
-                'type': 'ticket_called',
-                'data': event['message']
-            }))
+        await self.send(text_data=json.dumps({
+            'type': 'ticket_called',
+            'data': event['message']
+        }))
 
+    async def queue_ticket_count_update(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'ticket_count_update',
+            'data': event['message']
+        }))
 
 
 class CallNextConsumer(AsyncWebsocketConsumer):

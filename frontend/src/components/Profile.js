@@ -33,19 +33,19 @@ function Profile() {
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            if (data.ticket_counts) {
+            if (data.type === "ticket_count_update" && data.data) {
                 setUserData(prevState => ({
                     ...prevState,
-                    ticket_counts: data.ticket_counts
+                    ticket_counts: data.data.ticket_counts
                 }));
             }
-            if (data.action && data.action === "call_next" && data.ticket_number) {
+            if (data.type === "ticket_called" && data.data) {
                 setUserData(prevState => ({
                     ...prevState,
-                    calledTicket: data.ticket_number
+                    calledTicket: data.data.ticket_number
                 }));
-                if (data.audio_url) {
-                    setAudioQueue(prevQueue => [...prevQueue, data.audio_url]);
+                if (data.data.audio_url) {
+                    setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
                 }
             }
         };
@@ -141,16 +141,12 @@ function Profile() {
                 </div>
                 {userData.role === "MANAGER" && (
                     <div className="profile-detail">
-                        <span className="detail-label">ОБНОВИТЕ ЧТОБЫ ПОСМОТРЕТЬ КОЛИЧЕСТВО ТАЛОНОВ НА ДАННЫЙ МОМЕНТ</span>
+                        <span className="detail-label">КОЛИЧЕСТВО ТАЛОНОВ НА ДАННЫЙ МОМЕНТ</span>
                         <span className="detail-value">
                             {userData.ticket_counts ? (
-                                typeof userData.ticket_counts === 'string' ? (
-                                    userData.ticket_counts
-                                ) : (
-                                    Object.entries(userData.ticket_counts).map(([type, count]) => (
-                                        `${count}`
-                                    )).join(', ')
-                                )
+                                <div>
+                                    {typeTranslations[userData.manager_type]}: {userData.ticket_counts[userData.manager_type] || 0}
+                                </div>
                             ) : (
                                 'ОЧЕРЕДЬ ПУСТАЯ'
                             )}

@@ -1,13 +1,20 @@
-/* Reset default margin, padding, and box-sizing */
+/* Base Reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* General styles for the wrapper */
-.wrapper {
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+}
 
+/* Wrapper */
+.wrapper {
     position: relative;
     display: flex;
     justify-content: space-around;
@@ -16,30 +23,31 @@
     flex-wrap: wrap;
 }
 
+/* Logo */
 .logo {
-    position: fixed; /* or absolute, based on your requirement */
+    position: fixed;
     top: -37px;
     left: -100px;
-    width:300px; /* Adjust the width of the logo as needed */
-    height: auto; /* Maintain the aspect ratio */
-    z-index: 1000; /* Ensure the logo stays above other content */
+    width: 300px;
+    height: auto;
+    z-index: 1000;
 }
 
-
-
-/* Styles for the QR card */
+/* QR Card */
 .qr-card {
     background-color: #ffffff;
     padding: 25px 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     text-align: center;
     margin-top: 25px;
     max-width: 500px;
     margin-right: 25px;
 }
 
-.qr-card h2, .queue-container h2, .called-tickets-container h2 {
+.qr-card h2,
+.queue-container h2,
+.called-tickets-container h2 {
     font-weight: 600;
     font-size: 22px;
     margin-bottom: 20px;
@@ -56,7 +64,7 @@
     line-height: 1.5;
 }
 
-/* Styles for the QR image container */
+/* QR Image Container */
 .qr-image-container {
     padding: 15px;
     border: 1px solid #eaeaea;
@@ -69,15 +77,15 @@
     transform: scale(1.05);
 }
 
-/* Styles for the queue and called tickets containers */
-.queue-container, .called-tickets-container {
+/* Queue and Called Tickets Containers */
+.queue-container,
+.called-tickets-container {
     padding: 25px 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    max-width: 500px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    max-width: 500px; /* Adjusted to full width */
     border: 1px solid #e6e6e6;
-    overflow: auto;
-    position: relative;
+    overflow-y: auto; /* Allow vertical scroll if needed */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -97,7 +105,7 @@
     align-items: flex-start;
 }
 
-/* Styles for ticket lists */
+/* Ticket Lists */
 .ticket-list {
     display: flex;
     flex-wrap: wrap;
@@ -108,52 +116,48 @@
 
 .called-ticket-list {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap; /* Changed to wrap */
     gap: 10px;
     width: 100%;
+    justify-content: space-between; /* Ensure two columns */
 }
 
-/* Styles for individual tickets */
-.ticket, .called-ticket {
+/* Individual Tickets */
+.ticket,
+.called-ticket {
     background-color: #ffffff;
     margin-top: 15px;
     padding: 20px 25px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     transition: background-color 0.3s;
-    width: 48%;
-    height: 75px;
+    width: calc(50% - 20px); /* Adjusted for margin */
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     text-align: center;
 }
 
 .called-ticket {
-    width: 50%;
     background-color: lightgreen;
 }
 
-/* Style odd-numbered tickets */
-.ticket:nth-child(2n), .called-ticket:nth-child(2n) {
-    margin-right: 0;
-}
-
-/* Hover effect on queue tickets */
+/* Hover Effect on Queue Tickets */
 .queue-container .ticket:hover {
     background-color: #f2f2f2;
 }
 
-/* Styles for ticket text */
-.queue-container .ticket span, .called-tickets-container .called-ticket span {
+/* Ticket Text */
+.queue-container .ticket span,
+.called-tickets-container .called-ticket span {
     font-size: 24px;
 }
 
+/* Arrow Container */
 .arrow-container {
     position: relative;
     display: inline-block;
     padding-right: 20px;
-
 }
 
 .arrow-container::before {
@@ -166,10 +170,10 @@
     background-color: #333;
     clip-path: polygon(100% 50%, 0 0, 0 100%);
     transform: translateY(-50%);
-    padding-left: 10px;
 }
 
-
-.qr-card, .called-tickets-container {
+/* Fixed Heights */
+.qr-card,
+.called-tickets-container {
     height: 700px;
 }

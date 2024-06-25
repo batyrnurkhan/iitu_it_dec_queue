@@ -18,9 +18,34 @@ from django.conf import settings
 import os
 import logging
 from django.utils import timezone
+from datetime import datetime, time
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
+
+def broadcast_ticket_count_update(manager_type):
+    queues = Queue.objects.filter(type=manager_type).annotate(
+        ticket_count=Count('queueticket', filter=Q(queueticket__served=False)))
+    ticket_counts = {queue.type: queue.ticket_count for queue in queues}
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "queues",
+        {
+            "type": "queue_ticket_count_update",
+            "message": {"ticket_counts": ticket_counts}
+        }
+    )
+
+
+def is_within_restricted_hours():
+    now = datetime.now().time()
+    start_time = time(22, 0)
+    end_time = time(7, 30)
+    if start_time <= now or now <= end_time:
+        return True
+    return False
 
 def api_enabled_required(func):
     def wrapper(request, *args, **kwargs):
@@ -35,6 +60,9 @@ def api_enabled_required(func):
 @permission_classes([AllowAny])
 @authentication_classes([])
 def join_queue(request):
+    if is_within_restricted_hours():
+        return Response({"message": "НЕ РАБОЧЕЕ ВРЕМЯ"}, status=status.HTTP_200_OK)
+
     queue_type = request.data.get('type')
     if not queue_type:
         return Response({"error": "Queue type is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -60,12 +88,14 @@ def join_queue(request):
             }
         )
 
+        # Broadcast ticket count update
+        broadcast_ticket_count_update(queue_type)
+
         return Response({"ticket": ticket.number, "token": ticket.token}, status=status.HTTP_200_OK)
     except Exception as e:
         logger.error(f"Error creating queue ticket: {str(e)}")
         return Response({"error": "An error occurred while joining the queue"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -178,9 +208,6 @@ def call_next(request):
         tts.save(audio_path)
         audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
 
-        # Log the action
-        logger.debug(f"Ticket {ticket.number} called by {request.user.username}")
-
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "queues",
@@ -194,10 +221,10 @@ def call_next(request):
                 }
             }
         )
-        # Log the WebSocket message
-        logger.debug(f"WebSocket message sent for ticket {ticket.number} in queue {queue_type}")
 
-        # Increment the ticket count in daily report
+        # Broadcast ticket count update
+        broadcast_ticket_count_update(queue_type)
+
         increment_ticket_count(request.user)
         action_description = f"Вызван талон: {ticket.number}"
         log_manager_action(request.user, action_description, ticket.number)
@@ -209,10 +236,8 @@ def call_next(request):
     except Queue.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
 from django.http import JsonResponse
+
 @api_view(['POST'])
 #@permission_classes([IsAuthenticated])
 def delete_audio(request):
