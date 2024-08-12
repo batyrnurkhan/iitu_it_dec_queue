@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8)^erp75w_1vx#4th=h=@*cshsoiy9zlni6$40r@6d+bc!l3lj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['198.211.99.20', 'localhost', '127.0.0.1', 'queue.iitu.edu.kz', '10.8.1.53']
+ALLOWED_HOSTS = ['*', '198.211.99.20', 'localhost', '127.0.0.1', 'queue.iitu.edu.kz', '10.8.1.53']
 
 # Application definition
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'accounts',
+    'import_export',
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
@@ -59,7 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
+    'backend.middleware.ExceptionLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -123,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 
@@ -133,7 +134,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -143,6 +144,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'backend.exception_handler.custom_exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
@@ -166,8 +168,11 @@ SIMPLE_JWT = {
 }
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'  # Убедитесь, что URL для медиафайлов не включает протокол
+STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_CHANNEL_LAYER = "default"
 
@@ -182,6 +187,7 @@ CHANNEL_LAYERS = {
 
 #"hosts": [('localhost', 6379)],
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -190,25 +196,33 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
-        'simple': {
-            'format': '{levelname} {message}',
+        'detailed': {
+            'format': '{levelname} {asctime} {module} {filename} {funcName} {lineno} {message}',
             'style': '{',
         },
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': 'django_websockets.log',
-            'formatter': 'verbose',
+            'filename': os.path.join(BASE_DIR, 'errors.log'),
+            'formatter': 'detailed',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
         },
     },
     'loggers': {
-        'django.channels': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
             'propagate': True,
         },
-        # Optionally, add more loggers for other components of Django as needed
-    }
+        'backend': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
 }

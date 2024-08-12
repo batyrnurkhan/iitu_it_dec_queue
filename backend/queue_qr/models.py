@@ -51,6 +51,10 @@ class QueueTicket(models.Model):
     served = models.BooleanField(default=False)
     serving_manager = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
                                         related_name='serving_tickets')
+    created_at = models.DateTimeField(auto_now_add=True)  # Field added to track the creation time
+
+    def __str__(self):
+        return f'Ticket {self.number} - Served: {"Yes" if self.served else "No"}'
 
 class ApiStatus(models.Model):
     status = models.BooleanField(default=True)

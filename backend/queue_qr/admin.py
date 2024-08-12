@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Queue, ApiStatus
+from .models import Queue, QueueTicket, ApiStatus
+
 # Register your models here.
 @admin.register(ApiStatus)
 class ApiStatusAdmin(admin.ModelAdmin):
@@ -15,3 +16,7 @@ reset_tickets_for_queues.short_description = "Reset tickets for selected queues"
 class QueueAdmin(admin.ModelAdmin):
     list_display = ('type', 'current_number')
     actions = [reset_tickets_for_queues]
+
+@admin.register(QueueTicket)
+class QueueTicketAdmin(admin.ModelAdmin):
+    list_display = ('queue', 'token', 'number', 'served', 'serving_manager')

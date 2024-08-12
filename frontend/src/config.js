@@ -1,5 +1,5 @@
 
-const API_BASE_URL = 'https://queue.iitu.edu.kz';
+const API_BASE_URL = 'https://queue.iitu.edu.kz/api/v2';
 const WS_BASE_URL = 'wss://queue.iitu.edu.kz';
 
 export const config = {
@@ -14,4 +14,5 @@ export const config = {
     callNextUrl: `${API_BASE_URL}/queue/call-next/`,
     wsCallNextUrl: `${WS_BASE_URL}/ws/call-next/`,
     logoutUrl: `${API_BASE_URL}/logout/`,
+    logErrorUrl: `${API_BASE_URL}/log-error/`,
 };

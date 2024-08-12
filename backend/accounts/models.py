@@ -34,6 +34,12 @@ class CustomUser(AbstractUser):
     manager_type = models.CharField(max_length=10, choices=MANAGER_TYPE_CHOICES, blank=True, null=True)
     table = models.ForeignKey(Table, on_delete=models.SET_NULL, blank=True, null=True)
 
+    def called_tickets_count(self):
+        return ManagerActionLog.objects.filter(
+            manager=self,
+            action__startswith="Called next ticket"
+        ).count()
+
 class ManagerWorkplace(models.Model):
     manager = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     current_serving = models.IntegerField(default=0)
@@ -44,10 +50,18 @@ class ManagerActionLog(models.Model):
     manager = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     action = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    ticket_number = models.PositiveIntegerField(null=True, blank=True)  # Add this field
-    def __str__(self):
-        return f"{self.manager.username} ({self.manager.table.name}) ({self.manager.manager_type}) - {self.action} at {self.timestamp}"
+    ticket_number = models.PositiveIntegerField(null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if "Called next ticket" in self.action:
+            report, created = DailyTicketReport.objects.get_or_create(
+                manager=self.manager,
+                date=self.timestamp.date()
+            )
+            if not created:
+                report.ticket_count += 1
+                report.save()
 
 from datetime import date
 

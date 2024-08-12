@@ -10,7 +10,7 @@
 
     position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: flex-start;
     padding-top: 60px;
     flex-wrap: wrap;
@@ -130,8 +130,9 @@
 }
 
 .called-ticket {
-    width: 50%;
+    width: 100%;
     background-color: lightgreen;
+    font-size: 40px;
 }
 
 /* Style odd-numbered tickets */

@@ -18,18 +18,20 @@ class QueueConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         pass
 
-    # Handle messages from room group
     async def send_queue_update(self, event):
         await self.send(text_data=json.dumps(event["text"]))
 
     async def queue_ticket_called(self, event):
-        # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'type': 'ticket_called',
             'data': event['message']
         }))
 
-
+    async def queue_ticket_count_update(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'ticket_count_update',
+            'data': event['message']
+        }))
 
 class CallNextConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -47,3 +49,4 @@ class CallNextConsumer(AsyncWebsocketConsumer):
                 'message': 'Ticket 12 is being called in the BACHELOR queue.'
             }
             await self.send(text_data=json.dumps(response))
+

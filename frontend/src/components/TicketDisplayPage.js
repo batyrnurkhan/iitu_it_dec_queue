@@ -1,16 +1,20 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import '../styles/TicketDisplayPage.css';
+import logo from "../static/logo.png";
 
 function TicketDisplayPage() {
+    document.title = "TICKET";
+
     const location = useLocation();
     const { ticketNumber, queueType } = location.state || {};
 
     return (
         <div className="ticket-display-container">
-            <h1>Ticket Details</h1>
-            <p><strong>Queue Type:</strong> {queueType}</p>
-            <p><strong>Ticket Number:</strong> {ticketNumber}</p>
+            <img src={logo} alt="Logo" className="logo" />
+            <h1>ВАШ ТАЛОН</h1>
+            <p><strong>ТИП ОЧЕРЕДИ:</strong> {queueType}</p>
+            <p><strong>НОМЕР ТАЛОНА:</strong> {ticketNumber}</p>
         </div>
     );
 }
