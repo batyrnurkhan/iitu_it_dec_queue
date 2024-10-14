@@ -226,3 +226,5 @@ LOGGING = {
         },
     },
 }
+
+CSRF_TRUSTED_ORIGINS = ['https://queue.iitu.edu.kz/']
