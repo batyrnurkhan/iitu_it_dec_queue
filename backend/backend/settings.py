@@ -228,3 +228,5 @@ LOGGING = {
 }
 
 CSRF_TRUSTED_ORIGINS = ['https://queue.iitu.edu.kz/']
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
