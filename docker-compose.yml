@@ -8,6 +8,7 @@ services:
     command: daphne backend.asgi:application --port 8000 --bind 0.0.0.0
     volumes:
       - ./backend:/app
+      - ./static:/app/static
     ports:
       - "8002:8000"
     depends_on:
