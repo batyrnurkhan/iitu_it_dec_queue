@@ -20,16 +20,13 @@ function JoinQueuePage() {
             if (response.data.message === "НЕ РАБОЧЕЕ ВРЕМЯ") {
                 setMessage(response.data.message);
             } else {
-                navigate('/ticket', { state: { ticketNumber: response.data.ticket, queueType: queueType } });
+                console.log("Response data:", response.data); // Log the response data to debug
+                navigate('/ticket', { state: { ticketNumber: response.data.ticket, queueType: queueType, ticketId: response.data['ticket.id'] } });
             }
         })
         .catch(error => {
             console.error("Error joining queue:", error.response ? error.response.data : error);
         });
-    };
-
-    const handleTouch = (queueType) => {
-        handleJoin(queueType);
     };
 
     return (
@@ -39,9 +36,9 @@ function JoinQueuePage() {
                 <p className="message">{message}</p>
             ) : (
                 <>
-                    <button className="join-queue-button" onClick={() => handleJoin('BACHELOR')} onTouchEnd={() => handleTouch('BACHELOR')}>Очередь для бакалавров</button>
-                    <button className="join-queue-button" onClick={() => handleJoin('MASTER')} onTouchEnd={() => handleTouch('MASTER')}>Очередь для магистратуры</button>
-                    <button className="join-queue-button" onClick={() => handleJoin('PHD')} onTouchEnd={() => handleTouch('PHD')}>Очередь для доктарантуры</button>
+                    <button className="join-queue-button" onClick={() => handleJoin('BACHELOR')}>Очередь на Бакалавр</button>
+                    <button className="join-queue-button" onClick={() => handleJoin('MASTER')}>Очередь на Маг./Докт.</button>
+                    <button className="join-queue-button" onClick={() => handleJoin('PHD')}>Очередь на PLATONUS</button>
                 </>
             )}
         </div>

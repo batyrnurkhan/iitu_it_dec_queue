@@ -12,48 +12,25 @@
 /* JoinQueuePage.css */
 
 .join-queue-button {
-    background-color: #4CAF50;
+    background-color: #4CAF50; /* Green color */
     color: white;
     border: none;
-    padding: 20px;
+    padding: 20px; /* Adjust padding as needed */
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 24px;
-    margin: 20px 2px;
+    font-size: 24px; /* Increased font size for larger text */
+    margin: 20px 2px; /* Increased margin for more space between buttons */
     transition-duration: 0.4s;
     cursor: pointer;
-    border-radius: 8px;
-    width: 400px;
-    height: 100px;
-    overflow: hidden;
-}
-
-.join-queue-button-no {
-    background-color: red;
-    color: white;
-    border: none;
-    padding: 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 24px;
-    margin: 20px 2px;
-    transition-duration: 0.4s;
-    cursor: pointer;
-    border-radius: 8px;
-    width: 400px;
-    height: 100px;
-    overflow: hidden;
+    border-radius: 8px; /* Slightly larger border-radius for rounder corners */
+    width: 400px; /* Fixed width */
+    height: 100px; /* Fixed height */
+    overflow: hidden; /* Prevents text overflow */
 }
 
 .join-queue-button:hover {
     background-color: white;
     color: black;
-    border: 2px solid #4CAF50;
-}
-.join-queue-button-no:hover {
-    background-color: white;
-    color: black;
-    border: 2px solid red;
+    border: 2px solid #4CAF50; /* Slightly thicker border on hover */
 }

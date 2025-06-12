@@ -1,5 +1,6 @@
-const API_BASE_URL = 'http://localhost:8000/api/v2';
-const WS_BASE_URL = 'ws://localhost:8000';
+
+const API_BASE_URL = 'https://queue.iitu.edu.kz/api/v2';
+const WS_BASE_URL = 'wss://queue.iitu.edu.kz';
 
 export const config = {
     fetchQueuesUrl: `${API_BASE_URL}/queue/queues/`,

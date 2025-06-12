@@ -1,0 +1,80 @@
+	import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import '../styles/TicketDisplayPage.css';
+import logo from "../static/logo.png";
+import { config } from "../config";
+
+function TicketDisplayPage() {
+    document.title = "TICKET";
+
+    const location = useLocation();
+    const { ticketNumber, queueType } = location.state || {};
+    const [audioUrl, setAudioUrl] = useState('');
+    const [managerUsername, setManagerUsername] = useState('');
+
+    const translateManagerUsername = (username) => {
+        const regex = /^stol(\d+)$/i;
+        const match = username.match(regex);
+        if (match) {
+            return `СТОЛ ${match[1]}`;
+        }
+        return username;
+    };
+
+    useEffect(() => {
+        const rws = new ReconnectingWebSocket(config.queuesSocketUrl);
+
+        rws.onopen = () => {
+            console.log('WebSocket connection established');
+        };
+
+        rws.onmessage = (message) => {
+            const data = JSON.parse(message.data);
+            console.log("Received WebSocket message:", data); // Log received message
+            if (data.type === 'ticket_called' && data.data.ticket_number === ticketNumber) {
+                console.log("Matching ticket number:", data.data.ticket_number); // Log matching ticket number
+                setAudioUrl(data.data.audio_url);
+                setManagerUsername(translateManagerUsername(data.data.manager_username));
+                const audio = new Audio(data.data.audio_url);
+                audio.play();
+            }
+        };
+
+        rws.onerror = (errorEvent) => {
+            console.error("WebSocket error observed:", errorEvent);
+            if (errorEvent.type === 'error') {
+                window.location.href = '/error'; // Redirect to error page on WebSocket error
+            }
+        };
+
+        rws.onclose = (closeEvent) => {
+            console.warn("WebSocket connection closed:", closeEvent);
+        };
+
+        return () => {
+            rws.close();
+        };
+    }, [ticketNumber]);
+
+    return (
+        <div>
+            {audioUrl ? (
+                <div className="ticket-display-container">
+                    <img src={logo} alt="Logo" className="logo" />
+                    <h1>ПОДОЙДИТЕ К МЕНЕДЖЕРУ</h1>
+                    <p><strong>МЕНЕДЖЕР:</strong> {managerUsername}</p>
+                </div>
+            ) : (
+                <div className="ticket-display-container">
+                    <img src={logo} alt="Logo" className="logo" />
+                    <h1>ВАШ ТАЛОН</h1>
+                    <p><strong>ТИП ОЧЕРЕДИ:</strong> {queueType}</p>
+                    <p><strong>НОМЕР ТАЛОНА:</strong> {ticketNumber}</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default TicketDisplayPage;

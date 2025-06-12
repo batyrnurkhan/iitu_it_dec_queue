@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/profile.css';  // Make sure this path is correct
+import '../styles/profile.css';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { config } from "../config";
 import logo from "../static/logo.png";
@@ -40,10 +40,12 @@ function Profile() {
                 }));
             }
             if (data.type === "ticket_called" && data.data) {
-                setUserData(prevState => ({
-                    ...prevState,
-                    calledTicket: data.data.ticket_number
-                }));
+                if (data.data.manager_username === userData.username) {
+                    setUserData(prevState => ({
+                        ...prevState,
+                        called_ticket: data.data.ticket_number
+                    }));
+                }
                 if (data.data.audio_url) {
                     setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
                 }
@@ -96,7 +98,7 @@ function Profile() {
             .then(response => {
                 setUserData(prevState => ({
                     ...prevState,
-                    calledTicket: response.data.ticket_number
+                    called_ticket: response.data.ticket_number
                 }));
             })
             .catch(error => {
@@ -158,10 +160,10 @@ function Profile() {
             <div className="call-next">
                 {userData.role === "MANAGER" && (
                     <div>
-                        {userData.calledTicket ? (
+                        {userData.called_ticket ? (
                             <div>
                                 <span className="detail-label">СЕЙЧАС ОБСЛУЖИВАЕТСЯ ТАЛОН</span>
-                                <span className="detail-value last-called-ticket">{userData.calledTicket}</span>
+                                <span className="detail-value last-called-ticket">{userData.called_ticket}</span>
                                 <button className="call-next-button" onClick={handleCallNext}>СЛЕДУЮЩИЙ ТАЛОН</button>
                             </div>
                         ) : (

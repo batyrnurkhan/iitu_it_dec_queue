@@ -5,11 +5,13 @@ import { config } from "../config";
 import axiosInstance from "../axiosInstance";
 
 function HomePage() {
-    document.title = "QR CODE"
+    document.title = "QR CODE";
     const [queues, setQueues] = useState([]);
     const [audioQueue, setAudioQueue] = useState([]);
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioAllowed, setAudioAllowed] = useState(true);
+    const [ticketDisplayQueue, setTicketDisplayQueue] = useState([]);
+    const [currentTicket, setCurrentTicket] = useState(null);
 
     const fetchQueues = () => {
         axiosInstance.get(config.fetchQueuesUrl)
@@ -68,6 +70,11 @@ function HomePage() {
                         });
                     });
 
+                    setTicketDisplayQueue(prevQueue => [...prevQueue, {
+                        ticket_number: data.data.ticket_number,
+                        manager_username: data.data.manager_username
+                    }]);
+
                     if (data.data.audio_url) {
                         setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
                     }
@@ -104,6 +111,31 @@ function HomePage() {
         }
     }, [audioQueue, isPlaying, audioAllowed]);
 
+    useEffect(() => {
+        if (ticketDisplayQueue.length > 0 && currentTicket === null) {
+            setCurrentTicket(ticketDisplayQueue[0]);
+            setTicketDisplayQueue(prevQueue => prevQueue.slice(1));
+        }
+    }, [ticketDisplayQueue, currentTicket]);
+
+    useEffect(() => {
+        if (currentTicket !== null) {
+            const timer = setTimeout(() => {
+                setCurrentTicket(null);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [currentTicket]);
+
+const getFormattedManagerName = (username) => {
+        const auditoriaMatch = username.match(/^(a?auditoria)(\d+)$/i);
+        if (auditoriaMatch) {
+            return `АУД. ${auditoriaMatch[2]}`;
+        }
+        const stolMatch = username.match(/^stol(\d+)$/);
+        return stolMatch ? `СТОЛ ${stolMatch[1]}` : username;
+    };
+
 
     return (
         <div className="wrapper">
@@ -112,7 +144,7 @@ function HomePage() {
                 <h2>Сканируй QR чтобы встать в очередь</h2>
                 <p>--__--</p>
                 <div className="qr-image-container">
-                    <img src="http://localhost:8000/api/v2/queue/generate-qr/" alt="QR Code for joining queue" />
+ <img src="https://queue.iitu.edu.kz/api/v2/queue/generate-qr/" alt="QR Code for joining queue" />
                 </div>
             </div>
 
@@ -123,16 +155,24 @@ function HomePage() {
                         Array.isArray(queue["Все обслуживаемые талоны"])
                             ? queue["Все обслуживаемые талоны"].map(ticket => (
                                 <div className="called-ticket" key={ticket.ticket_number}>
-                                    <div className="arrow-container">
-                                        <p className="list_text_style">{ticket.ticket_number}</p>
-                                    </div>
-                                    <p>-  {ticket.manager_username || "Manager info not available"}</p>
+                                    <p className="list_text_style">{ticket.ticket_number} </p> | <p>   </p>
+                                    <p> {getFormattedManagerName(ticket.manager_username) || "Manager info not available"}</p>
                                 </div>
                             ))
                             : []
                     ))}
                 </div>
             </div>
+
+            <div className="current-ticket-display">
+                {currentTicket && (
+                    <div className="called-ticket">
+                        <p className="list_text_style">{currentTicket.ticket_number} | </p>
+                        <p>{getFormattedManagerName(currentTicket.manager_username)}</p>
+                    </div>
+                )}
+            </div>
+
             {!audioAllowed && (
                 <button onClick={enableAudio}>Enable Sound Notifications</button>
             )}

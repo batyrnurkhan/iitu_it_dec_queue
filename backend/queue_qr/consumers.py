@@ -1,7 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
-
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.channel_layer.group_add(
@@ -33,7 +32,6 @@ class QueueConsumer(AsyncWebsocketConsumer):
             'type': 'ticket_count_update',
             'data': event['message']
         }))
-
 
 class CallNextConsumer(AsyncWebsocketConsumer):
     async def connect(self):

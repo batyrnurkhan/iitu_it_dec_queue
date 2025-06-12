@@ -4,7 +4,7 @@ import { config } from '../config';
 import '../styles/ErrorPage.css';
 
 const ErrorPage = () => {
-    document.title = "ERROR"
+document.title = "ERROR"
     useEffect(() => {
         // Log the error to the server when the component mounts
         axiosInstance.post(config.logErrorUrl, { message: 'An error occurred and the user was redirected to the error page' })

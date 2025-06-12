@@ -10,7 +10,6 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from queue_qr.models import QueueTicket
 
-#dsad
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -24,6 +23,16 @@ def login_view(request):
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+from django.contrib.auth import logout
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    # Logout the user
+    logout(request)
+    return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -33,7 +42,7 @@ def profile_view(request):
         "username": user.username,
         "email": user.email,
         "role": user.role,
-        "manager_type": user.manager_type
+        "manager_type": user.manager_type,
     }
 
     if user.role == "MANAGER":
@@ -48,21 +57,12 @@ def profile_view(request):
         )
 
         ticket_count_dict = {item['queue__type']: item['count'] for item in ticket_counts}
+        response_data["ticket_counts"] = ticket_count_dict if ticket_count_dict else None
 
-        if not ticket_count_dict:
-            response_data["ticket_counts"] = None  # Indicate that the queue is empty
-        else:
-            response_data["ticket_counts"] = ticket_count_dict
+        # Get the last called ticket number for the manager
+        last_called_ticket = QueueTicket.objects.filter(
+            serving_manager=user
+        ).order_by('-id').first()
+        response_data["called_ticket"] = last_called_ticket.number if last_called_ticket else None
 
     return Response(response_data, status=status.HTTP_200_OK)
-
-
-
-from django.contrib.auth import logout
-@api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def logout_view(request):
-    # Logout the user
-    logout(request)
-    return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)

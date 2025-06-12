@@ -7,7 +7,7 @@ from import_export.admin import ExportActionMixin
 @admin.register(CustomUser)
 class CustomUserAdmin(ExportActionMixin, UserAdmin):
     model = CustomUser
-    list_display = ['id', 'username', 'email', 'role', 'manager_type', 'table', 'called_tickets_count']
+    list_display = ['id', 'username','first_name', 'email', 'role', 'manager_type', 'table', 'called_tickets_count']
     fieldsets = UserAdmin.fieldsets + (
         ('Custom Fields', {
             'fields': ('role', 'manager_type', 'table'),
