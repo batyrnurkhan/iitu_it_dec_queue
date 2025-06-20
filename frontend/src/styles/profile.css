@@ -74,10 +74,16 @@ button {
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s ease;
+    position: relative;
 }
 
-button:hover {
+button:hover:not(:disabled) {
     background-color: #45a049;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .logout-button {
@@ -92,12 +98,102 @@ button:hover {
     width: 100%;
     padding: 15px;
     font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Состояние загрузки кнопки */
+.call-next-button.loading {
+    background-color: #666;
+    pointer-events: none;
+}
+
+.call-next-button.loading:hover {
+    background-color: #666;
+}
+
+/* Анимированный спиннер для кнопки */
+.spinner-inline {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spinner-rotate 0.8s linear infinite;
+}
+
+@keyframes spinner-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .last-called-ticket {
     font-size: 18px;
     color: #d9534f;
     font-weight: bold;
+}
+
+/* Next ticket info */
+.next-ticket-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: #e7f3ff;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.next-ticket-info h3 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+.next-ticket-details p {
+    margin: 5px 0;
+}
+
+/* Current serving info */
+.current-serving {
+    text-align: center;
+}
+
+.serving-info {
+    margin: 15px 0;
+    padding: 15px;
+    background: #d4edda;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+}
+
+.serving-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #155724;
+    margin-bottom: 5px;
+}
+
+.serving-ticket {
+    color: #155724;
+    font-size: 14px;
+}
+
+/* Визуальная индикация состояния загрузки */
+.profile-container.calling .serving-info {
+    opacity: 0.7;
+    position: relative;
+}
+
+.profile-container.calling .serving-info::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 8px;
 }
 
 /* Responsive adjustments */
@@ -114,5 +210,10 @@ button:hover {
     button {
         padding: 8px 16px;
         font-size: 14px;
+    }
+
+    .call-next-button {
+        font-size: 16px;
+        padding: 12px;
     }
 }

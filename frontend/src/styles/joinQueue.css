@@ -34,3 +34,286 @@
     color: black;
     border: 2px solid #4CAF50; /* Slightly thicker border on hover */
 }
+
+/* Дополнительные стили для joinQueue.css */
+
+.join-queue-form {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 16px;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-input.error,
+.form-select.error {
+    border-color: #dc3545;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+    display: block;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.submit-button.loading {
+    position: relative;
+}
+
+.submit-button.loading::after {
+    content: '';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.form-info {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.form-info p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Стили для статуса уведомлений */
+.notification-status {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.notification-status.granted {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.notification-status.not-granted {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.enable-notifications-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: inherit;
+    padding: 0;
+    margin: 0 4px;
+}
+
+.enable-notifications-btn:hover {
+    color: #0056b3;
+}
+
+.message-container {
+    text-align: center;
+}
+
+.error-message {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.retry-button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.retry-button:hover {
+    background: #5a6268;
+}
+
+@keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Дополнительные стили для QueuesPage */
+
+.update-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.last-update {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+}
+
+.queue-section {
+    margin-bottom: 30px;
+}
+
+.queue-title {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.queue-tickets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.ticket-info {
+    text-align: center;
+}
+
+.ticket-name {
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    font-size: 16px;
+}
+
+.ticket-number {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.serving-ticket-info {
+    text-align: center;
+}
+
+.ticket-details {
+    margin: 5px 0 0 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.empty-message,
+.empty-queue {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 20px;
+}
+
+.queue-stats {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.queue-stats h3 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+}
+
+.queue-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.stat-label {
+    font-weight: 600;
+}
+
+.stat-value {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.qr-description {
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+}

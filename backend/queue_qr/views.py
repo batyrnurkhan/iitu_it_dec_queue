@@ -7,34 +7,44 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Queue, QueueTicket, ApiStatus
+from .models import Queue, QueueTicket, ApiStatus, QueueType  # Добавили QueueType
+from .serializers import JoinQueueSerializer
 import qrcode
 from django.http import HttpResponse, JsonResponse
 from io import BytesIO
 from rest_framework.authtoken.models import Token
-from accounts.models import ManagerActionLog, DailyTicketReport
+from accounts.models import ManagerActionLog, DailyTicketReport, Table
 from gtts import gTTS
 from django.conf import settings
 import os
 import logging
 from accounts.models import CustomUser
 
-
 logger = logging.getLogger(__name__)
 
-def broadcast_ticket_count_update(manager_type):
-    queues = Queue.objects.filter(type=manager_type).annotate(
-        ticket_count=Count('queueticket', filter=Q(queueticket__served=False)))
-    ticket_counts = {queue.type: queue.ticket_count for queue in queues}
 
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        "queues",
-        {
-            "type": "queue_ticket_count_update",
-            "message": {"ticket_counts": ticket_counts}
-        }
-    )
+def broadcast_ticket_count_update(manager_type):
+    # Теперь ищем по QueueType
+    try:
+        queue_type = QueueType.objects.get(name=manager_type)
+        tickets_count = QueueTicket.objects.filter(
+            queue_type=queue_type,
+            served=False
+        ).count()
+
+        ticket_counts = {manager_type: tickets_count}
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "queues",
+            {
+                "type": "queue_ticket_count_update",
+                "message": {"ticket_counts": ticket_counts}
+            }
+        )
+    except QueueType.DoesNotExist:
+        print(f"QueueType {manager_type} not found")
+
 
 def is_within_restricted_hours():
     now = datetime.now().time()
@@ -44,14 +54,15 @@ def is_within_restricted_hours():
         return False
     return True
 
+
 def api_enabled_required(func):
     def wrapper(request, *args, **kwargs):
         api_status, created = ApiStatus.objects.get_or_create(name='API_STATUS')
         if not api_status.status:
             return JsonResponse({'error': 'API is currently disabled.'}, status=403)
         return func(request, *args, **kwargs)
-    return wrapper
 
+    return wrapper
 
 
 def adjust_ticket_number(queue_type, last_ticket_number):
@@ -73,7 +84,6 @@ def adjust_ticket_number(queue_type, last_ticket_number):
     return 1
 
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @authentication_classes([])
@@ -83,81 +93,116 @@ def join_queue(request):
         print("Request made outside working hours")  # Debug print
         return Response({"message": "НЕ РАБОЧЕЕ ВРЕМЯ"}, status=status.HTTP_200_OK)
 
-    queue_type = request.data.get('type')
-    print(f"Queue type: {queue_type}")  # Debug print
-    if not queue_type:
-        print("Queue type not provided")  # Debug print
-        return Response({"error": "Queue type is required"}, status=status.HTTP_400_BAD_REQUEST)
+    # Используем сериализатор для валидации данных
+    serializer = JoinQueueSerializer(data=request.data)
+    if not serializer.is_valid():
+        print(f"Validation errors: {serializer.errors}")  # Debug print
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    queue_type_name = serializer.validated_data['type']
+    full_name = serializer.validated_data['full_name']
+
+    print(f"Queue type: {queue_type_name}, Full name: {full_name}")  # Debug print
 
     try:
-        queue = Queue.objects.get(type=queue_type)
-        print(f"Queue found: {queue}")  # Debug print
-    except Queue.DoesNotExist:
+        # Ищем в QueueType вместо Queue
+        queue_type = QueueType.objects.get(name=queue_type_name)
+        print(f"Queue type found: {queue_type}")  # Debug print
+    except QueueType.DoesNotExist:
         print("Queue type not found")  # Debug print
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         # Get the highest ticket number for the specific queue type
-        last_ticket = QueueTicket.objects.filter(queue=queue).order_by('-created_at').first()
+        last_ticket = QueueTicket.objects.filter(queue_type=queue_type).order_by('-created_at').first()
         print(f"Last ticket: {last_ticket.number if last_ticket else 'None'}")  # Debug print
 
         if last_ticket:
-            new_ticket_number = adjust_ticket_number(queue_type, last_ticket.number)
+            new_ticket_number = adjust_ticket_number(queue_type_name, last_ticket.number)
         else:
-            new_ticket_number = adjust_ticket_number(queue_type, 0)  # Start from the beginning
+            new_ticket_number = adjust_ticket_number(queue_type_name, 0)  # Start from the beginning
 
         print(f"New ticket number: {new_ticket_number}")  # Debug print
 
-        ticket = QueueTicket.objects.create(queue=queue, number=new_ticket_number)
-        print(f"New ticket created: Ticket {ticket.number}")  # Debug print
-
-        # Notify via channels layer about the new ticket
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "queues",
-            {
-                "type": "send_queue_update",
-                "text": {"message": f"New ticket {ticket.number} created for {queue_type} queue."}
-            }
+        # Создаем талон с ФИО и QueueType
+        ticket = QueueTicket.objects.create(
+            queue_type=queue_type,  # Используем QueueType вместо Queue
+            number=new_ticket_number,
+            full_name=full_name
         )
-        print("Notification sent via channels layer")  # Debug print
+        print(f"New ticket created: Ticket {ticket.number} for {ticket.full_name}")  # Debug print
 
-        # Broadcast the ticket count update
-        broadcast_ticket_count_update(queue_type)
-        print("Broadcasted ticket count update")  # Debug print
+        # Отправляем WebSocket уведомления
+        broadcast_new_ticket(ticket)
+        broadcast_ticket_count_update(queue_type_name)
 
-        return Response({"ticket": ticket.number, "ticket.id": ticket.id, "token": ticket.token}, status=status.HTTP_201_CREATED)
+        print("WebSocket notifications sent")  # Debug print
+
+        return Response({
+            "ticket": ticket.number,
+            "ticket_id": ticket.id,
+            "full_name": ticket.full_name,
+            "token": ticket.token
+        }, status=status.HTTP_201_CREATED)
     except Exception as e:
         print(f"Error creating queue ticket: {str(e)}")  # Debug print
         logger.error(f"Error creating queue ticket: {str(e)}")
-        return Response({"error": "An error occurred while joining the queue"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "An error occurred while joining the queue"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+def broadcast_new_ticket(ticket):
+    """Уведомление о создании нового талона"""
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "queues",
+        {
+            "type": "new_ticket_created",
+            "message": {
+                "queue_type": ticket.queue_type.name,
+                "ticket_number": ticket.number,
+                "full_name": ticket.full_name,
+                "timestamp": ticket.created_at.isoformat()
+            }
+        }
+    )
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-@api_enabled_required
+# @api_enabled_required  # Временно отключено
 def get_queues(request):
-    queues = Queue.objects.all().annotate(ticket_count=Count('queueticket'))
+    queue_types = QueueType.objects.all()
     result = []
 
     latest_tickets_per_manager = {}
-    for queue in queues:
-        ticket_numbers = list(queue.queueticket_set.filter(served=False).values_list('number', flat=True))
+    for queue_type in queue_types:
+        # Получаем необслуженные талоны для этого типа очереди
+        waiting_tickets = QueueTicket.objects.filter(
+            queue_type=queue_type,
+            served=False
+        ).values('number', 'full_name')
 
-        serving_tickets = queue.queueticket_set.filter(served=True).select_related('serving_manager').order_by('-id')
+        ticket_info = [{"number": ticket['number'], "full_name": ticket['full_name']} for ticket in waiting_tickets]
+
+        # Получаем обслуживаемые талоны
+        serving_tickets = QueueTicket.objects.filter(
+            queue_type=queue_type,
+            served=True
+        ).select_related('serving_manager').order_by('-id')
 
         for serving_ticket in serving_tickets:
             manager_username = serving_ticket.serving_manager.username if serving_ticket.serving_manager else 'Unknown'
             if manager_username not in latest_tickets_per_manager:
                 latest_tickets_per_manager[manager_username] = {
                     'ticket_number': serving_ticket.number,
+                    'full_name': serving_ticket.full_name,
                     'manager_username': manager_username
                 }
 
         result.append({
-            'Очередь': queue.type,
-            'Зарегестрированные талоны': ticket_numbers,
+            'Очередь': queue_type.name,
+            'Зарегестрированные талоны': ticket_info,
         })
 
     result.append({
@@ -165,6 +210,7 @@ def get_queues(request):
     })
 
     return Response(result)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -175,30 +221,38 @@ def generate_qr(request):
     img.save(response, "PNG")
     return response
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 @api_enabled_required
 def current_serving(request):
-    queues = Queue.objects.all()
+    queue_types = QueueType.objects.all()
     data = {}
-    for queue in queues:
-        data[queue.type] = queue.currently_serving
+    for queue_type in queue_types:
+        # Находим последний обслуженный талон для этого типа
+        last_served = QueueTicket.objects.filter(
+            queue_type=queue_type,
+            served=True
+        ).order_by('-id').first()
+
+        data[queue_type.name] = last_served.number if last_served else 0
     return Response(data)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def reset_queue(request):
-    queue_type = request.data.get('type')
+    queue_type_name = request.data.get('type')
     try:
-        queue = Queue.objects.get(type=queue_type)
-        queue.current_number = 0
-        queue.save()
+        queue_type = QueueType.objects.get(name=queue_type_name)
 
-        QueueTicket.objects.filter(queue=queue).delete()
+        # Удаляем все талоны этого типа
+        QueueTicket.objects.filter(queue_type=queue_type).delete()
 
-        return Response({"message": f"{queue_type} queue has been reset."}, status=status.HTTP_200_OK)
-    except Queue.DoesNotExist:
+        return Response({"message": f"{queue_type_name} queue has been reset."}, status=status.HTTP_200_OK)
+    except QueueType.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 def increment_ticket_count(manager):
     report, created = DailyTicketReport.objects.get_or_create(
@@ -207,26 +261,38 @@ def increment_ticket_count(manager):
     report.ticket_count += 1
     report.save()
 
-def log_manager_action(manager, action_description, ticket_number=None):
+
+def log_manager_action(manager, action_description, ticket_number=None, full_name=None):
+    action_text = action_description
+    if full_name:
+        action_text += f" ({full_name})"
+
     ManagerActionLog.objects.create(
         manager=manager,
-        action=action_description,
+        action=action_text,
         ticket_number=ticket_number,
         timestamp=datetime.now()
     )
+
 
 from pydub import AudioSegment
 from django.http import Http404
 
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def call_next(request):
-    queue_type = request.data.get('type')
+    queue_type_name = request.data.get('type')
     try:
-        queue = Queue.objects.get(type=queue_type)
-        ticket = QueueTicket.objects.filter(queue=queue, served=False).order_by('created_at').first()
+        # ИСПРАВЛЕНО: используем QueueType вместо Queue
+        queue_type = QueueType.objects.get(name=queue_type_name)
+
+        # ИСПРАВЛЕНО: ищем по queue_type вместо queue
+        ticket = QueueTicket.objects.filter(
+            queue_type=queue_type,
+            served=False
+        ).order_by('created_at').first()
+
         if ticket is None:
             return Response({"message": "Queue is empty."}, status=status.HTTP_200_OK)
 
@@ -235,6 +301,7 @@ def call_next(request):
         ticket.save()
 
         ticket_number = ticket.number
+        full_name = ticket.full_name
         username = request.user.username.lower()
         stol_number = username[-1]  # Assuming stol number is the last character of the username
 
@@ -246,59 +313,57 @@ def call_next(request):
         else:
             location_text = f"к столу номер {stol_number}"
 
-        # Create TTS for the announcement
-        tts_text = f"Номер {ticket_number}, подойдите {location_text}."
+        # Создаем TTS для объявления с ФИО вместо номера талона
+        tts_text = f"Талон номер {ticket_number}, подойдите {location_text}."
+
         tts = gTTS(tts_text, lang='ru')
-        
-        audio_filename = f"ticket_{ticket_number}_{request.user.username}.mp3"
+
+        audio_filename = f"ticket_{ticket_number}_{full_name.replace(' ', '_')}_{request.user.username}.mp3"
         audio_path = os.path.join(settings.MEDIA_ROOT, audio_filename)
-        
+
         tts.save(audio_path)
 
-        audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename).replace("http://", "https://")
+        audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
 
-        # Debug print statements
-        print(f"Sending WebSocket message for ticket {ticket.id}")
-        print(f"Manager username: {request.user.username}")
-        print(f"Audio URL: {audio_url}")
 
+
+        # Отправляем WebSocket уведомление
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "queues",
             {
                 "type": "queue.ticket_called",
                 "message": {
-                    "queue_type": queue_type,
+                    "queue_type": queue_type_name,
                     "ticket_id": ticket.id,
                     "ticket_number": ticket.number,
+                    "full_name": full_name,
                     "manager_username": request.user.username,
                     "audio_url": audio_url
                 }
             }
         )
 
-        broadcast_ticket_count_update(queue_type)
+        broadcast_ticket_count_update(queue_type_name)
         increment_ticket_count(request.user)
-        log_manager_action(request.user, f"Вызван талон: {ticket.number}", ticket.number)
+        log_manager_action(request.user, f"Вызван талон: {ticket.number}", ticket.number, full_name)
 
         return Response({
             "ticket_id": ticket.id,
             "ticket_number": ticket.number,
+            "full_name": full_name,
             "audio_url": audio_url
         }, status=status.HTTP_200_OK)
 
-    except Queue.DoesNotExist:
+    except QueueType.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
-    except Http404 as e:
-        return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         print(f"Error in call_next: {str(e)}")
         return Response({"error": "An error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def delete_audio(request):
     audio_filename = request.data.get('audio_filename')
 

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from datetime import date
 
 
 class Table(models.Model):
@@ -8,6 +9,7 @@ class Table(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class CustomUser(AbstractUser):
     ADMIN = 'ADMIN'
@@ -35,15 +37,40 @@ class CustomUser(AbstractUser):
     table = models.ForeignKey(Table, on_delete=models.SET_NULL, blank=True, null=True)
 
     def called_tickets_count(self):
+        """Подсчет вызванных талонов"""
         return ManagerActionLog.objects.filter(
             manager=self,
-            action__startswith="Called next ticket"
+            action__startswith="Вызван талон"  # Обновленный текст
         ).count()
+
+    def today_tickets_count(self):
+        """Подсчет талонов за сегодня"""
+        today_report = DailyTicketReport.objects.filter(
+            manager=self,
+            date=date.today()
+        ).first()
+        return today_report.ticket_count if today_report else 0
+
+    def get_manager_location(self):
+        """Получение местоположения менеджера"""
+        username_lower = self.username.lower()
+
+        if username_lower in ['auditoria111', 'aauditoria111']:
+            return "Аудитория 111"
+        elif username_lower in ['auditoria303', 'auditoria305', 'auditoria306']:
+            return f"Аудитория {username_lower[-3:]}"
+        else:
+            stol_number = username_lower[-1] if username_lower else "1"
+            return f"Стол {stol_number}"
+
 
 class ManagerWorkplace(models.Model):
     manager = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     current_serving = models.IntegerField(default=0)
     last_ticket = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"Workplace for {self.manager.username}"
 
 
 class ManagerActionLog(models.Model):
@@ -54,24 +81,34 @@ class ManagerActionLog(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if "Called next ticket" in self.action:
+        # Обновляем счетчик при вызове талона
+        if "Вызван талон" in self.action:
             report, created = DailyTicketReport.objects.get_or_create(
                 manager=self.manager,
-                date=self.timestamp.date()
+                date=self.timestamp.date(),
+                defaults={'ticket_count': 0}
             )
-            if not created:
+            if created:
+                report.ticket_count = 1
+            else:
                 report.ticket_count += 1
-                report.save()
+            report.save()
 
-from datetime import date
+    def __str__(self):
+        return f"{self.manager.username} - {self.action} - {self.timestamp}"
+
+    class Meta:
+        ordering = ['-timestamp']
+
 
 class DailyTicketReport(models.Model):
     manager = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     date = models.DateField(default=date.today)
-    ticket_count = models.PositiveIntegerField()
+    ticket_count = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = ('manager', 'date')
+        ordering = ['-date']
 
     def __str__(self):
         return f"{self.manager.username} - {self.date} - {self.ticket_count} tickets"

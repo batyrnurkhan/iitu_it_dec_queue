@@ -10,6 +10,8 @@ class QueueType(models.Model):
 
     def __str__(self):
         return self.name
+
+
 class Queue(models.Model):
     BACHELOR = 'BACHELOR'
     MASTER = 'MASTER'
@@ -45,16 +47,23 @@ class Queue(models.Model):
 
 
 class QueueTicket(models.Model):
-    queue = models.ForeignKey(Queue, on_delete=models.CASCADE)
+    # ИЗМЕНЕНО: используем QueueType вместо Queue
+    queue_type = models.ForeignKey(QueueType, on_delete=models.CASCADE, related_name='tickets')
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     number = models.PositiveIntegerField()
+    # Добавляем поля для ФИО
+    full_name = models.CharField(max_length=255, verbose_name="ФИО")
     served = models.BooleanField(default=False)
     serving_manager = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
                                         related_name='serving_tickets')
     created_at = models.DateTimeField(auto_now_add=True)  # Field added to track the creation time
 
     def __str__(self):
-        return f'Ticket {self.number} - Served: {"Yes" if self.served else "No"}'
+        return f'Ticket {self.number} ({self.full_name}) - {self.queue_type.name} - Served: {"Yes" if self.served else "No"}'
+
+    class Meta:
+        ordering = ['created_at']
+
 
 class ApiStatus(models.Model):
     status = models.BooleanField(default=True)

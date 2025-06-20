@@ -6,10 +6,10 @@ from django.core.asgi import get_asgi_application
 from queue_qr.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter({
-    "https": get_asgi_application(),  # Django's ASGI application for traditional HTTP requests
-    "websocket": AuthMiddlewareStack(  # Add authentication support for WebSockets
+    "https": get_asgi_application(),
+    "websocket": AuthMiddlewareStack(
         URLRouter(
-            websocket_urlpatterns  # Use the WebSocket URL routing from the queue_qr app
+            websocket_urlpatterns
         )
     ),
 })

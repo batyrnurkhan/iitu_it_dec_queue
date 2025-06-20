@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import '../styles/profile.css';
 import ReconnectingWebSocket from 'reconnecting-websocket';
@@ -9,14 +9,12 @@ const roleTranslations = {
     "MANAGER": "Менеджер",
     "ADMIN": "Администратор",
     "USER": "Пользователь",
-    // Add other roles as needed
 };
 
 const typeTranslations = {
     "BACHELOR": "Менеджер бакалавра",
     "MASTER": "Менеджер магистратуры доктарантуры",
     "PHD": "Менеджер по регистрации в PLATONUS",
-    // Add other types as needed
 };
 
 function Profile() {
@@ -24,8 +22,13 @@ function Profile() {
 
     const [userData, setUserData] = useState({});
     const [socket, setSocket] = useState(null);
-    const [audioQueue, setAudioQueue] = useState([]);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [nextTicket, setNextTicket] = useState(null);
+    const [isCallInProgress, setIsCallInProgress] = useState(false);
+    const userDataRef = useRef(userData);
+
+    useEffect(() => {
+        userDataRef.current = userData;
+    }, [userData]);
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
@@ -33,61 +36,64 @@ function Profile() {
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            console.log('WebSocket message:', data);
+
             if (data.type === "ticket_count_update" && data.data) {
                 setUserData(prevState => ({
                     ...prevState,
                     ticket_counts: data.data.ticket_counts
                 }));
             }
+
             if (data.type === "ticket_called" && data.data) {
-                if (data.data.manager_username === userData.username) {
+                if (data.data.manager_username === userDataRef.current.username) {
                     setUserData(prevState => ({
                         ...prevState,
-                        called_ticket: data.data.ticket_number
+                        last_called_ticket: {
+                            number: data.data.ticket_number,
+                            full_name: data.data.full_name,
+                            queue_type: data.data.queue_type
+                        }
                     }));
+                    setIsCallInProgress(false);
                 }
-                if (data.data.audio_url) {
-                    setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
+            }
+
+            if (data.type === "new_ticket" && data.data) {
+                // Обновляем информацию о следующем талоне если это наша очередь
+                if (data.data.queue_type === userDataRef.current.manager_type) {
+                    fetchProfileData(); // Перезагружаем профиль для актуальной информации
                 }
             }
         };
 
         setSocket(ws);
-
-        axios.get(config.profileUrl, {
-            headers: {
-                'Authorization': `Token ${token}`
-            }
-        })
-            .then((response) => {
-                setUserData(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching profile data:", error);
-            });
+        fetchProfileData();
 
         return () => {
             ws.close();
         };
     }, []);
 
-    useEffect(() => {
-        if (audioQueue.length > 0 && !isPlaying) {
-            setIsPlaying(true);
-            const audio = new Audio(audioQueue[0]);
-            audio.play().then(() => {
-                // Playback started successfully
-            }).catch(error => {
-                console.error("Error playing the audio:", error);
-            });
-            audio.onended = () => {
-                setIsPlaying(false);
-                setAudioQueue(prevQueue => prevQueue.slice(1));
-            };
-        }
-    }, [audioQueue, isPlaying]);
+    const fetchProfileData = () => {
+        const token = localStorage.getItem('access_token');
+        axios.get(config.profileUrl, {
+            headers: {
+                'Authorization': `Token ${token}`
+            }
+        })
+        .then((response) => {
+            setUserData(response.data);
+            setNextTicket(response.data.next_ticket);
+        })
+        .catch((error) => {
+            console.error("Error fetching profile data:", error);
+        });
+    };
 
     const handleCallNext = () => {
+        setIsCallInProgress(true);
+
         axios.post(config.callNextUrl, {
             type: userData.manager_type
         }, {
@@ -95,15 +101,34 @@ function Profile() {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
             }
         })
-            .then(response => {
-                setUserData(prevState => ({
-                    ...prevState,
-                    called_ticket: response.data.ticket_number
-                }));
-            })
-            .catch(error => {
-                console.error("Error calling the next ticket:", error);
-            });
+        .then(response => {
+            setUserData(prevState => ({
+                ...prevState,
+                last_called_ticket: {
+                    number: response.data.ticket_number,
+                    full_name: response.data.full_name,
+                    queue_type: userData.manager_type
+                }
+            }));
+
+            // Обновляем информацию о следующем талоне
+            fetchProfileData();
+
+            // Fallback таймер на случай если WebSocket не ответит
+            setTimeout(() => {
+                setIsCallInProgress(false);
+            }, 3000);
+        })
+        .catch(error => {
+            console.error("Error calling the next ticket:", error);
+            setIsCallInProgress(false);
+
+            if (error.response && error.response.data.message === "Queue is empty.") {
+                alert("Очередь пуста");
+            } else {
+                alert("Ошибка при вызове следующего талона");
+            }
+        });
     };
 
     const handleLogout = () => {
@@ -112,14 +137,14 @@ function Profile() {
                 'Authorization': `Token ${localStorage.getItem('access_token')}`
             }
         })
-            .then(response => {
-                console.log("Logout successful:", response.data.message);
-                localStorage.removeItem('access_token');
-                window.location.href = config.logoutRedirectUrl;
-            })
-            .catch(error => {
-                console.error("Error during logout:", error);
-            });
+        .then(response => {
+            console.log("Logout successful:", response.data.message);
+            localStorage.removeItem('access_token');
+            window.location.href = config.logoutRedirectUrl;
+        })
+        .catch(error => {
+            console.error("Error during logout:", error);
+        });
     };
 
     const translatedRole = roleTranslations[userData.role] || userData.role;
@@ -157,17 +182,43 @@ function Profile() {
                 )}
             </div>
 
+            {userData.role === "MANAGER" && nextTicket && (
+                <div className="next-ticket-info">
+                    <h3>Следующий в очереди:</h3>
+                    <div className="next-ticket-details">
+                        <p><strong>ФИО:</strong> {nextTicket.full_name}</p>
+                        <p><strong>Номер талона:</strong> {nextTicket.number}</p>
+                        <p><strong>Время создания:</strong> {new Date(nextTicket.created_at).toLocaleTimeString()}</p>
+                    </div>
+                </div>
+            )}
+
             <div className="call-next">
                 {userData.role === "MANAGER" && (
                     <div>
-                        {userData.called_ticket ? (
-                            <div>
-                                <span className="detail-label">СЕЙЧАС ОБСЛУЖИВАЕТСЯ ТАЛОН</span>
-                                <span className="detail-value last-called-ticket">{userData.called_ticket}</span>
-                                <button className="call-next-button" onClick={handleCallNext}>СЛЕДУЮЩИЙ ТАЛОН</button>
+                        {userData.last_called_ticket ? (
+                            <div className="current-serving">
+                                <span className="detail-label">СЕЙЧАС ОБСЛУЖИВАЕТСЯ</span>
+                                <div className="serving-info">
+                                    <div className="serving-name">{userData.last_called_ticket.full_name}</div>
+                                    <div className="serving-ticket">Талон №{userData.last_called_ticket.number}</div>
+                                </div>
+                                <button
+                                    className={`call-next-button ${isCallInProgress ? 'loading' : ''}`}
+                                    onClick={handleCallNext}
+                                    disabled={isCallInProgress}
+                                >
+                                    {isCallInProgress ? 'ВЫЗОВ...' : 'СЛЕДУЮЩИЙ ТАЛОН'}
+                                </button>
                             </div>
                         ) : (
-                            <button className="call-next-button" onClick={handleCallNext}>СЛЕДУЮЩИЙ ТАЛОН</button>
+                            <button
+                                className={`call-next-button ${isCallInProgress ? 'loading' : ''}`}
+                                onClick={handleCallNext}
+                                disabled={isCallInProgress}
+                            >
+                                {isCallInProgress ? 'ВЫЗОВ...' : 'СЛЕДУЮЩИЙ ТАЛОН'}
+                            </button>
                         )}
                     </div>
                 )}

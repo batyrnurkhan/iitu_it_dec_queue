@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8)^erp75w_1vx#4th=h=@*cshsoiy9zlni6$40r@6d+bc!l3lj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*', '198.211.99.20', 'localhost', '127.0.0.1', 'queue.iitu.edu.kz', '10.8.1.53']
+ALLOWED_HOSTS = ['*', '198.211.99.20', 'localhost', '127.0.0.1', 'queue.iitu.edu.kz', '10.8.1.53', '0.0.0.0']
 
 # Application definition
 
@@ -66,8 +66,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'backend.urls'
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000",
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3001",  # Ваш React порт
+    "http://127.0.0.1:3001",
 ]
 
 TEMPLATES = [
@@ -169,10 +170,15 @@ SIMPLE_JWT = {
 
 
 MEDIA_URL = '/media/'  # Убедитесь, что URL для медиафайлов не включает протокол
-STATIC_URL = '/static/'
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Изменили путь
+
+# Дополнительные папки со статикой
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+] if os.path.exists(os.path.join(BASE_DIR, 'static')) else []
 
 DEFAULT_CHANNEL_LAYER = "default"
 
@@ -180,7 +186,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('redis', 6379)],
+            "hosts": [('host.docker.internal', 6379)],  # ← Рабочий хост!
         },
     },
 }
