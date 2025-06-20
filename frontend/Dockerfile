@@ -1,20 +1,20 @@
-# Use an official Node runtime as a parent image
+# Вариант 1: С использованием serve (быстрое решение)
 FROM node:14
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . .
-
-# Install any needed packages specified in package.json
+COPY package*.json ./
 RUN npm install
 
-# Make port 3000 available to the world outside this container
+COPY . .
+
+# Собираем production build
+RUN npm run build
+
+# Устанавливаем serve для раздачи статики
+RUN npm install -g serve
+
 EXPOSE 3000
 
-# Define environment variable
-ENV NODE_ENV=production
-
-# Run npm start when the container launches
-CMD ["npm", "start"]
+# Запускаем serve вместо npm start
+CMD ["serve", "-s", "build", "-l", "3000"]
