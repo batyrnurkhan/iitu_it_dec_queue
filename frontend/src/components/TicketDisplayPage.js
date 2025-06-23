@@ -19,102 +19,162 @@ function TicketDisplayPage() {
     const [estimatedWaitTime, setEstimatedWaitTime] = useState(null);
 
     const updateQueuePosition = async () => {
-        try {
-            const response = await fetch(config.fetchQueuesUrl, {
-                headers: {
-                    'Authorization': `Token ${localStorage.getItem('access_token')}`
-                }
-            });
-            const data = await response.json();
+    try {
+        const response = await fetch(config.fetchQueuesUrl);
 
-            // Находим нашу очередь
-            const ourQueue = data.find(queue => queue['Очередь'] === queueType);
-            if (ourQueue && ourQueue['Зарегестрированные талоны']) {
-                const tickets = ourQueue['Зарегестрированные талоны'];
-                const ourIndex = tickets.findIndex(ticket =>
-                    ticket.number === ticketNumber || ticket.full_name === fullName
-                );
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-                if (ourIndex !== -1) {
-                    setQueuePosition(ourIndex + 1);
-                    // Примерная оценка времени ожидания (2-3 минуты на человека)
-                    setEstimatedWaitTime(ourIndex * 2.5);
-                } else {
-                    // Талон не найден в очереди, возможно уже обслужен
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+            console.error('API returned non-array data:', data);
+            return;
+        }
+
+        const ourQueue = data.find(queue => queue['Очередь'] === queueType);
+        if (ourQueue && ourQueue['Зарегестрированные талоны']) {
+            const tickets = ourQueue['Зарегестрированные талоны'];
+            const ourIndex = tickets.findIndex(ticket =>
+                ticket.number === ticketNumber || ticket.full_name === fullName
+            );
+
+            if (ourIndex !== -1) {
+                setQueuePosition(ourIndex + 1);
+                setEstimatedWaitTime(ourIndex * 2.5);
+            } else {
+                // Проверяем, не сохранен ли статус "called"
+                const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
+                if (!savedStatus || JSON.parse(savedStatus).status !== 'called') {
                     setQueueStatus('completed');
                 }
             }
-        } catch (error) {
-            console.error("Error updating queue position:", error);
+        }
+    } catch (error) {
+        console.error("Error updating queue position:", error);
+    }
+};
+
+    useEffect(() => {
+    // Очищаем старые статусы
+    const cleanupOldTicketStatuses = () => {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            if (key.startsWith('ticket_') && key.endsWith('_status')) {
+                try {
+                    const statusData = JSON.parse(localStorage.getItem(key));
+                    const calledAt = new Date(statusData.calledAt);
+                    const now = new Date();
+                    const hoursDiff = (now - calledAt) / (1000 * 60 * 60);
+
+                    if (hoursDiff > 24) {
+                        localStorage.removeItem(key);
+                    }
+                } catch (error) {
+                    localStorage.removeItem(key);
+                }
+            }
+        });
+    };
+
+    cleanupOldTicketStatuses();
+
+    // Восстанавливаем состояние из localStorage
+    if (ticketId) {
+        const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
+        if (savedStatus) {
+            try {
+                const statusData = JSON.parse(savedStatus);
+                const calledAt = new Date(statusData.calledAt);
+                const now = new Date();
+                const hoursDiff = (now - calledAt) / (1000 * 60 * 60);
+
+                if (hoursDiff < 2) { // Статус актуален менее 2 часов
+                    setQueueStatus(statusData.status);
+                    if (statusData.currentlyServing) {
+                        setCurrentlyServing(statusData.currentlyServing);
+                    }
+                    console.log('Restored ticket status from localStorage:', statusData);
+                }
+            } catch (error) {
+                console.error('Error parsing saved ticket status:', error);
+            }
+        }
+    }
+
+    // Сохраняем информацию о талоне для уведомлений
+    if (ticketId && ticketNumber && fullName && queueType) {
+        const ticketInfo = {
+            ticketId,
+            ticketNumber,
+            fullName,
+            queueType,
+            token,
+            createdAt: new Date().toISOString()
+        };
+        notificationService.setUserTicketInfo(ticketInfo);
+    }
+
+    // Устанавливаем WebSocket соединение
+    const ws = new ReconnectingWebSocket(config.queuesSocketUrl);
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('WebSocket message on ticket page:', data);
+
+        if (data.type === "ticket_called" && data.data) {
+            if (data.data.ticket_id === ticketId ||
+                (data.data.ticket_number === ticketNumber && data.data.full_name === fullName)) {
+
+                const currentlyServingData = {
+                    full_name: data.data.full_name,
+                    ticket_number: data.data.ticket_number,
+                    manager_username: data.data.manager_username
+                };
+
+                setQueueStatus('called');
+                setCurrentlyServing(currentlyServingData);
+
+                // Сохраняем статус в localStorage
+                const ticketStatus = {
+                    status: 'called',
+                    currentlyServing: currentlyServingData,
+                    calledAt: new Date().toISOString()
+                };
+                localStorage.setItem(`ticket_${ticketId}_status`, JSON.stringify(ticketStatus));
+
+                // Показываем уведомление
+                notificationService.showTicketCalledNotification(data.data);
+
+                // Воспроизводим аудио
+                if (data.data.audio_url) {
+                    const audio = new Audio(data.data.audio_url);
+                    audio.play().catch(error => {
+                        console.error("Error playing audio:", error);
+                    });
+                }
+
+                notificationService.clearUserTicketInfo();
+            }
+        }
+
+        if (data.type === "ticket_count_update" && data.data) {
+            updateQueuePosition();
         }
     };
 
-    useEffect(() => {
-        // Сохраняем информацию о талоне для уведомлений
-        if (ticketId && ticketNumber && fullName && queueType) {
-            const ticketInfo = {
-                ticketId,
-                ticketNumber,
-                fullName,
-                queueType,
-                token,
-                createdAt: new Date().toISOString()
-            };
-            notificationService.setUserTicketInfo(ticketInfo);
-        }
+    ws.onopen = () => {
+        console.log('WebSocket connected for ticket tracking');
+        updateQueuePosition();
+    };
 
-        // Устанавливаем WebSocket соединение для отслеживания статуса
-        const ws = new ReconnectingWebSocket(config.queuesSocketUrl);
+    setSocket(ws);
 
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log('WebSocket message on ticket page:', data);
-
-            if (data.type === "ticket_called" && data.data) {
-                // Проверяем, вызвали ли наш талон
-                if (data.data.ticket_id === ticketId ||
-                    (data.data.ticket_number === ticketNumber && data.data.full_name === fullName)) {
-                    setQueueStatus('called');
-                    setCurrentlyServing({
-                        full_name: data.data.full_name,
-                        ticket_number: data.data.ticket_number,
-                        manager_username: data.data.manager_username
-                    });
-
-                    // Показываем push-уведомление через наш сервис
-                    notificationService.showTicketCalledNotification(data.data);
-
-                    // Воспроизводим аудио если доступно
-                    if (data.data.audio_url) {
-                        const audio = new Audio(data.data.audio_url);
-                        audio.play().catch(error => {
-                            console.error("Error playing audio:", error);
-                        });
-                    }
-
-                    // Очищаем информацию о талоне, так как он уже вызван
-                    notificationService.clearUserTicketInfo();
-                }
-            }
-
-            if (data.type === "ticket_count_update" && data.data) {
-                // Обновляем позицию в очереди
-                updateQueuePosition();
-            }
-        };
-
-        ws.onopen = () => {
-            console.log('WebSocket connected for ticket tracking');
-            // Запрашиваем текущий статус очереди
-            updateQueuePosition();
-        };
-
-        setSocket(ws);
-
-        return () => {
-            ws.close();
-        };
-    }, [ticketId, ticketNumber, fullName, queueType, token]);
+    return () => {
+        ws.close();
+    };
+}, [ticketId, ticketNumber, fullName, queueType, token]);
 
     const getQueueDisplayName = (type) => {
         const queueNames = {
