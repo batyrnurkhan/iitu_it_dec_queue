@@ -1,16 +1,6 @@
 version: '3.3'
 
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - web
-      - react-app
-
   web:
     build:
       context: ./backend
@@ -19,31 +9,27 @@ services:
     volumes:
       - ./backend:/app
       - ./static:/app/static
-    expose:
-      - "8000"
+    ports:
+      - "8002:8000"
     depends_on:
       - redis
     environment:
       - DEBUG=1
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6378:6379"
 
   react-app:
     container_name: iitu-queue-front
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    expose:
-      - "3000"
+    ports:
+      - "3001:3000"
     environment:
       - NODE_ENV=production
-      - HOST=0.0.0.0
-      - PORT=3000
-      - REACT_APP_API_URL=/api/v2
-      - REACT_APP_WS_URL=ws://queue.iitu.edu.kz
     volumes:
       - ./frontend:/app
       - /app/node_modules
-
-  redis:
-    image: "redis:alpine"
-    expose:
-      - "6379"
