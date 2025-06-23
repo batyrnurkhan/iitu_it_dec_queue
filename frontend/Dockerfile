@@ -1,4 +1,3 @@
-# Вариант 1: С использованием serve (быстрое решение)
 FROM node:14
 
 WORKDIR /app
@@ -8,13 +7,10 @@ RUN npm install
 
 COPY . .
 
-# Собираем production build
-RUN npm run build
-
-# Устанавливаем serve для раздачи статики
-RUN npm install -g serve
+ENV HOST=0.0.0.0
+ENV PORT=3000
 
 EXPOSE 3000
 
-# Запускаем serve вместо npm start
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Используйте npm start вместо serve
+CMD ["npm", "start"]
