@@ -89,7 +89,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-ASGI_APPLICATION = "backend.routing.application"
+ASGI_APPLICATION = "backend.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -182,11 +182,20 @@ STATICFILES_DIRS = [
 
 DEFAULT_CHANNEL_LAYER = "default"
 
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('host.docker.internal', 6379)],  # ← Рабочий хост!
+#         },
+#     },
+# }
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('host.docker.internal', 6379)],  # ← Рабочий хост!
+            "hosts": [('redis', 6379)],  # Используйте имя сервиса из docker-compose
         },
     },
 }

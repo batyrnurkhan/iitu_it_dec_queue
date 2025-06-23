@@ -2,7 +2,7 @@
 
 // Используем переменные окружения или production URL'ы
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://queue.iitu.edu.kz/api/v2';
-const WS_BASE_URL = process.env.REACT_APP_WS_URL || 'wss://queue.iitu.edu.kz/ws';
+const WS_BASE_URL = process.env.REACT_APP_WS_URL || 'wss://queue.iitu.edu.kz';
 
 export const config = {
     // API URLs
