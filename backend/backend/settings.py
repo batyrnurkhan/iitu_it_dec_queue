@@ -172,7 +172,8 @@ SIMPLE_JWT = {
 MEDIA_URL = '/media/'  # Убедитесь, что URL для медиафайлов не включает протокол
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
+STATIC_URL = '/django-static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Изменили путь
 
 # Дополнительные папки со статикой
