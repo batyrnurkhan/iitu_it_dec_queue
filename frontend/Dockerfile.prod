@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies including serve
+# Install dependencies
 RUN npm ci --only=production && npm install -g serve
 
 # Copy source code
@@ -13,15 +13,6 @@ COPY . .
 
 # Build the application
 RUN npm run build
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S react -u 1001
-
-# Change ownership
-RUN chown -R react:nodejs /app
-
-USER react
 
 # Expose port
 EXPOSE 3000
