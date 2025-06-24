@@ -2,14 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import '../styles/TicketDisplayPage.css';
-import { config } from "../config";
-import logo from "../static/logo.png";
-
-// Безопасный импорт NotificationService
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import ReconnectingWebSocket from 'reconnecting-websocket';
-import '../styles/TicketDisplayPage.css';
 import { config, getQueueDisplayName } from "../config";
 import logo from "../static/logo.png";
 
