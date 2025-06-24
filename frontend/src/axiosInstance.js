@@ -1,5 +1,3 @@
-// axiosInstance.js
-
 import axios from 'axios';
 import { config } from './config';
 
@@ -12,14 +10,14 @@ const axiosInstance = axios.create({
     },
 });
 
-// Interceptор для запросов - добавляем токен автоматически
+// Interceptor для запросов - добавляем токен автоматически
 axiosInstance.interceptors.request.use(
     (requestConfig) => {
         const token = localStorage.getItem('access_token');
         if (token) {
             requestConfig.headers.Authorization = `Token ${token}`;
         }
-        
+
         // Логируем запросы в development режиме
         if (process.env.NODE_ENV === 'development') {
             console.log('API Request:', {
@@ -29,7 +27,7 @@ axiosInstance.interceptors.request.use(
                 headers: requestConfig.headers
             });
         }
-        
+
         return requestConfig;
     },
     (error) => {
@@ -49,17 +47,17 @@ axiosInstance.interceptors.response.use(
                 data: response.data
             });
         }
-        
+
         return response;
     },
     (error) => {
         console.error('API Error:', error);
-        
+
         // Обработка различных типов ошибок
         if (error.response) {
             // Сервер ответил с кодом ошибки
             const { status, data } = error.response;
-            
+
             switch (status) {
                 case 401:
                     // Неавторизован - удаляем токен и перенаправляем на логин
@@ -69,7 +67,7 @@ axiosInstance.interceptors.response.use(
                         window.location.href = '/login';
                     }
                     break;
-                    
+
                 case 403:
                     // Запрещено
                     console.warn('Access forbidden:', data);
@@ -78,7 +76,7 @@ axiosInstance.interceptors.response.use(
                         alert('Система временно недоступна. Попробуйте позже.');
                     }
                     break;
-                    
+
                 case 400:
                     // Плохой запрос - ошибки валидации
                     console.warn('Bad request:', data);
@@ -90,37 +88,37 @@ axiosInstance.interceptors.response.use(
                         console.warn('Validation errors:', errorMessages);
                     }
                     break;
-                    
+
                 case 404:
                     // Не найдено
                     console.warn('Resource not found:', error.config.url);
                     break;
-                    
+
                 case 500:
                     // Внутренняя ошибка сервера
                     console.error('Internal server error:', data);
                     alert('Внутренняя ошибка сервера. Попробуйте позже.');
                     break;
-                    
+
                 default:
                     console.error(`HTTP ${status}:`, data);
             }
-            
+
             // Отправляем ошибку на сервер для логирования (если endpoint существует)
             if (config.logErrorUrl && status >= 500) {
                 logErrorToServer(error);
             }
-            
+
         } else if (error.request) {
             // Запрос был отправлен, но ответ не получен
             console.error('Network error - no response received:', error.request);
             alert('Ошибка сети. Проверьте подключение к интернету.');
-            
+
         } else {
             // Ошибка при настройке запроса
             console.error('Request setup error:', error.message);
         }
-        
+
         return Promise.reject(error);
     }
 );
@@ -139,7 +137,7 @@ const logErrorToServer = async (error) => {
             timestamp: new Date().toISOString(),
             user_id: localStorage.getItem('user_id') || 'anonymous'
         };
-        
+
         // Отправляем без interceptor'ов, чтобы избежать рекурсии
         await axios.post(config.logErrorUrl, errorData, {
             timeout: 5000,
@@ -159,11 +157,11 @@ export const retryRequest = async (requestFn, maxRetries = 3, delay = 1000) => {
             return await requestFn();
         } catch (error) {
             console.warn(`Request attempt ${attempt} failed:`, error.message);
-            
+
             if (attempt === maxRetries) {
                 throw error;
             }
-            
+
             // Экспоненциальная задержка
             const waitTime = delay * Math.pow(2, attempt - 1);
             await new Promise(resolve => setTimeout(resolve, waitTime));
@@ -192,6 +190,10 @@ export const isAuthenticated = () => {
 
 // Функции для работы с очередями
 export const queueAPI = {
+    // НОВЫЙ: Получить типы очередей
+    getQueueTypes: () =>
+        axiosInstance.get('/queue/queue-types/'),
+
     // Присоединиться к очереди
     joinQueue: (queueType, fullName) => 
         axiosInstance.post('/queue/join-queue/', { 

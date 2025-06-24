@@ -570,3 +570,53 @@
 .message-container.visible {
     will-change: opacity, transform;
 }
+
+/* Добавьте эти стили в конец вашего существующего joinQueue.css */
+
+/* Стили для загрузки типов очередей */
+.loading-select {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    color: var(--text-secondary);
+    min-height: 56px;
+    transition: var(--transition-normal);
+}
+
+.loading-select span:first-child {
+    animation: spin 1s linear infinite;
+    font-size: 1.2em;
+}
+
+/* Улучшенные стили для disabled селекта */
+.form-select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: rgba(243, 244, 246, 0.8);
+}
+
+/* Темная тема для новых элементов */
+@media (prefers-color-scheme: dark) {
+    .loading-select {
+        background: rgba(45, 55, 72, 0.9);
+        border-color: var(--gray-600);
+        color: var(--gray-300);
+    }
+
+    .form-select:disabled {
+        background-color: rgba(31, 41, 55, 0.8);
+    }
+}
+
+/* Мобильные устройства */
+@media (max-width: 768px) {
+    .loading-select {
+        padding: var(--space-3) var(--space-4);
+        min-height: 50px;
+    }
+}

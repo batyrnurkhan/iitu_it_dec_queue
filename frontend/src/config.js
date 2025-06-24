@@ -16,6 +16,7 @@ export const config = {
 
     // API URLs
     fetchQueuesUrl: `${API_BASE_URL}/queue/queues/`,
+    queueTypesUrl: `${API_BASE_URL}/queue/queue-types/`, // НОВЫЙ ENDPOINT
     generateQrUrl: `${API_BASE_URL}/queue/generate-qr/`,
     logoImageUrl: `${API_BASE_URL}/static/logo.png`,
     joinQueueUrl: `${API_BASE_URL}/queue/join-queue/`,
@@ -36,17 +37,53 @@ export const config = {
     displaySocketUrl: `${WS_BASE_URL}/displays/`,
     accountsSocketUrl: `${WS_BASE_URL}/accounts/`,
 
-    // Queue type constants
+    // ОБНОВЛЕННЫЕ Queue type constants
     queueTypes: {
-        BACHELOR: 'BACHELOR',
+        BACHELOR_GRANT: 'BACHELOR_GRANT',
+        BACHELOR_PAID: 'BACHELOR_PAID',
         MASTER: 'MASTER',
-        PHD: 'PHD'
+        PHD: 'PHD',
+        PLATONUS: 'PLATONUS',
+        // Оставляем старые для совместимости
+        BACHELOR: 'BACHELOR_GRANT', // Алиас для старого кода
     },
 
+    // ОБНОВЛЕННЫЕ Display names
     queueDisplayNames: {
-        BACHELOR: 'Бакалавр',
-        MASTER: 'Маг./Докт.',
-        PHD: 'PLATONUS'
+        BACHELOR_GRANT: 'Бакалавр грант',
+        BACHELOR_PAID: 'Бакалавр платное',
+        MASTER: 'Магистратура',
+        PHD: 'PhD',
+        PLATONUS: 'Platonus',
+        // Алиасы для старого кода
+        BACHELOR: 'Бакалавр грант',
+    },
+
+    // Queue descriptions
+    queueDescriptions: {
+        BACHELOR_GRANT: 'Для студентов бакалавриата (грант)',
+        BACHELOR_PAID: 'Для студентов бакалавриата (платное)',
+        MASTER: 'Для магистрантов и докторантов',
+        PHD: 'Для аспирантов и PhD студентов',
+        PLATONUS: 'Вопросы по системе PLATONUS',
+    },
+
+    // Queue emojis
+    queueEmojis: {
+        BACHELOR_GRANT: '🎓',
+        BACHELOR_PAID: '💳',
+        MASTER: '📚',
+        PHD: '🔬',
+        PLATONUS: '💻',
+    },
+
+    // Ticket number ranges (для информации)
+    ticketRanges: {
+        BACHELOR_GRANT: { min: 1, max: 499 },
+        BACHELOR_PAID: { min: 500, max: 599 },
+        MASTER: { min: 600, max: 699 },
+        PHD: { min: 700, max: 799 },
+        PLATONUS: { min: 800, max: 999 },
     },
 
     // Notification settings
@@ -75,6 +112,23 @@ export const config = {
     wsBaseUrl: WS_BASE_URL
 };
 
+// Helper functions
+export const getQueueDisplayName = (queueType) => {
+    return config.queueDisplayNames[queueType] || queueType;
+};
+
+export const getQueueDescription = (queueType) => {
+    return config.queueDescriptions[queueType] || 'Описание недоступно';
+};
+
+export const getQueueEmoji = (queueType) => {
+    return config.queueEmojis[queueType] || '📋';
+};
+
+export const getTicketRange = (queueType) => {
+    return config.ticketRanges[queueType] || { min: 1, max: 999 };
+};
+
 // Debug info (только в development)
 if (isDevelopment) {
     console.log('🔧 Frontend Config:', {
@@ -83,8 +137,10 @@ if (isDevelopment) {
         wsBaseUrl: WS_BASE_URL,
         allUrls: {
             fetchQueues: config.fetchQueuesUrl,
+            queueTypes: config.queueTypesUrl,
             joinQueue: config.joinQueueUrl,
             websocket: config.queuesSocketUrl
-        }
+        },
+        queueTypes: config.queueTypes
     });
 }

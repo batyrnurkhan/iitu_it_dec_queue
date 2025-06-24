@@ -6,6 +6,14 @@ import { config } from "../config";
 import logo from "../static/logo.png";
 
 // Безопасный импорт NotificationService
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import '../styles/TicketDisplayPage.css';
+import { config, getQueueDisplayName } from "../config";
+import logo from "../static/logo.png";
+
+// Безопасный импорт NotificationService
 let notificationService;
 try {
     notificationService = require('../services/NotificationService').default;
@@ -52,7 +60,14 @@ function TicketDisplayPage() {
 
     const location = useLocation();
     const navigate = useNavigate();
-    const { ticketNumber, queueType, ticketId, fullName, token } = location.state || {};
+    const {
+        ticketNumber,
+        queueType,
+        queueTypeDisplay,
+        ticketId,
+        fullName,
+        token
+    } = location.state || {};
 
     const [socket, setSocket] = useState(null);
     const [queueStatus, setQueueStatus] = useState('waiting');
@@ -85,7 +100,12 @@ function TicketDisplayPage() {
                 return;
             }
 
-            const ourQueue = data.find(queue => queue['Очередь'] === queueType);
+            // Ищем нашу очередь по типу или отображаемому имени
+            const ourQueue = data.find(queue =>
+                queue['queue_type_code'] === queueType ||
+                queue['Очередь'] === (queueTypeDisplay || getQueueDisplayName(queueType))
+            );
+
             if (ourQueue && ourQueue['Зарегестрированные талоны']) {
                 const tickets = ourQueue['Зарегестрированные талоны'];
                 const ourIndex = tickets.findIndex(ticket =>
@@ -165,6 +185,7 @@ function TicketDisplayPage() {
                 ticketNumber,
                 fullName,
                 queueType,
+                queueTypeDisplay: queueTypeDisplay || getQueueDisplayName(queueType),
                 token,
                 createdAt: new Date().toISOString()
             };
@@ -197,7 +218,8 @@ function TicketDisplayPage() {
                         const currentlyServingData = {
                             full_name: data.data.full_name,
                             ticket_number: data.data.ticket_number,
-                            manager_username: data.data.manager_username
+                            manager_username: data.data.manager_username,
+                            queue_type_display: data.data.queue_type_display
                         };
 
                         setQueueStatus('called');
@@ -297,13 +319,8 @@ function TicketDisplayPage() {
     }, [ticketId, ticketNumber, fullName, queueType, token, queueStatus]);
 
     // Утилитарные функции
-    const getQueueDisplayName = (type) => {
-        const queueNames = {
-            'BACHELOR': 'Бакалавр',
-            'MASTER': 'Маг./Докт.',
-            'PHD': 'PLATONUS'
-        };
-        return queueNames[type] || type;
+    const getDisplayQueueName = () => {
+        return queueTypeDisplay || getQueueDisplayName(queueType) || queueType;
     };
 
     const getManagerLocation = (managerUsername) => {
@@ -405,7 +422,7 @@ function TicketDisplayPage() {
                             <span className="info-label">
                                 📋 Тип очереди
                             </span>
-                            <span className="info-value">{getQueueDisplayName(queueType)}</span>
+                            <span className="info-value">{getDisplayQueueName()}</span>
                         </div>
                     </div>
                 </div>

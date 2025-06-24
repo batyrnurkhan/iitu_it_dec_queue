@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Queue, QueueTicket, ApiStatus, QueueType  # Добавили QueueType
-from .serializers import JoinQueueSerializer
+from .models import Queue, QueueTicket, ApiStatus, QueueType
+from .serializers import JoinQueueSerializer, QueueTypeSerializer
 import qrcode
 from django.http import HttpResponse, JsonResponse
 from io import BytesIO
@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 
 def broadcast_ticket_count_update(manager_type):
-    # Теперь ищем по QueueType
     try:
         queue_type = QueueType.objects.get(name=manager_type)
         tickets_count = QueueTicket.objects.filter(
@@ -61,91 +60,65 @@ def api_enabled_required(func):
         if not api_status.status:
             return JsonResponse({'error': 'API is currently disabled.'}, status=403)
         return func(request, *args, **kwargs)
-
     return wrapper
-
-
-def adjust_ticket_number(queue_type, last_ticket_number):
-    if queue_type == 'BACHELOR':
-        if last_ticket_number < 400:
-            return last_ticket_number + 1
-        else:
-            return 1
-    elif queue_type == 'MASTER':
-        if 400 <= last_ticket_number < 450:
-            return last_ticket_number + 1
-        else:
-            return 401
-    elif queue_type == 'PHD':
-        if 450 <= last_ticket_number < 500:
-            return last_ticket_number + 1
-        else:
-            return 451
-    return 1
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @authentication_classes([])
 def join_queue(request):
-    print("Request received")  # Debug print
+    print("Request received")
     if is_within_restricted_hours():
-        print("Request made outside working hours")  # Debug print
+        print("Request made outside working hours")
         return Response({"message": "НЕ РАБОЧЕЕ ВРЕМЯ"}, status=status.HTTP_200_OK)
 
     # Используем сериализатор для валидации данных
     serializer = JoinQueueSerializer(data=request.data)
     if not serializer.is_valid():
-        print(f"Validation errors: {serializer.errors}")  # Debug print
+        print(f"Validation errors: {serializer.errors}")
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     queue_type_name = serializer.validated_data['type']
     full_name = serializer.validated_data['full_name']
 
-    print(f"Queue type: {queue_type_name}, Full name: {full_name}")  # Debug print
+    print(f"Queue type: {queue_type_name}, Full name: {full_name}")
 
     try:
-        # Ищем в QueueType вместо Queue
         queue_type = QueueType.objects.get(name=queue_type_name)
-        print(f"Queue type found: {queue_type}")  # Debug print
+        print(f"Queue type found: {queue_type}")
     except QueueType.DoesNotExist:
-        print("Queue type not found")  # Debug print
+        print("Queue type not found")
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Get the highest ticket number for the specific queue type
-        last_ticket = QueueTicket.objects.filter(queue_type=queue_type).order_by('-created_at').first()
-        print(f"Last ticket: {last_ticket.number if last_ticket else 'None'}")  # Debug print
+        # Используем новый метод для получения следующего номера
+        new_ticket_number = queue_type.get_next_ticket_number()
+        print(f"New ticket number: {new_ticket_number}")
 
-        if last_ticket:
-            new_ticket_number = adjust_ticket_number(queue_type_name, last_ticket.number)
-        else:
-            new_ticket_number = adjust_ticket_number(queue_type_name, 0)  # Start from the beginning
-
-        print(f"New ticket number: {new_ticket_number}")  # Debug print
-
-        # Создаем талон с ФИО и QueueType
+        # Создаем талон
         ticket = QueueTicket.objects.create(
-            queue_type=queue_type,  # Используем QueueType вместо Queue
+            queue_type=queue_type,
             number=new_ticket_number,
             full_name=full_name
         )
-        print(f"New ticket created: Ticket {ticket.number} for {ticket.full_name}")  # Debug print
+        print(f"New ticket created: Ticket {ticket.number} for {ticket.full_name}")
 
         # Отправляем WebSocket уведомления
         broadcast_new_ticket(ticket)
         broadcast_ticket_count_update(queue_type_name)
 
-        print("WebSocket notifications sent")  # Debug print
+        print("WebSocket notifications sent")
 
         return Response({
             "ticket": ticket.number,
             "ticket_id": ticket.id,
             "full_name": ticket.full_name,
+            "queue_type": queue_type_name,
+            "queue_type_display": queue_type.get_name_display(),
             "token": ticket.token
         }, status=status.HTTP_201_CREATED)
     except Exception as e:
-        print(f"Error creating queue ticket: {str(e)}")  # Debug print
+        print(f"Error creating queue ticket: {str(e)}")
         logger.error(f"Error creating queue ticket: {str(e)}")
         return Response({"error": "An error occurred while joining the queue"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -160,6 +133,7 @@ def broadcast_new_ticket(ticket):
             "type": "new_ticket_created",
             "message": {
                 "queue_type": ticket.queue_type.name,
+                "queue_type_display": ticket.queue_type.get_name_display(),
                 "ticket_number": ticket.number,
                 "full_name": ticket.full_name,
                 "timestamp": ticket.created_at.isoformat()
@@ -170,7 +144,6 @@ def broadcast_new_ticket(ticket):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-# @api_enabled_required  # Временно отключено
 def get_queues(request):
     queue_types = QueueType.objects.all()
     result = []
@@ -181,7 +154,7 @@ def get_queues(request):
         waiting_tickets = QueueTicket.objects.filter(
             queue_type=queue_type,
             served=False
-        ).values('number', 'full_name')
+        ).order_by('created_at').values('number', 'full_name')
 
         ticket_info = [{"number": ticket['number'], "full_name": ticket['full_name']} for ticket in waiting_tickets]
 
@@ -197,11 +170,14 @@ def get_queues(request):
                 latest_tickets_per_manager[manager_username] = {
                     'ticket_number': serving_ticket.number,
                     'full_name': serving_ticket.full_name,
-                    'manager_username': manager_username
+                    'manager_username': manager_username,
+                    'queue_type': serving_ticket.queue_type.name,
+                    'queue_type_display': serving_ticket.queue_type.get_name_display()
                 }
 
         result.append({
-            'Очередь': queue_type.name,
+            'Очередь': queue_type.get_name_display(),
+            'queue_type_code': queue_type.name,
             'Зарегестрированные талоны': ticket_info,
         })
 
@@ -210,6 +186,15 @@ def get_queues(request):
     })
 
     return Response(result)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_queue_types(request):
+    """Новый endpoint для получения всех типов очередей"""
+    queue_types = QueueType.objects.all()
+    serializer = QueueTypeSerializer(queue_types, many=True)
+    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -235,7 +220,10 @@ def current_serving(request):
             served=True
         ).order_by('-id').first()
 
-        data[queue_type.name] = last_served.number if last_served else 0
+        data[queue_type.name] = {
+            'last_served_number': last_served.number if last_served else 0,
+            'queue_type_display': queue_type.get_name_display()
+        }
     return Response(data)
 
 
@@ -247,9 +235,12 @@ def reset_queue(request):
         queue_type = QueueType.objects.get(name=queue_type_name)
 
         # Удаляем все талоны этого типа
+        deleted_count = QueueTicket.objects.filter(queue_type=queue_type).count()
         QueueTicket.objects.filter(queue_type=queue_type).delete()
 
-        return Response({"message": f"{queue_type_name} queue has been reset."}, status=status.HTTP_200_OK)
+        return Response({
+            "message": f"Очередь '{queue_type.get_name_display()}' сброшена. Удалено талонов: {deleted_count}"
+        }, status=status.HTTP_200_OK)
     except QueueType.DoesNotExist:
         return Response({"error": "Queue type not found"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -275,19 +266,13 @@ def log_manager_action(manager, action_description, ticket_number=None, full_nam
     )
 
 
-from pydub import AudioSegment
-from django.http import Http404
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def call_next(request):
     queue_type_name = request.data.get('type')
     try:
-        # ИСПРАВЛЕНО: используем QueueType вместо Queue
         queue_type = QueueType.objects.get(name=queue_type_name)
 
-        # ИСПРАВЛЕНО: ищем по queue_type вместо queue
         ticket = QueueTicket.objects.filter(
             queue_type=queue_type,
             served=False
@@ -303,9 +288,9 @@ def call_next(request):
         ticket_number = ticket.number
         full_name = ticket.full_name
         username = request.user.username.lower()
-        stol_number = username[-1]  # Assuming stol number is the last character of the username
+        stol_number = username[-1]
 
-        # Determine the speech text based on the username
+        # Определяем текст для объявления
         if username in ['auditoria111', 'aauditoria111']:
             location_text = "к аудитории 111"
         elif username in ['auditoria303', 'auditoria305', 'auditoria306']:
@@ -313,19 +298,15 @@ def call_next(request):
         else:
             location_text = f"к столу номер {stol_number}"
 
-        # Создаем TTS для объявления с ФИО вместо номера талона
-        tts_text = f"Талон номер {ticket_number}, подойдите {location_text}."
-
+        # Создаем TTS для объявления
+        tts_text = f"Талон номер {ticket_number}, {full_name}, подойдите {location_text}."
         tts = gTTS(tts_text, lang='ru')
 
         audio_filename = f"ticket_{ticket_number}_{full_name.replace(' ', '_')}_{request.user.username}.mp3"
         audio_path = os.path.join(settings.MEDIA_ROOT, audio_filename)
-
         tts.save(audio_path)
 
         audio_url = request.build_absolute_uri(settings.MEDIA_URL + audio_filename)
-
-
 
         # Отправляем WebSocket уведомление
         channel_layer = get_channel_layer()
@@ -335,6 +316,7 @@ def call_next(request):
                 "type": "queue.ticket_called",
                 "message": {
                     "queue_type": queue_type_name,
+                    "queue_type_display": queue_type.get_name_display(),
                     "ticket_id": ticket.id,
                     "ticket_number": ticket.number,
                     "full_name": full_name,
@@ -352,6 +334,8 @@ def call_next(request):
             "ticket_id": ticket.id,
             "ticket_number": ticket.number,
             "full_name": full_name,
+            "queue_type": queue_type_name,
+            "queue_type_display": queue_type.get_name_display(),
             "audio_url": audio_url
         }, status=status.HTTP_200_OK)
 
@@ -363,7 +347,6 @@ def call_next(request):
 
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
 def delete_audio(request):
     audio_filename = request.data.get('audio_filename')
 
@@ -372,7 +355,7 @@ def delete_audio(request):
 
     audio_path = os.path.join(settings.MEDIA_ROOT, audio_filename)
 
-    if (os.path.exists(audio_path)):
+    if os.path.exists(audio_path):
         os.remove(audio_path)
         return JsonResponse({"message": "Audio deleted successfully"}, status=status.HTTP_200_OK)
     else:

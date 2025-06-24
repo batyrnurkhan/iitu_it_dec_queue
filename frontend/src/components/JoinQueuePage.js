@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/joinQueue.css';
-import { config } from "../config";
+import { config, getQueueDisplayName, getQueueDescription, getQueueEmoji } from "../config";
 import logo from "../static/logo.png";
-import axiosInstance from "../axiosInstance";
+import axiosInstance, { queueAPI } from "../axiosInstance";
 import notificationService from '../services/NotificationService';
 
 function JoinQueuePage() {
@@ -14,17 +14,56 @@ function JoinQueuePage() {
     const [fullName, setFullName] = useState('');
     const [selectedQueue, setSelectedQueue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingQueueTypes, setIsLoadingQueueTypes] = useState(true);
     const [errors, setErrors] = useState({});
     const [notificationPermissionGranted, setNotificationPermissionGranted] = useState(false);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [isNotificationSupported, setIsNotificationSupported] = useState(false);
+    const [queueTypes, setQueueTypes] = useState([]);
 
-    // Queue options configuration
-    const queueOptions = useMemo(() => [
-        { value: 'BACHELOR', label: 'Очередь на Бакалавр', emoji: '🎓', description: 'Для студентов бакалавриата' },
-        { value: 'MASTER', label: 'Очередь на Маг./Докт.', emoji: '📚', description: 'Для магистрантов и докторантов' },
-        { value: 'PHD', label: 'Очередь на PLATONUS', emoji: '💻', description: 'Вопросы по системе PLATONUS' }
-    ], []);
+    // Загружаем типы очередей с сервера
+    const loadQueueTypes = useCallback(async () => {
+        try {
+            setIsLoadingQueueTypes(true);
+            const response = await queueAPI.getQueueTypes();
+
+            if (response.data && Array.isArray(response.data)) {
+                setQueueTypes(response.data);
+                console.log('Loaded queue types:', response.data);
+            } else {
+                throw new Error('Invalid queue types data format');
+            }
+        } catch (error) {
+            console.error('Error loading queue types:', error);
+
+            // Fallback to static queue types if API fails
+            const fallbackQueueTypes = [
+                { name: 'BACHELOR_GRANT', display_name: 'Бакалавр грант' },
+                { name: 'BACHELOR_PAID', display_name: 'Бакалавр платное' },
+                { name: 'MASTER', display_name: 'Магистратура' },
+                { name: 'PHD', display_name: 'PhD' },
+                { name: 'PLATONUS', display_name: 'Platonus' }
+            ];
+
+            setQueueTypes(fallbackQueueTypes);
+            console.warn('Using fallback queue types due to API error');
+        } finally {
+            setIsLoadingQueueTypes(false);
+        }
+    }, []);
+
+    // Queue options configuration based on loaded data
+    const queueOptions = useMemo(() => {
+        return queueTypes.map(queueType => ({
+            value: queueType.name,
+            label: queueType.display_name || getQueueDisplayName(queueType.name),
+            emoji: getQueueEmoji(queueType.name),
+            description: getQueueDescription(queueType.name),
+            ticketRange: queueType.min_ticket_number && queueType.max_ticket_number
+                ? `${queueType.min_ticket_number}-${queueType.max_ticket_number}`
+                : null
+        }));
+    }, [queueTypes]);
 
     // Form validation
     const validateForm = useCallback(() => {
@@ -76,15 +115,7 @@ function JoinQueuePage() {
         setErrors({});
 
         try {
-            const response = await axiosInstance.post(config.joinQueueUrl, {
-                type: selectedQueue,
-                full_name: fullName.trim()
-            }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                timeout: 15000 // 15 секунд таймаут
-            });
+            const response = await queueAPI.joinQueue(selectedQueue, fullName.trim());
 
             if (response.data.message === "НЕ РАБОЧЕЕ ВРЕМЯ") {
                 setMessage(response.data.message);
@@ -104,7 +135,8 @@ function JoinQueuePage() {
                     ticketId: response.data.ticket_id,
                     ticketNumber: response.data.ticket,
                     fullName: response.data.full_name,
-                    queueType: selectedQueue,
+                    queueType: response.data.queue_type || selectedQueue,
+                    queueTypeDisplay: response.data.queue_type_display || getQueueDisplayName(selectedQueue),
                     token: response.data.token,
                     createdAt: new Date().toISOString()
                 };
@@ -116,7 +148,8 @@ function JoinQueuePage() {
                     navigate('/ticket', {
                         state: {
                             ticketNumber: response.data.ticket,
-                            queueType: selectedQueue,
+                            queueType: response.data.queue_type || selectedQueue,
+                            queueTypeDisplay: response.data.queue_type_display || getQueueDisplayName(selectedQueue),
                             ticketId: response.data.ticket_id,
                             fullName: response.data.full_name,
                             token: response.data.token
@@ -185,6 +218,11 @@ function JoinQueuePage() {
 
         return 'Разрешите уведомления для получения оповещений о вызове талона';
     }, [isNotificationSupported, notificationPermissionGranted]);
+
+    // Load queue types on mount
+    useEffect(() => {
+        loadQueueTypes();
+    }, [loadQueueTypes]);
 
     // Initialize form visibility animation
     useEffect(() => {
@@ -352,30 +390,40 @@ function JoinQueuePage() {
                             <span>📋</span>
                             <span>Выберите тип очереди</span>
                         </label>
-                        <select
-                            id="queueType"
-                            value={selectedQueue}
-                            onChange={(e) => {
-                                setSelectedQueue(e.target.value);
-                                clearFieldError('selectedQueue');
-                            }}
-                            className={`form-select ${errors.selectedQueue ? 'error' : ''}`}
-                            disabled={isLoading}
-                            aria-describedby={errors.selectedQueue ? "queueType-error" : "queueType-help"}
-                            aria-invalid={!!errors.selectedQueue}
-                            required
-                        >
-                            <option value="">-- Выберите тип очереди --</option>
-                            {queueOptions.map(option => (
-                                <option
-                                    key={option.value}
-                                    value={option.value}
-                                    title={option.description}
-                                >
-                                    {option.emoji} {option.label}
-                                </option>
-                            ))}
-                        </select>
+
+                        {isLoadingQueueTypes ? (
+                            <div className="loading-select">
+                                <span>⏳</span>
+                                <span>Загрузка типов очередей...</span>
+                            </div>
+                        ) : (
+                            <select
+                                id="queueType"
+                                value={selectedQueue}
+                                onChange={(e) => {
+                                    setSelectedQueue(e.target.value);
+                                    clearFieldError('selectedQueue');
+                                }}
+                                className={`form-select ${errors.selectedQueue ? 'error' : ''}`}
+                                disabled={isLoading || queueOptions.length === 0}
+                                aria-describedby={errors.selectedQueue ? "queueType-error" : "queueType-help"}
+                                aria-invalid={!!errors.selectedQueue}
+                                required
+                            >
+                                <option value="">-- Выберите тип очереди --</option>
+                                {queueOptions.map(option => (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                        title={`${option.description}${option.ticketRange ? ` (${option.ticketRange})` : ''}`}
+                                    >
+                                        {option.emoji} {option.label}
+                                        {option.ticketRange && ` (${option.ticketRange})`}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+
                         {errors.selectedQueue ? (
                             <span
                                 className="error-text"
@@ -395,7 +443,7 @@ function JoinQueuePage() {
                     <button
                         type="submit"
                         className={`submit-button ${isLoading ? 'loading' : ''}`}
-                        disabled={isLoading || !fullName.trim() || !selectedQueue}
+                        disabled={isLoading || !fullName.trim() || !selectedQueue || isLoadingQueueTypes}
                         aria-describedby="submit-button-description"
                     >
                         {isLoading ? (
@@ -436,8 +484,8 @@ function JoinQueuePage() {
                             </p>
                         )}
 
-                        {selectedQueue && (
-                            <p style={{
+                        {selectedQueue && queueOptions.length > 0 && (
+                            <div style={{
                                 fontSize: '0.75rem',
                                 marginTop: 'var(--space-3)',
                                 padding: 'var(--space-2)',
@@ -448,10 +496,36 @@ function JoinQueuePage() {
                                 gap: 'var(--space-1)'
                             }}>
                                 <span>ℹ️</span>
-                                <span>
-                                    {queueOptions.find(opt => opt.value === selectedQueue)?.description || 'Описание очереди'}
-                                </span>
-                            </p>
+                                <div>
+                                    <div>
+                                        <strong>{queueOptions.find(opt => opt.value === selectedQueue)?.label}</strong>
+                                    </div>
+                                    <div style={{ marginTop: '4px', opacity: 0.8 }}>
+                                        {queueOptions.find(opt => opt.value === selectedQueue)?.description}
+                                    </div>
+                                    {queueOptions.find(opt => opt.value === selectedQueue)?.ticketRange && (
+                                        <div style={{ marginTop: '4px', opacity: 0.7, fontSize: '0.7rem' }}>
+                                            Номера талонов: {queueOptions.find(opt => opt.value === selectedQueue)?.ticketRange}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {queueOptions.length === 0 && !isLoadingQueueTypes && (
+                            <div style={{
+                                fontSize: '0.75rem',
+                                marginTop: 'var(--space-3)',
+                                padding: 'var(--space-2)',
+                                background: 'rgba(255, 193, 7, 0.1)',
+                                borderRadius: 'var(--radius-md)',
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 'var(--space-1)'
+                            }}>
+                                <span>⚠️</span>
+                                <span>Типы очередей временно недоступны. Попробуйте обновить страницу.</span>
+                            </div>
                         )}
                     </div>
                 </form>
@@ -460,6 +534,7 @@ function JoinQueuePage() {
             {/* Скрытый элемент для screen readers */}
             <div className="sr-only" aria-live="polite" aria-atomic="true">
                 {isLoading && "Обрабатывается запрос на получение талона"}
+                {isLoadingQueueTypes && "Загружаются типы очередей"}
                 {message && !isLoading && `Сообщение: ${message}`}
             </div>
         </div>
