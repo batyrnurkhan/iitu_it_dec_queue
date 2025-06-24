@@ -326,8 +326,13 @@ function HomePage() {
                                     key={`${ticket.ticket_number}-${ticket.manager_username}-${index}`}
                                     className="ticket-item"
                                 >
-                                    <div className="ticket-number">
-                                        {ticket.ticket_number}
+                                    <div className="ticket-info">
+                                        <div className="ticket-number">
+                                            №{ticket.ticket_number}
+                                        </div>
+                                        <div className="ticket-name">
+                                            {ticket.full_name}
+                                        </div>
                                     </div>
                                     <div className="manager-info">
                                         {getFormattedManagerName(ticket.manager_username)}
@@ -342,16 +347,21 @@ function HomePage() {
             {/* Popup для отображения вызванного талона */}
             {currentTicket && (
                 <div className="ticket-popup" role="alert" aria-live="assertive">
-                    <div className="ticket-item">
-                        <div className="ticket-number">
-                            {currentTicket.ticket_number}
+                    <div className="ticket-popup-content">
+                        <div className="ticket-header">
+                            <div className="ticket-number">
+                                №{currentTicket.ticket_number}
+                            </div>
+                            <div className="manager-info">
+                                {getFormattedManagerName(currentTicket.manager_username)}
+                            </div>
                         </div>
-                        <div className="manager-info">
-                            {getFormattedManagerName(currentTicket.manager_username)}
-                        </div>
-                    </div>
-                </div>
-            )}
+                        <div className="ticket-name">
+                        {currentTicket.full_name}
+            </div>
+        </div>
+    </div>
+)}
 
             {/* Кнопка включения звука */}
             {!audioAllowed && (

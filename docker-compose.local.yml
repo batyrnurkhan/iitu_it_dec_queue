@@ -14,7 +14,7 @@ services:
     depends_on:
       - redis
     environment:
-      - DJANGO_SETTINGS_MODULE=backend.settings_local  # Local settings
+      - DJANGO_ENV=local  # Local settings
 
   redis:
     image: "redis:alpine"

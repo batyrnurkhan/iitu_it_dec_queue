@@ -31,7 +31,6 @@ from django.contrib.auth import logout
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    # Logout the user
     logout(request)
     return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
 
@@ -46,55 +45,70 @@ def profile_view(request):
         "email": user.email,
         "role": user.role,
         "manager_type": user.manager_type,
+        "manager_type_display": user.get_manager_type_display_new(),
+        "workplace": user.workplace.name if user.workplace else None,
+        "allowed_queue_types": user.get_allowed_queue_types(),
     }
 
     if user.role == "MANAGER":
-        # ИСПРАВЛЕНО: используем QueueType вместо Queue
         from queue_qr.models import QueueTicket, QueueType
 
-        try:
-            queue_type = QueueType.objects.get(name=user.manager_type)
+        # Статистика по всем разрешенным типам очередей
+        allowed_types = user.get_allowed_queue_types()
+        ticket_counts = {}
 
-            # Подсчет талонов в очереди
-            ticket_count = QueueTicket.objects.filter(
-                queue_type=queue_type,
-                served=False
-            ).count()
+        for queue_type_name in allowed_types:
+            try:
+                queue_type = QueueType.objects.get(name=queue_type_name)
+                count = QueueTicket.objects.filter(
+                    queue_type=queue_type,
+                    served=False
+                ).count()
+                ticket_counts[queue_type_name] = count
+            except QueueType.DoesNotExist:
+                ticket_counts[queue_type_name] = 0
 
-            response_data["ticket_counts"] = {user.manager_type: ticket_count}
+        response_data["ticket_counts"] = ticket_counts
 
-            # Последний вызванный талон
-            last_called_ticket = QueueTicket.objects.filter(
-                serving_manager=user
-            ).order_by('-id').first()
+        # Последний вызванный талон этим менеджером
+        last_called_ticket = QueueTicket.objects.filter(
+            serving_manager=user
+        ).order_by('-id').first()
 
-            if last_called_ticket:
-                response_data["last_called_ticket"] = {
-                    "number": last_called_ticket.number,
-                    "full_name": last_called_ticket.full_name,
-                    "queue_type": last_called_ticket.queue_type.name
-                }
+        if last_called_ticket:
+            response_data["last_called_ticket"] = {
+                "number": last_called_ticket.number,
+                "full_name": last_called_ticket.full_name,
+                "queue_type": last_called_ticket.queue_type.name,
+                "queue_type_display": last_called_ticket.queue_type.get_name_display()
+            }
 
-            # Следующий талон в очереди
-            next_ticket = QueueTicket.objects.filter(
-                queue_type=queue_type,
-                served=False
-            ).order_by('created_at').first()
+        # Следующие талоны во всех разрешенных очередях
+        next_tickets = []
+        for queue_type_name in allowed_types:
+            try:
+                queue_type = QueueType.objects.get(name=queue_type_name)
+                next_ticket = QueueTicket.objects.filter(
+                    queue_type=queue_type,
+                    served=False
+                ).order_by('created_at').first()
 
-            if next_ticket:
-                response_data["next_ticket"] = {
-                    "number": next_ticket.number,
-                    "full_name": next_ticket.full_name,
-                    "created_at": next_ticket.created_at.isoformat()
-                }
+                if next_ticket:
+                    next_tickets.append({
+                        "number": next_ticket.number,
+                        "full_name": next_ticket.full_name,
+                        "queue_type": queue_type_name,
+                        "queue_type_display": queue_type.get_name_display(),
+                        "created_at": next_ticket.created_at.isoformat()
+                    })
+            except QueueType.DoesNotExist:
+                continue
 
-        except QueueType.DoesNotExist:
-            response_data["ticket_counts"] = {user.manager_type: 0}
+        response_data["next_tickets"] = next_tickets
 
     return Response(response_data, status=status.HTTP_200_OK)
 
 
-# Новый endpoint для получения статистики менеджера
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -137,29 +151,81 @@ def manager_stats(request):
         actions_data.append({
             "action": action.action,
             "timestamp": action.timestamp.isoformat(),
-            "ticket_number": action.ticket_number
+            "ticket_number": action.ticket_number,
+            "queue_type": action.queue_type
         })
 
-    # Текущая очередь
-    current_queue_tickets = QueueTicket.objects.filter(
-        queue__type=user.manager_type,
-        served=False
-    ).order_by('created_at')
+    # Текущие очереди по всем разрешенным типам
+    allowed_types = user.get_allowed_queue_types()
+    current_queues = {}
 
-    queue_data = []
-    for ticket in current_queue_tickets[:5]:  # Показываем первые 5
-        queue_data.append({
-            "number": ticket.number,
-            "full_name": ticket.full_name,
-            "created_at": ticket.created_at.isoformat()
-        })
+    for queue_type_name in allowed_types:
+        try:
+            from queue_qr.models import QueueType
+            queue_type = QueueType.objects.get(name=queue_type_name)
+
+            tickets = QueueTicket.objects.filter(
+                queue_type=queue_type,
+                served=False
+            ).order_by('created_at')[:5]  # Первые 5 талонов
+
+            queue_data = []
+            for ticket in tickets:
+                queue_data.append({
+                    "number": ticket.number,
+                    "full_name": ticket.full_name,
+                    "created_at": ticket.created_at.isoformat()
+                })
+
+            current_queues[queue_type_name] = {
+                "display_name": queue_type.get_name_display(),
+                "tickets": queue_data,
+                "total_count": QueueTicket.objects.filter(queue_type=queue_type, served=False).count()
+            }
+
+        except QueueType.DoesNotExist:
+            current_queues[queue_type_name] = {
+                "display_name": queue_type_name,
+                "tickets": [],
+                "total_count": 0
+            }
+
+    # Статистика по типам очередей за сегодня
+    today_stats_by_type = {}
+    if today_report and today_report.queue_type_stats:
+        today_stats_by_type = today_report.queue_type_stats
 
     response_data = {
         "today_tickets": today_tickets,
         "week_tickets": week_tickets,
         "recent_actions": actions_data,
-        "current_queue": queue_data,
-        "queue_length": current_queue_tickets.count()
+        "current_queues": current_queues,
+        "allowed_queue_types": allowed_types,
+        "workplace": user.workplace.name if user.workplace else None,
+        "today_stats_by_type": today_stats_by_type
     }
 
     return Response(response_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_workplaces(request):
+    """Получить список всех рабочих мест"""
+    from .models import WorkplaceType
+
+    workplaces = WorkplaceType.objects.filter(is_active=True).order_by('workplace_type', 'number')
+
+    workplaces_data = []
+    for workplace in workplaces:
+        workplaces_data.append({
+            "id": workplace.id,
+            "name": workplace.name,
+            "workplace_type": workplace.workplace_type,
+            "number": workplace.number,
+            "location": workplace.location,
+            "allowed_queue_types": workplace.allowed_queue_types
+        })
+
+    return Response(workplaces_data, status=status.HTTP_200_OK)

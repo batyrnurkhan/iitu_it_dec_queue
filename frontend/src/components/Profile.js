@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import axios from 'axios';
 import '../styles/profile.css';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { config } from "../config";
+import { config, getQueueDisplayName, getQueueEmoji } from "../config";
 import logo from "../static/logo.png";
 
 const roleTranslations = {
@@ -11,17 +11,10 @@ const roleTranslations = {
     "USER": "Пользователь",
 };
 
-const typeTranslations = {
-    "BACHELOR": "Менеджер бакалавра",
-    "MASTER": "Менеджер магистратуры/докторантуры",
-    "PHD": "Менеджер по регистрации в PLATONUS",
-};
-
 function Profile() {
     // State management
     const [userData, setUserData] = useState({});
     const [socket, setSocket] = useState(null);
-    const [nextTicket, setNextTicket] = useState(null);
     const [isCallInProgress, setIsCallInProgress] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -38,13 +31,13 @@ function Profile() {
     const translatedRole = useMemo(() =>
         roleTranslations[userData.role] || userData.role, [userData.role]);
 
-    const translatedType = useMemo(() =>
-        typeTranslations[userData.manager_type] || userData.manager_type, [userData.manager_type]);
+    const allowedQueueTypes = useMemo(() =>
+        userData.allowed_queue_types || [], [userData.allowed_queue_types]);
 
-    const queueCount = useMemo(() => {
-        if (!userData.ticket_counts || !userData.manager_type) return 0;
-        return userData.ticket_counts[userData.manager_type] || 0;
-    }, [userData.ticket_counts, userData.manager_type]);
+    const totalQueueCount = useMemo(() => {
+        if (!userData.ticket_counts) return 0;
+        return Object.values(userData.ticket_counts).reduce((sum, count) => sum + count, 0);
+    }, [userData.ticket_counts]);
 
     // Fetch profile data
     const fetchProfileData = useCallback(async () => {
@@ -65,7 +58,6 @@ function Profile() {
             });
 
             setUserData(response.data);
-            setNextTicket(response.data.next_ticket);
             setConnectionStatus('connected');
         } catch (error) {
             console.error("Error fetching profile data:", error);
@@ -89,7 +81,10 @@ function Profile() {
         if (data.type === "ticket_count_update" && data.data) {
             setUserData(prevState => ({
                 ...prevState,
-                ticket_counts: data.data.ticket_counts
+                ticket_counts: {
+                    ...prevState.ticket_counts,
+                    ...data.data.ticket_counts
+                }
             }));
         }
 
@@ -100,7 +95,8 @@ function Profile() {
                     last_called_ticket: {
                         number: data.data.ticket_number,
                         full_name: data.data.full_name,
-                        queue_type: data.data.queue_type
+                        queue_type: data.data.queue_type,
+                        queue_type_display: data.data.queue_type_display
                     }
                 }));
                 setIsCallInProgress(false);
@@ -108,73 +104,83 @@ function Profile() {
         }
 
         if (data.type === "new_ticket" && data.data) {
-            // Обновляем информацию о следующем талоне если это наша очередь
-            if (data.data.queue_type === userDataRef.current.manager_type) {
-                fetchProfileData(); // Перезагружаем профиль для актуальной информации
+            // Обновляем если новый талон относится к нашим очередям
+            if (userDataRef.current.allowed_queue_types?.includes(data.data.queue_type)) {
+                fetchProfileData();
             }
         }
     }, [fetchProfileData]);
 
-    // Call next ticket
-    const handleCallNext = useCallback(async () => {
-        if (isCallInProgress) return;
+    // Call next ticket - автоматически выбираем первую доступную очередь
+const handleCallNext = useCallback(async () => {
+    console.log('=== DEBUG handleCallNext ===');
+    console.log('isCallInProgress:', isCallInProgress);
+    console.log('allowedQueueTypes:', allowedQueueTypes);
+    console.log('allowedQueueTypes.length:', allowedQueueTypes.length);
+    console.log('userData.ticket_counts:', userData.ticket_counts);
+    console.log('userData:', userData);
 
-        setIsCallInProgress(true);
-        setError(null);
+    if (isCallInProgress || allowedQueueTypes.length === 0) {
+        console.log('Early return - isCallInProgress:', isCallInProgress, 'allowedQueueTypes.length:', allowedQueueTypes.length);
+        return;
+    }
 
-        try {
-            const token = localStorage.getItem('access_token');
-            const response = await axios.post(config.callNextUrl, {
-                type: userData.manager_type
-            }, {
-                headers: {
-                    'Authorization': `Token ${token}`
-                },
-                timeout: 10000
-            });
+    // Ищем очередь с талонами или берем первую доступную
+    let queueTypeToCall = allowedQueueTypes[0];
+    console.log('Initial queueTypeToCall:', queueTypeToCall);
 
-            setUserData(prevState => ({
-                ...prevState,
-                last_called_ticket: {
-                    number: response.data.ticket_number,
-                    full_name: response.data.full_name,
-                    queue_type: userData.manager_type
-                }
-            }));
-
-            // Обновляем информацию о следующем талоне
-            fetchProfileData();
-
-            // Haptic feedback для успеха
-            if (navigator.vibrate) {
-                navigator.vibrate([50, 25, 50, 25, 50]);
-            }
-
-            // Fallback таймер на случай если WebSocket не ответит
-            setTimeout(() => {
-                setIsCallInProgress(false);
-            }, 3000);
-
-        } catch (error) {
-            console.error("Error calling the next ticket:", error);
-            setIsCallInProgress(false);
-
-            // Haptic feedback для ошибки
-            if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]);
-            }
-
-            if (error.response && error.response.data.message === "Queue is empty.") {
-                setError("Очередь пуста");
-            } else if (error.response && error.response.status === 401) {
-                localStorage.removeItem('access_token');
-                window.location.href = '/login';
-            } else {
-                setError("Ошибка при вызове следующего талона");
+    if (userData.ticket_counts) {
+        for (const queueType of allowedQueueTypes) {
+            console.log(`Checking queue ${queueType}, count:`, userData.ticket_counts[queueType]);
+            if (userData.ticket_counts[queueType] > 0) {
+                queueTypeToCall = queueType;
+                console.log('Selected queueTypeToCall:', queueTypeToCall);
+                break;
             }
         }
-    }, [isCallInProgress, userData.manager_type, fetchProfileData]);
+    }
 
+    console.log('Final queueTypeToCall:', queueTypeToCall);
+    console.log('About to make API call...');
+
+    setIsCallInProgress(true);
+    setError(null);
+
+    try {
+        const token = localStorage.getItem('access_token');
+        console.log('Token exists:', !!token);
+
+        const requestData = {
+            type: queueTypeToCall
+        };
+        console.log('Request data:', requestData);
+        console.log('API URL:', config.callNextUrl);
+
+        const response = await axios.post(config.callNextUrl, requestData, {
+            headers: {
+                'Authorization': `Token ${token}`
+            },
+            timeout: 10000
+        });
+
+        console.log('API Response:', response.data);
+
+        if (response.data.message === "Queue is empty.") {
+            console.log('Queue is empty response received');
+            setError(`Все ваши очереди пусты`);
+            setIsCallInProgress(false);
+            return;
+        }
+
+        // Остальная логика...
+
+    } catch (error) {
+        console.error("Error calling the next ticket:", error);
+        console.error("Error response:", error.response?.data);
+        console.error("Error status:", error.response?.status);
+        // Остальная обработка ошибок...
+    }
+}, [isCallInProgress, allowedQueueTypes, userData.ticket_counts, fetchProfileData]);
     // Logout function
     const handleLogout = useCallback(async () => {
         try {
@@ -315,80 +321,39 @@ function Profile() {
                         <span className="detail-value">{translatedRole}</span>
                     </div>
 
-                    {userData.manager_type && (
+                    {userData.workplace && (
                         <div className="profile-detail">
-                            <span className="detail-label" data-type="type">Тип менеджера</span>
-                            <span className="detail-value">{translatedType}</span>
+                            <span className="detail-label" data-type="workplace">Рабочее место</span>
+                            <span className="detail-value">{userData.workplace}</span>
                         </div>
                     )}
 
-                    {userData.role === "MANAGER" && (
+                    {userData.role === "MANAGER" && allowedQueueTypes.length > 0 && (
                         <div className="profile-detail">
                             <span className="detail-label" data-type="queue">
-                                Количество талонов в очереди
+                                Доступные очереди
                             </span>
-                            <span className="detail-value">
-                                {queueCount > 0 ? (
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 'var(--space-2)',
-                                        fontSize: '1.125rem',
-                                        fontWeight: '600',
-                                        color: 'var(--primary-600)'
-                                    }}>
-                                        <span>🎫</span>
-                                        <span>{queueCount}</span>
-                                        <span style={{fontSize: '0.875rem', fontWeight: '400'}}>
-                                            {queueCount === 1 ? 'талон' :
-                                             queueCount < 5 ? 'талона' : 'талонов'}
+                            <div className="allowed-queues-display">
+                                {allowedQueueTypes.map(queueType => (
+                                    <div key={queueType} className="queue-badge">
+                                        <span className="queue-emoji">{getQueueEmoji(queueType)}</span>
+                                        <span className="queue-name">{getQueueDisplayName(queueType)}</span>
+                                        <span className="queue-count">
+                                            {userData.ticket_counts?.[queueType] || 0}
                                         </span>
                                     </div>
-                                ) : (
-                                    <div className="empty-queue">
-                                        <span className="empty-queue-icon">📭</span>
-                                        <div className="empty-queue-text">Очередь пустая</div>
-                                        <div className="empty-queue-subtitle">Ожидание новых талонов</div>
-                                    </div>
-                                )}
-                            </span>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
-
-                {/* Информация о следующем талоне */}
-                {userData.role === "MANAGER" && nextTicket && (
-                    <div className="next-ticket-info">
-                        <h3>Следующий в очереди</h3>
-                        <div className="next-ticket-details">
-                            <p>
-                                <strong>ФИО:</strong>
-                                <span>{nextTicket.full_name}</span>
-                            </p>
-                            <p>
-                                <strong>Номер талона:</strong>
-                                <span>{nextTicket.number}</span>
-                            </p>
-                            <p>
-                                <strong>Время создания:</strong>
-                                <span>{new Date(nextTicket.created_at).toLocaleString('ru-RU', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    second: '2-digit',
-                                    day: '2-digit',
-                                    month: '2-digit'
-                                })}</span>
-                            </p>
-                        </div>
-                    </div>
-                )}
 
                 {/* Секция вызова талонов */}
                 {userData.role === "MANAGER" && (
                     <div className="call-next">
                         {userData.last_called_ticket ? (
                             <div className="current-serving">
-                                <span className="detail-label">Сейчас обслуживается</span>
+                                <span className="detail-label">Последний вызванный талон</span>
                                 <div className="serving-info">
                                     <div className="serving-name">
                                         {userData.last_called_ticket.full_name}
@@ -396,19 +361,23 @@ function Profile() {
                                     <div className="serving-ticket">
                                         Талон №{userData.last_called_ticket.number}
                                     </div>
+                                    <div className="serving-queue">
+                                        {userData.last_called_ticket.queue_type_display ||
+                                         getQueueDisplayName(userData.last_called_ticket.queue_type)}
+                                    </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="text-center mb-6">
                                 <div className="empty-queue">
                                     <span className="empty-queue-icon">👤</span>
-                                    <div className="empty-queue-text">Никто не обслуживается</div>
-                                    <div className="empty-queue-subtitle">Вызовите первый талон</div>
+                                    <div className="empty-queue-text">Талоны еще не вызывались</div>
+                                    <div className="empty-queue-subtitle">Нажмите кнопку для вызова следующего талона</div>
                                 </div>
                             </div>
                         )}
 
-                        {queueCount > 0 ? (
+                        {totalQueueCount > 0 ? (
                             <button
                                 className={`call-next-button ${isCallInProgress ? 'loading' : ''}`}
                                 onClick={handleCallNext}
@@ -424,8 +393,10 @@ function Profile() {
                                 ) : (
                                     <>
                                         <span>📢</span>
-                                        <span>Следующий талон</span>
-                                        <span style={{fontSize: '0.875rem', opacity: 0.8}}>(Пробел)</span>
+                                        <span>Вызвать следующий талон</span>
+                                        <span style={{fontSize: '0.875rem', opacity: 0.8}}>
+                                            (Всего: {totalQueueCount})
+                                        </span>
                                     </>
                                 )}
                             </button>
@@ -437,12 +408,12 @@ function Profile() {
                                     borderRadius: 'var(--radius-lg)',
                                     color: 'var(--text-muted)'
                                 }}>
-                                    <div style={{fontSize: '2rem', marginBottom: 'var(--space-2)'}}>⏸️</div>
+                                    <div style={{fontSize: '2rem', marginBottom: 'var(--space-2)'}}>📭</div>
                                     <div style={{fontSize: '1rem', fontWeight: '500'}}>
-                                        Нет талонов для вызова
+                                        Все очереди пусты
                                     </div>
                                     <div style={{fontSize: '0.875rem', marginTop: 'var(--space-1)'}}>
-                                        Ожидайте новых клиентов
+                                        Ожидайте новых талонов
                                     </div>
                                 </div>
                             </div>
@@ -499,7 +470,7 @@ function Profile() {
                 {isCallInProgress && "Вызов следующего талона в процессе"}
                 {error && `Ошибка: ${error}`}
                 {userData.last_called_ticket &&
-                    `Сейчас обслуживается: ${userData.last_called_ticket.full_name}, талон номер ${userData.last_called_ticket.number}`
+                    `Последний вызванный: ${userData.last_called_ticket.full_name}, талон номер ${userData.last_called_ticket.number}`
                 }
             </div>
         </div>

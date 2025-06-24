@@ -703,3 +703,283 @@
 .profile-card {
     will-change: opacity, transform;
 }
+
+/* Добавьте эти стили в конец вашего profile.css */
+
+/* Стили для множественных очередей */
+.queue-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.queue-type-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: var(--transition-normal);
+    position: relative;
+}
+
+.queue-type-card:hover {
+    border-color: var(--primary-300);
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.queue-type-card.selected {
+    border-color: var(--primary-500);
+    background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+.queue-type-card.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--primary-500);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.queue-emoji {
+    font-size: 1.5rem;
+    min-width: 24px;
+    text-align: center;
+}
+
+.queue-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    flex: 1;
+}
+
+.queue-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.queue-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: var(--gray-100);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    width: fit-content;
+}
+
+.queue-type-card.selected .queue-count {
+    background: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.queue-hotkey {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: var(--gray-200);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    width: fit-content;
+    font-weight: 500;
+}
+
+.queue-type-card.selected .queue-hotkey {
+    background: var(--primary-200);
+    color: var(--primary-600);
+}
+
+/* Обновленные стили для обслуживаемого талона */
+.serving-queue {
+    font-size: 0.8rem;
+    color: #155724;
+    background: rgba(21, 87, 36, 0.1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-2);
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .queue-types-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+    }
+
+    .queue-type-card {
+        padding: var(--space-3);
+        gap: var(--space-2);
+    }
+
+    .queue-emoji {
+        font-size: 1.25rem;
+    }
+
+    .queue-name {
+        font-size: 0.85rem;
+    }
+
+    .queue-count {
+        font-size: 0.75rem;
+    }
+
+    .queue-hotkey {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .queue-type-card {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-2);
+    }
+
+    .queue-emoji {
+        font-size: 1.5rem;
+    }
+
+    .queue-info {
+        align-items: center;
+    }
+}
+
+/* Темная тема для новых элементов */
+@media (prefers-color-scheme: dark) {
+    .queue-type-card {
+        background: rgba(55, 65, 81, 0.8);
+        border-color: var(--gray-600);
+    }
+
+    .queue-type-card:hover {
+        background: rgba(55, 65, 81, 1);
+        border-color: var(--primary-400);
+    }
+
+    .queue-type-card.selected {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.25));
+        border-color: var(--primary-400);
+    }
+
+    .queue-name {
+        color: var(--gray-100);
+    }
+
+    .queue-count {
+        background: var(--gray-700);
+        color: var(--gray-300);
+    }
+
+    .queue-type-card.selected .queue-count {
+        background: rgba(102, 126, 234, 0.3);
+        color: var(--primary-300);
+    }
+
+    .queue-hotkey {
+        background: var(--gray-700);
+        color: var(--gray-400);
+    }
+
+    .queue-type-card.selected .queue-hotkey {
+        background: rgba(102, 126, 234, 0.3);
+        color: var(--primary-300);
+    }
+
+    .serving-queue {
+        background: rgba(52, 211, 153, 0.15);
+        color: #34d399;
+    }
+}
+
+/* Дополнительный лейбл для workplace */
+.detail-label[data-type="workplace"]::before {
+    content: "🏢";
+}
+
+.allowed-queues-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+.queue-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--primary-50);
+    border: 1px solid var(--primary-200);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+}
+
+.queue-badge .queue-emoji {
+    font-size: 1rem;
+}
+
+.queue-badge .queue-name {
+    font-weight: 500;
+    color: var(--primary-700);
+}
+
+.queue-badge .queue-count {
+    background: var(--primary-100);
+    color: var(--primary-600);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Лейбл для рабочего места */
+.detail-label[data-type="workplace"]::before {
+    content: "🏢";
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .allowed-queues-display {
+        flex-direction: column;
+    }
+
+    .queue-badge {
+        justify-content: space-between;
+    }
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .queue-badge {
+        background: rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .queue-badge .queue-name {
+        color: var(--primary-300);
+    }
+
+    .queue-badge .queue-count {
+        background: rgba(102, 126, 234, 0.3);
+        color: var(--primary-300);
+    }
+}

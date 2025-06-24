@@ -158,7 +158,7 @@ def get_queues(request):
 
         ticket_info = [{"number": ticket['number'], "full_name": ticket['full_name']} for ticket in waiting_tickets]
 
-        # Получаем обслуживаемые талоны
+        # Получаем обслуживаемые талоны - ИСПРАВЛЕНО: добавляем full_name
         serving_tickets = QueueTicket.objects.filter(
             queue_type=queue_type,
             served=True
@@ -169,7 +169,7 @@ def get_queues(request):
             if manager_username not in latest_tickets_per_manager:
                 latest_tickets_per_manager[manager_username] = {
                     'ticket_number': serving_ticket.number,
-                    'full_name': serving_ticket.full_name,
+                    'full_name': serving_ticket.full_name,  # ✅ ФИО уже есть!
                     'manager_username': manager_username,
                     'queue_type': serving_ticket.queue_type.name,
                     'queue_type_display': serving_ticket.queue_type.get_name_display()
@@ -253,15 +253,20 @@ def increment_ticket_count(manager):
     report.save()
 
 
-def log_manager_action(manager, action_description, ticket_number=None, full_name=None):
+def log_manager_action(manager, action_description, ticket_number=None, full_name=None, queue_type=None):
+    from accounts.models import ManagerActionLog
+
     action_text = action_description
     if full_name:
         action_text += f" ({full_name})"
+    if queue_type:
+        action_text += f" - {queue_type}"
 
     ManagerActionLog.objects.create(
         manager=manager,
         action=action_text,
         ticket_number=ticket_number,
+        queue_type=queue_type,
         timestamp=datetime.now()
     )
 
@@ -270,6 +275,14 @@ def log_manager_action(manager, action_description, ticket_number=None, full_nam
 @permission_classes([IsAuthenticated])
 def call_next(request):
     queue_type_name = request.data.get('type')
+
+    # Проверяем, может ли менеджер обслуживать этот тип очереди
+    if not request.user.can_serve_queue_type(queue_type_name):
+        return Response({
+            "error": f"У вас нет разрешения на обслуживание очереди '{queue_type_name}'. "
+                     f"Разрешенные типы: {', '.join(request.user.get_allowed_queue_types())}"
+        }, status=status.HTTP_403_FORBIDDEN)
+
     try:
         queue_type = QueueType.objects.get(name=queue_type_name)
 
@@ -287,22 +300,14 @@ def call_next(request):
 
         ticket_number = ticket.number
         full_name = ticket.full_name
-        username = request.user.username.lower()
-        stol_number = username[-1]
-
-        # Определяем текст для объявления
-        if username in ['auditoria111', 'aauditoria111']:
-            location_text = "к аудитории 111"
-        elif username in ['auditoria303', 'auditoria305', 'auditoria306']:
-            location_text = f"к аудитории {username[-3:]}"
-        else:
-            location_text = f"к столу номер {stol_number}"
+        manager_location = request.user.get_manager_location()
 
         # Создаем TTS для объявления
-        tts_text = f"Талон номер {ticket_number}, {full_name}, подойдите {location_text}."
+        tts_text = f"Талон номер {ticket_number}, подойдите к {manager_location}."
+
         tts = gTTS(tts_text, lang='ru')
 
-        audio_filename = f"ticket_{ticket_number}_{full_name.replace(' ', '_')}_{request.user.username}.mp3"
+        audio_filename = f"ticket_{ticket_number}_{request.user.username}.mp3"
         audio_path = os.path.join(settings.MEDIA_ROOT, audio_filename)
         tts.save(audio_path)
 
@@ -321,6 +326,7 @@ def call_next(request):
                     "ticket_number": ticket.number,
                     "full_name": full_name,
                     "manager_username": request.user.username,
+                    "manager_location": manager_location,
                     "audio_url": audio_url
                 }
             }
@@ -328,7 +334,15 @@ def call_next(request):
 
         broadcast_ticket_count_update(queue_type_name)
         increment_ticket_count(request.user)
-        log_manager_action(request.user, f"Вызван талон: {ticket.number}", ticket.number, full_name)
+
+        # Обновленное логирование с типом очереди
+        log_manager_action(
+            request.user,
+            f"Вызван талон: {ticket.number}",
+            ticket.number,
+            full_name,
+            queue_type_name
+        )
 
         return Response({
             "ticket_id": ticket.id,
@@ -336,6 +350,7 @@ def call_next(request):
             "full_name": full_name,
             "queue_type": queue_type_name,
             "queue_type_display": queue_type.get_name_display(),
+            "manager_location": manager_location,
             "audio_url": audio_url
         }, status=status.HTTP_200_OK)
 
