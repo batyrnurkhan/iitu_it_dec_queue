@@ -4,7 +4,31 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import '../styles/TicketDisplayPage.css';
 import { config } from "../config";
 import logo from "../static/logo.png";
-import notificationService from '../services/NotificationService';
+
+let notificationService;
+try {
+    notificationService = require('../services/NotificationService').default;
+} catch (error) {
+    console.warn('NotificationService failed to load, using fallback:', error);
+    // Создаем fallback объект
+    notificationService = {
+        setUserTicketInfo: (info) => {
+            console.log('Fallback: setUserTicketInfo', info);
+        },
+        clearUserTicketInfo: () => {
+            console.log('Fallback: clearUserTicketInfo');
+        },
+        showTicketCalledNotification: (data) => {
+            console.log('Fallback: showTicketCalledNotification', data);
+            // Вибрация
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+            // Простое уведомление
+            alert(`🔔 ВАШ ТАЛОН ВЫЗВАН!\n${data.full_name}, подойдите к менеджеру`);
+        }
+    };
+}
 
 function TicketDisplayPage() {
     document.title = "TICKET";

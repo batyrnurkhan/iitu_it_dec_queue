@@ -352,3 +352,103 @@
         font-size: 15px;
     }
 }
+
+/* Добавьте в TicketDisplayPage.css */
+
+.status-missed {
+    background: linear-gradient(135deg, #ff6b6b, #ffa500);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin: 20px 0;
+    animation: shake 0.5s ease-in-out;
+}
+
+.status-missed h3 {
+    margin: 0 0 15px 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.missed-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.missed-info p {
+    margin: 0 0 10px 0;
+    font-weight: bold;
+}
+
+.missed-info ul {
+    margin: 10px 0 0 20px;
+    line-height: 1.6;
+}
+
+.missed-info li {
+    margin: 5px 0;
+}
+
+.missed-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.get-new-ticket-button,
+.contact-manager-button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.get-new-ticket-button {
+    background: #28a745;
+    color: white;
+}
+
+.get-new-ticket-button:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.contact-manager-button {
+    background: #17a2b8;
+    color: white;
+}
+
+.contact-manager-button:hover {
+    background: #138496;
+    transform: translateY(-2px);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Responsive для мобильных */
+@media (max-width: 768px) {
+    .missed-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .get-new-ticket-button,
+    .contact-manager-button {
+        width: 100%;
+        max-width: 250px;
+    }
+}
