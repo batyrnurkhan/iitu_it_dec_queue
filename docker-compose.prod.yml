@@ -25,9 +25,9 @@ services:
     container_name: iitu-queue-front
     build:
       context: ./frontend
-      dockerfile: Dockerfile.prod  # Use production Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
-      - "3001:80"  # Nginx runs on port 80 inside container
+      - "3001:3000"  # serve работает на порту 3000
     environment:
       - NODE_ENV=production
     env_file:
