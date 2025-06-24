@@ -8,6 +8,7 @@ import JoinQueuePage from './components/JoinQueuePage';
 import TicketDisplayPage from "./components/TicketDisplayPage";
 import ErrorPage from "./components/ErrorPage";
 import { AudioContext } from "./context/AudioContext";
+import './styles/base.css';
 
 function App() {
     const [audioUrl, setAudioUrl] = useState(undefined);

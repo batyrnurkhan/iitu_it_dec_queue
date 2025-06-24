@@ -1,39 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import '../styles/TicketDisplayPage.css';
 import { config } from "../config";
 import logo from "../static/logo.png";
 
+// Безопасный импорт NotificationService
 let notificationService;
 try {
     notificationService = require('../services/NotificationService').default;
 } catch (error) {
     console.warn('NotificationService failed to load, using fallback:', error);
-    // Создаем fallback объект
     notificationService = {
         setUserTicketInfo: (info) => {
-            console.log('Fallback: setUserTicketInfo', info);
+            try {
+                localStorage.setItem('current_ticket_info', JSON.stringify(info));
+            } catch (e) {
+                console.log('Fallback: setUserTicketInfo', info);
+            }
         },
         clearUserTicketInfo: () => {
-            console.log('Fallback: clearUserTicketInfo');
+            try {
+                localStorage.removeItem('current_ticket_info');
+            } catch (e) {
+                console.log('Fallback: clearUserTicketInfo');
+            }
         },
         showTicketCalledNotification: (data) => {
             console.log('Fallback: showTicketCalledNotification', data);
+
             // Вибрация
             if (navigator.vibrate) {
                 navigator.vibrate([200, 100, 200, 100, 200]);
             }
-            // Простое уведомление
-            alert(`🔔 ВАШ ТАЛОН ВЫЗВАН!\n${data.full_name}, подойдите к менеджеру`);
+
+            // Показываем confirm для воспроизведения аудио
+            setTimeout(() => {
+                if (window.confirm(`🔔 ВАШ ТАЛОН ВЫЗВАН!\n${data.full_name}\nНажмите OK для воспроизведения аудио`)) {
+                    if (data.audio_url) {
+                        const audio = new Audio(data.audio_url);
+                        audio.play().catch(err => console.log('Audio play failed:', err));
+                    }
+                }
+            }, 500);
         }
     };
 }
 
 function TicketDisplayPage() {
-    document.title = "TICKET";
+    document.title = "Ваш талон - IITU";
 
     const location = useLocation();
+    const navigate = useNavigate();
     const { ticketNumber, queueType, ticketId, fullName, token } = location.state || {};
 
     const [socket, setSocket] = useState(null);
@@ -41,165 +59,244 @@ function TicketDisplayPage() {
     const [currentlyServing, setCurrentlyServing] = useState(null);
     const [queuePosition, setQueuePosition] = useState(null);
     const [estimatedWaitTime, setEstimatedWaitTime] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Проверка валидности данных талона
+    useEffect(() => {
+        if (!ticketId || !ticketNumber || !fullName || !queueType) {
+            console.warn('Missing ticket data, redirecting to home');
+            navigate('/', { replace: true });
+        }
+    }, [ticketId, ticketNumber, fullName, queueType, navigate]);
 
     const updateQueuePosition = async () => {
-    try {
-        const response = await fetch(config.fetchQueuesUrl);
+        try {
+            setIsLoading(true);
+            const response = await fetch(config.fetchQueuesUrl);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (!Array.isArray(data)) {
-            console.error('API returned non-array data:', data);
-            return;
-        }
+            if (!Array.isArray(data)) {
+                console.error('API returned non-array data:', data);
+                return;
+            }
 
-        const ourQueue = data.find(queue => queue['Очередь'] === queueType);
-        if (ourQueue && ourQueue['Зарегестрированные талоны']) {
-            const tickets = ourQueue['Зарегестрированные талоны'];
-            const ourIndex = tickets.findIndex(ticket =>
-                ticket.number === ticketNumber || ticket.full_name === fullName
-            );
+            const ourQueue = data.find(queue => queue['Очередь'] === queueType);
+            if (ourQueue && ourQueue['Зарегестрированные талоны']) {
+                const tickets = ourQueue['Зарегестрированные талоны'];
+                const ourIndex = tickets.findIndex(ticket =>
+                    ticket.number === ticketNumber || ticket.full_name === fullName
+                );
 
-            if (ourIndex !== -1) {
-                setQueuePosition(ourIndex + 1);
-                setEstimatedWaitTime(ourIndex * 2.5);
-            } else {
-                // Проверяем, не сохранен ли статус "called"
-                const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
-                if (!savedStatus || JSON.parse(savedStatus).status !== 'called') {
-                    setQueueStatus('completed');
+                if (ourIndex !== -1) {
+                    setQueuePosition(ourIndex + 1);
+                    setEstimatedWaitTime(ourIndex * 2.5);
+                } else {
+                    // Проверяем сохраненный статус
+                    const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
+                    if (!savedStatus || !['called', 'missed'].includes(JSON.parse(savedStatus).status)) {
+                        setQueueStatus('completed');
+                    }
                 }
             }
+        } catch (error) {
+            console.error("Error updating queue position:", error);
+        } finally {
+            setIsLoading(false);
         }
-    } catch (error) {
-        console.error("Error updating queue position:", error);
-    }
-};
+    };
 
+    // Основная логика инициализации
     useEffect(() => {
-    // Очищаем старые статусы
-    const cleanupOldTicketStatuses = () => {
-        const keys = Object.keys(localStorage);
-        keys.forEach(key => {
-            if (key.startsWith('ticket_') && key.endsWith('_status')) {
-                try {
-                    const statusData = JSON.parse(localStorage.getItem(key));
-                    const calledAt = new Date(statusData.calledAt);
-                    const now = new Date();
-                    const hoursDiff = (now - calledAt) / (1000 * 60 * 60);
+        // Очистка старых статусов
+        const cleanupOldTicketStatuses = () => {
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                if (key.startsWith('ticket_') && key.endsWith('_status')) {
+                    try {
+                        const statusData = JSON.parse(localStorage.getItem(key));
+                        const actionTime = new Date(statusData.calledAt || statusData.missedAt || statusData.completedAt);
+                        const now = new Date();
+                        const hoursDiff = (now - actionTime) / (1000 * 60 * 60);
 
-                    if (hoursDiff > 24) {
+                        if (hoursDiff > 24) {
+                            localStorage.removeItem(key);
+                        }
+                    } catch (error) {
                         localStorage.removeItem(key);
                     }
-                } catch (error) {
-                    localStorage.removeItem(key);
                 }
-            }
-        });
-    };
-
-    cleanupOldTicketStatuses();
-
-    // Восстанавливаем состояние из localStorage
-    if (ticketId) {
-        const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
-        if (savedStatus) {
-            try {
-                const statusData = JSON.parse(savedStatus);
-                const calledAt = new Date(statusData.calledAt);
-                const now = new Date();
-                const hoursDiff = (now - calledAt) / (1000 * 60 * 60);
-
-                if (hoursDiff < 2) { // Статус актуален менее 2 часов
-                    setQueueStatus(statusData.status);
-                    if (statusData.currentlyServing) {
-                        setCurrentlyServing(statusData.currentlyServing);
-                    }
-                    console.log('Restored ticket status from localStorage:', statusData);
-                }
-            } catch (error) {
-                console.error('Error parsing saved ticket status:', error);
-            }
-        }
-    }
-
-    // Сохраняем информацию о талоне для уведомлений
-    if (ticketId && ticketNumber && fullName && queueType) {
-        const ticketInfo = {
-            ticketId,
-            ticketNumber,
-            fullName,
-            queueType,
-            token,
-            createdAt: new Date().toISOString()
+            });
         };
-        notificationService.setUserTicketInfo(ticketInfo);
-    }
 
-    // Устанавливаем WebSocket соединение
-    const ws = new ReconnectingWebSocket(config.queuesSocketUrl);
+        cleanupOldTicketStatuses();
 
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log('WebSocket message on ticket page:', data);
+        // Восстановление состояния из localStorage
+        if (ticketId) {
+            const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
+            if (savedStatus) {
+                try {
+                    const statusData = JSON.parse(savedStatus);
+                    const actionTime = new Date(statusData.calledAt || statusData.missedAt || statusData.completedAt);
+                    const now = new Date();
+                    const hoursDiff = (now - actionTime) / (1000 * 60 * 60);
 
-        if (data.type === "ticket_called" && data.data) {
-            if (data.data.ticket_id === ticketId ||
-                (data.data.ticket_number === ticketNumber && data.data.full_name === fullName)) {
-
-                const currentlyServingData = {
-                    full_name: data.data.full_name,
-                    ticket_number: data.data.ticket_number,
-                    manager_username: data.data.manager_username
-                };
-
-                setQueueStatus('called');
-                setCurrentlyServing(currentlyServingData);
-
-                // Сохраняем статус в localStorage
-                const ticketStatus = {
-                    status: 'called',
-                    currentlyServing: currentlyServingData,
-                    calledAt: new Date().toISOString()
-                };
-                localStorage.setItem(`ticket_${ticketId}_status`, JSON.stringify(ticketStatus));
-
-                // Показываем уведомление
-                notificationService.showTicketCalledNotification(data.data);
-
-                // Воспроизводим аудио
-                if (data.data.audio_url) {
-                    const audio = new Audio(data.data.audio_url);
-                    audio.play().catch(error => {
-                        console.error("Error playing audio:", error);
-                    });
+                    if (hoursDiff < 4) { // Увеличили время актуальности до 4 часов
+                        setQueueStatus(statusData.status);
+                        if (statusData.currentlyServing) {
+                            setCurrentlyServing(statusData.currentlyServing);
+                        }
+                        console.log('Restored ticket status from localStorage:', statusData);
+                    }
+                } catch (error) {
+                    console.error('Error parsing saved ticket status:', error);
                 }
-
-                notificationService.clearUserTicketInfo();
             }
         }
 
-        if (data.type === "ticket_count_update" && data.data) {
-            updateQueuePosition();
+        // Сохранение информации о талоне
+        if (ticketId && ticketNumber && fullName && queueType) {
+            const ticketInfo = {
+                ticketId,
+                ticketNumber,
+                fullName,
+                queueType,
+                token,
+                createdAt: new Date().toISOString()
+            };
+            notificationService.setUserTicketInfo(ticketInfo);
         }
-    };
 
-    ws.onopen = () => {
-        console.log('WebSocket connected for ticket tracking');
-        updateQueuePosition();
-    };
+        // WebSocket соединение
+        const ws = new ReconnectingWebSocket(config.queuesSocketUrl);
 
-    setSocket(ws);
+        ws.onopen = () => {
+            console.log('WebSocket connected for ticket tracking');
+            updateQueuePosition();
+        };
 
-    return () => {
-        ws.close();
-    };
-}, [ticketId, ticketNumber, fullName, queueType, token]);
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
 
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('WebSocket message on ticket page:', data);
+
+                if (data.type === "ticket_called" && data.data) {
+                    const isOurTicket = data.data.ticket_id === ticketId ||
+                        (data.data.ticket_number === ticketNumber && data.data.full_name === fullName);
+
+                    if (isOurTicket) {
+                        // Наш талон вызван
+                        const currentlyServingData = {
+                            full_name: data.data.full_name,
+                            ticket_number: data.data.ticket_number,
+                            manager_username: data.data.manager_username
+                        };
+
+                        setQueueStatus('called');
+                        setCurrentlyServing(currentlyServingData);
+
+                        // Сохраняем статус
+                        const ticketStatus = {
+                            status: 'called',
+                            currentlyServing: currentlyServingData,
+                            calledAt: new Date().toISOString()
+                        };
+                        localStorage.setItem(`ticket_${ticketId}_status`, JSON.stringify(ticketStatus));
+
+                        // Показываем уведомление
+                        notificationService.showTicketCalledNotification(data.data);
+
+                        // Воспроизводим аудио
+                        if (data.data.audio_url) {
+                            const audio = new Audio(data.data.audio_url);
+                            audio.play().catch(error => {
+                                console.error("Error playing audio:", error);
+                            });
+                        }
+
+                        // Haptic feedback
+                        if (navigator.vibrate) {
+                            navigator.vibrate([200, 100, 200, 100, 200]);
+                        }
+
+                        notificationService.clearUserTicketInfo();
+
+                    } else if (queueStatus === 'called') {
+                        // Вызван другой талон, наш пропущен
+                        console.log('Another ticket was called, marking our ticket as missed');
+
+                        setQueueStatus('missed');
+
+                        const missedStatus = {
+                            status: 'missed',
+                            missedAt: new Date().toISOString(),
+                            reason: 'another_ticket_called',
+                            nextCalledTicket: {
+                                ticket_number: data.data.ticket_number,
+                                full_name: data.data.full_name
+                            }
+                        };
+                        localStorage.setItem(`ticket_${ticketId}_status`, JSON.stringify(missedStatus));
+
+                        // Уведомление о пропуске
+                        if (navigator.vibrate) {
+                            navigator.vibrate([100, 50, 100, 50, 100]);
+                        }
+
+                        alert('⚠️ Ваш талон был пропущен! Вызван следующий талон.');
+                        notificationService.clearUserTicketInfo();
+                    }
+                }
+
+                // Обработка события замещения талона (если реализовано в Django)
+                if (data.type === "ticket_superseded" && data.data) {
+                    const isOurTicket = data.data.previous_ticket_id === ticketId ||
+                        (data.data.previous_ticket_number === ticketNumber && data.data.previous_full_name === fullName);
+
+                    if (isOurTicket && queueStatus === 'called') {
+                        console.log('Our ticket was superseded by a new call');
+
+                        setQueueStatus('missed');
+
+                        const missedStatus = {
+                            status: 'missed',
+                            missedAt: data.data.superseded_at,
+                            reason: data.data.reason || 'superseded'
+                        };
+                        localStorage.setItem(`ticket_${ticketId}_status`, JSON.stringify(missedStatus));
+
+                        alert('⚠️ Ваш талон был заменен новым вызовом!');
+                        notificationService.clearUserTicketInfo();
+                    }
+                }
+
+                if (data.type === "ticket_count_update" && data.data) {
+                    updateQueuePosition();
+                }
+
+            } catch (error) {
+                console.error('Error handling WebSocket message:', error);
+            }
+        };
+
+        setSocket(ws);
+
+        return () => {
+            if (ws) {
+                ws.close();
+            }
+        };
+    }, [ticketId, ticketNumber, fullName, queueType, token, queueStatus]);
+
+    // Утилитарные функции
     const getQueueDisplayName = (type) => {
         const queueNames = {
             'BACHELOR': 'Бакалавр',
@@ -211,9 +308,9 @@ function TicketDisplayPage() {
 
     const getManagerLocation = (managerUsername) => {
         if (!managerUsername) return 'менеджеру';
-        
+
         const username = managerUsername.toLowerCase();
-        
+
         if (username.includes('auditoria111') || username.includes('aauditoria111')) {
             return 'аудитории 111';
         } else if (username.includes('auditoria303')) {
@@ -238,102 +335,192 @@ function TicketDisplayPage() {
         }
     };
 
+    const handleRefresh = () => {
+        if (navigator.vibrate) {
+            navigator.vibrate(100);
+        }
+        updateQueuePosition();
+    };
+
+    const handleGoHome = () => {
+        navigate('/', { replace: true });
+    };
+
+    const handleGetNewTicket = () => {
+        navigate('/join-queue', { replace: true });
+    };
+
+    const handleContactManager = () => {
+        const phone = '+77172000000'; // Замените на реальный номер
+        if (window.confirm('Позвонить администратору?')) {
+            window.location.href = `tel:${phone}`;
+        }
+    };
+
     return (
         <div className="ticket-display-container">
-            <img src={logo} alt="Logo" className="logo" />
-            
-            <div className="ticket-header">
-                <h1>ВАШ ТАЛОН</h1>
-                {queueStatus === 'called' && (
-                    <div className="called-notification">
-                        🔔 ВАШ ТАЛОН ВЫЗВАН!
-                    </div>
-                )}
-            </div>
+            <img
+                src={logo}
+                alt="Логотип IITU"
+                className="ticket-display-logo"
+                onError={(e) => {
+                    e.target.style.display = 'none';
+                }}
+            />
 
-            <div className="ticket-info">
-                <div className="ticket-main-info">
-                    <p><strong>ФИО:</strong> {fullName}</p>
-                    <p><strong>НОМЕР ТАЛОНА:</strong> {ticketNumber}</p>
-                    <p><strong>ТИП ОЧЕРЕДИ:</strong> {getQueueDisplayName(queueType)}</p>
+            <div className="ticket-card">
+                {/* Заголовок */}
+                <div className="ticket-header">
+                    <h1 className="ticket-title">
+                        🎫 Ваш талон
+                    </h1>
+                    {queueStatus === 'called' && (
+                        <div className="status-badge called">
+                            🔔 ТАЛОН ВЫЗВАН!
+                        </div>
+                    )}
+                    {queueStatus === 'waiting' && (
+                        <div className="status-badge waiting">
+                            ⏳ Ожидание
+                        </div>
+                    )}
                 </div>
 
-                {token && (
-                    <div className="ticket-token">
-                        <p><strong>Токен:</strong> {token}</p>
-                        <small>Сохраните этот токен для отслеживания статуса</small>
-                    </div>
-                )}
-            </div>
-
-            <div className="queue-status">
-                {queueStatus === 'waiting' && (
-                    <div className="status-waiting">
-                        <h3>Ожидание в очереди</h3>
-                        {queuePosition && (
-                            <div className="position-info">
-                                <p>Ваша позиция в очереди: <strong>{queuePosition}</strong></p>
-                                {estimatedWaitTime && (
-                                    <p>Примерное время ожидания: <strong>{formatWaitTime(estimatedWaitTime)}</strong></p>
-                                )}
-                            </div>
-                        )}
-                        <div className="waiting-message">
-                            <p>Ожидайте вызова. Ваше ФИО будет объявлено, когда подойдет ваша очередь.</p>
-                            <div className="status-indicator">
-                                <div className="spinner"></div>
-                                <span>Ожидание...</span>
-                            </div>
+                {/* Информация о талоне */}
+                <div className="ticket-info">
+                    <div className="ticket-main-info">
+                        <div className="info-item">
+                            <span className="info-label">
+                                👤 ФИО
+                            </span>
+                            <span className="info-value">{fullName}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="info-label">
+                                🎫 Номер талона
+                            </span>
+                            <span className="info-value">{ticketNumber}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="info-label">
+                                📋 Тип очереди
+                            </span>
+                            <span className="info-value">{getQueueDisplayName(queueType)}</span>
                         </div>
                     </div>
-                )}
+                </div>
 
-                {queueStatus === 'called' && currentlyServing && (
-                    <div className="status-called">
-                        <h3>🔔 ВАШ ТАЛОН ВЫЗВАН!</h3>
-                        <div className="call-info">
-                            <p className="call-message">
-                                <strong>{currentlyServing.full_name}</strong>, 
-                                подойдите к {getManagerLocation(currentlyServing.manager_username)}
-                            </p>
-                            <div className="urgency-indicator">
-                                <span className="blink">⚠️ НЕМЕДЛЕННО ПОДОЙДИТЕ К МЕНЕДЖЕРУ ⚠️</span>
+                {/* Статус очереди */}
+                <div className="queue-status">
+                    {queueStatus === 'waiting' && (
+                        <div className="status-waiting">
+                            <h3>Ожидание в очереди</h3>
+                            {queuePosition && (
+                                <div className="position-info">
+                                    <p>Ваша позиция в очереди:</p>
+                                    <span className="position-highlight">{queuePosition}</span>
+                                    {estimatedWaitTime && (
+                                        <p>Примерное время ожидания: <strong>{formatWaitTime(estimatedWaitTime)}</strong></p>
+                                    )}
+                                </div>
+                            )}
+                            <div className="waiting-message">
+                                <p>Ожидайте вызова. Ваше ФИО будет объявлено, когда подойдет ваша очередь.</p>
+                                <div className="status-indicator">
+                                    <div className="spinner"></div>
+                                    <span>Ожидание вызова...</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {queueStatus === 'completed' && (
-                    <div className="status-completed">
-                        <h3>✅ Обслуживание завершено</h3>
-                        <p>Спасибо за использование электронной очереди!</p>
-                    </div>
-                )}
-            </div>
+                    {queueStatus === 'called' && currentlyServing && (
+                        <div className="status-called">
+                            <h3>🔔 ВАШ ТАЛОН ВЫЗВАН!</h3>
+                            <div className="call-info">
+                                <p className="call-message">
+                                    <strong>{currentlyServing.full_name}</strong>,
+                                    подойдите к {getManagerLocation(currentlyServing.manager_username)}
+                                </p>
+                                <div className="urgency-indicator">
+                                    <span className="blink">⚠️ НЕМЕДЛЕННО ПОДОЙДИТЕ К МЕНЕДЖЕРУ ⚠️</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-            <div className="ticket-actions">
-                <button 
-                    className="refresh-button"
-                    onClick={updateQueuePosition}
-                >
-                    Обновить статус
-                </button>
-                
-                <button 
-                    className="home-button"
-                    onClick={() => window.location.href = '/'}
-                >
-                    На главную
-                </button>
-            </div>
+                    {queueStatus === 'completed' && (
+                        <div className="status-completed">
+                            <h3>✅ Обслуживание завершено</h3>
+                            <p>Спасибо за использование электронной очереди IITU!</p>
+                        </div>
+                    )}
 
-            <div className="ticket-footer">
-                <p className="footer-text">
-                    Сохраните эту страницу или сделайте скриншот для отслеживания статуса
-                </p>
-                <p className="footer-warning">
-                    Не покидайте здание до завершения обслуживания
-                </p>
+                    {queueStatus === 'missed' && (
+                        <div className="status-missed">
+                            <h3>⚠️ ТАЛОН ПРОПУЩЕН</h3>
+                            <div className="missed-info">
+                                <p>Ваш талон был пропущен, так как был вызван следующий талон.</p>
+                                <p>Возможные действия:</p>
+                                <ul>
+                                    <li>Подойдите к любому свободному менеджеру</li>
+                                    <li>Получите новый талон</li>
+                                    <li>Обратитесь к администратору</li>
+                                </ul>
+                            </div>
+
+                            <div className="missed-actions">
+                                <button
+                                    className="get-new-ticket-button"
+                                    onClick={handleGetNewTicket}
+                                    type="button"
+                                >
+                                    🎫 Получить новый талон
+                                </button>
+
+                                <button
+                                    className="contact-manager-button"
+                                    onClick={handleContactManager}
+                                    type="button"
+                                >
+                                    📞 Связаться с администратором
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Кнопки действий */}
+                <div className="ticket-actions">
+                    <button
+                        className="refresh-button"
+                        onClick={handleRefresh}
+                        disabled={isLoading}
+                        type="button"
+                        aria-label="Обновить статус талона"
+                    >
+                        {isLoading ? 'Обновление...' : 'Обновить статус'}
+                    </button>
+
+                    <button
+                        className="home-button"
+                        onClick={handleGoHome}
+                        type="button"
+                        aria-label="Вернуться на главную"
+                    >
+                        На главную
+                    </button>
+                </div>
+
+                {/* Футер */}
+                <div className="ticket-footer">
+                    <p className="footer-text">
+                        💡 Сохраните эту страницу или сделайте скриншот для отслеживания статуса
+                    </p>
+                    <p className="footer-warning">
+                        Не покидайте здание до завершения обслуживания
+                    </p>
+                </div>
             </div>
         </div>
     );

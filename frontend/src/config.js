@@ -1,10 +1,19 @@
-// config.js
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Используем переменные окружения или production URL'ы
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://queue.iitu.edu.kz/api/v2';
-const WS_BASE_URL = process.env.REACT_APP_WS_URL || 'wss://queue.iitu.edu.kz';
+// Используем переменные окружения или fallback URL'ы
+const API_BASE_URL = process.env.REACT_APP_API_URL ||
+    (isDevelopment ? 'http://localhost:8000/api/v2' : 'https://queue.iitu.edu.kz/api/v2');
+
+const WS_BASE_URL = process.env.REACT_APP_WS_URL ||
+    (isDevelopment ? 'ws://localhost:8000/ws' : 'wss://queue.iitu.edu.kz/ws');
 
 export const config = {
+    // Environment info
+    environment: isDevelopment ? 'development' : 'production',
+    isDevelopment,
+    isProduction,
+
     // API URLs
     fetchQueuesUrl: `${API_BASE_URL}/queue/queues/`,
     generateQrUrl: `${API_BASE_URL}/queue/generate-qr/`,
@@ -65,3 +74,17 @@ export const config = {
     apiBaseUrl: API_BASE_URL,
     wsBaseUrl: WS_BASE_URL
 };
+
+// Debug info (только в development)
+if (isDevelopment) {
+    console.log('🔧 Frontend Config:', {
+        environment: config.environment,
+        apiBaseUrl: API_BASE_URL,
+        wsBaseUrl: WS_BASE_URL,
+        allUrls: {
+            fetchQueues: config.fetchQueuesUrl,
+            joinQueue: config.joinQueueUrl,
+            websocket: config.queuesSocketUrl
+        }
+    });
+}

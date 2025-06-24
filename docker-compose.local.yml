@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: daphne backend.asgi:application --port 8000 --bind 0.0.0.0  # Keep daphne for WebSockets
+    volumes:
+      - ./backend:/app
+      - ./static:/app/static
+    ports:
+      - "8000:8000"  # Different port for local
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=backend.settings_local  # Local settings
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"  # Standard Redis port for local
+
+  react-app:
+    container_name: iitu-queue-front-local
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Standard React port for local
+    environment:
+      - NODE_ENV=development  # Development mode
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules

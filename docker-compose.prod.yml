@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: daphne backend.asgi:application --port 8000 --bind 0.0.0.0
+    volumes:
+      - ./backend:/app
+      - ./static:/app/static
+    ports:
+      - "8002:8000"
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_ENV=production  # This tells it to use production settings
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6378:6379"
+
+  react-app:
+    container_name: iitu-queue-front
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod  # Use production Dockerfile
+    ports:
+      - "3001:80"  # Nginx runs on port 80 inside container
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./frontend/.env.production
+    restart: unless-stopped

@@ -1,446 +1,556 @@
-/* TicketDisplayPage.css - User-friendly дизайн только для страницы талона */
+/* TicketDisplayPage.css - Современный дизайн в едином стиле */
 
 .ticket-display-container {
     min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
-    background-color: #f8fafc;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    justify-content: center;
+    position: relative;
 }
 
-.ticket-display-container .logo {
-    width: 80px;
-    height: auto;
-    margin-bottom: 30px;
-    opacity: 0.9;
+.ticket-display-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.ticket-display-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Основная карточка талона */
+.ticket-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    padding: 48px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    animation: slideUp 0.6s ease-out;
 }
 
 /* Заголовок */
-.ticket-display-container .ticket-header {
-    text-align: center;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px;
+.ticket-header {
+    margin-bottom: 40px;
 }
 
-.ticket-display-container .ticket-header h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 15px;
-    letter-spacing: 0.5px;
+.ticket-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Уведомление о вызове */
-.ticket-display-container .called-notification {
-    background-color: #ef4444;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 16px;
+.status-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    animation: gentle-pulse 2s infinite;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    animation: pulse 2s infinite;
 }
 
-@keyframes gentle-pulse {
+.status-badge.called {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    color: white;
+    box-shadow: 0 8px 32px rgba(229, 62, 62, 0.3);
+}
+
+.status-badge.waiting {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    color: white;
+    box-shadow: 0 8px 32px rgba(237, 137, 54, 0.3);
+}
+
+/* Информация о талоне */
+.ticket-info {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.ticket-main-info {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    font-size: 16px;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-label {
+    color: #4a5568;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-value {
+    color: #2d3748;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+/* Секция статуса */
+.queue-status {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+/* Статус ожидания */
+.status-waiting {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.status-waiting h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.status-waiting h3::before {
+    content: "⏳";
+    font-size: 20px;
+}
+
+.position-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.position-info p {
+    margin: 8px 0;
+    font-size: 16px;
+}
+
+.position-highlight {
+    font-size: 32px;
+    font-weight: 700;
+    display: block;
+    margin: 8px 0;
+}
+
+.waiting-message {
+    text-align: center;
+    color: #4a5568;
+}
+
+.waiting-message p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Статус вызван */
+.status-called {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 12px 48px rgba(72, 187, 120, 0.3);
+    animation: callPulse 2s infinite;
+}
+
+.status-called h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.call-message {
+    font-size: 20px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.call-message strong {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+.urgency-indicator {
+    margin-top: 24px;
+}
+
+.blink {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    animation: urgentBlink 1s ease-in-out infinite;
+}
+
+/* Статус завершен */
+.status-completed {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 12px 48px rgba(49, 130, 206, 0.3);
+}
+
+.status-completed h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+/* Статус пропущен */
+.status-missed {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 12px 48px rgba(229, 62, 62, 0.3);
+    animation: shake 0.5s ease-in-out;
+}
+
+.status-missed h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.missed-info {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.missed-info p {
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.missed-info ul {
+    margin: 12px 0 0 20px;
+    line-height: 1.8;
+}
+
+.missed-info li {
+    margin: 8px 0;
+}
+
+.missed-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.get-new-ticket-button,
+.contact-manager-button {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.get-new-ticket-button {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a202c;
+}
+
+.get-new-ticket-button:hover {
+    background: white;
+    transform: translateY(-2px);
+}
+
+.contact-manager-button {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.contact-manager-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Кнопки действий */
+.ticket-actions {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+    width: 100%;
+    justify-content: center;
+}
+
+.refresh-button,
+.home-button {
+    padding: 16px 32px;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.refresh-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.refresh-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 48px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-button::before {
+    content: "🔄";
+    font-size: 14px;
+}
+
+.home-button {
+    background: rgba(255, 255, 255, 0.9);
+    color: #4a5568;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.home-button:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.home-button::before {
+    content: "🏠";
+    font-size: 14px;
+}
+
+/* Футер */
+.ticket-footer {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.footer-text {
+    color: #4a5568;
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.footer-warning {
+    color: #e53e3e;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.footer-warning::before {
+    content: "⚠️";
+    font-size: 12px;
+}
+
+/* Анимации */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+@keyframes callPulse {
+    0%, 100% {
+        box-shadow: 0 12px 48px rgba(72, 187, 120, 0.3);
+    }
+    50% {
+        box-shadow: 0 16px 64px rgba(72, 187, 120, 0.5);
+    }
+}
+
+@keyframes urgentBlink {
     0%, 100% {
         opacity: 1;
         transform: scale(1);
     }
     50% {
-        opacity: 0.9;
-        transform: scale(1.02);
+        opacity: 0.8;
+        transform: scale(0.98);
     }
 }
 
-/* Информация о талоне */
-.ticket-display-container .ticket-info {
-    width: 100%;
-    max-width: 500px;
-    margin-bottom: 30px;
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-8px);
+    }
+    75% {
+        transform: translateX(8px);
+    }
 }
 
-.ticket-display-container .ticket-main-info {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
-}
-
-.ticket-display-container .ticket-main-info p {
-    margin: 12px 0;
-    font-size: 16px;
-    color: #334155;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.ticket-display-container .ticket-main-info p:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.ticket-display-container .ticket-main-info strong {
-    color: #64748b;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-/* Убираем стили для токена */
-.ticket-display-container .ticket-token {
-    display: none;
-}
-
-/* Статус очереди */
-.ticket-display-container .queue-status {
-    width: 100%;
-    max-width: 500px;
-    margin-bottom: 30px;
-}
-
-/* Статус ожидания */
-.ticket-display-container .status-waiting {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
-}
-
-.ticket-display-container .status-waiting h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.ticket-display-container .position-info {
-    background: #f8fafc;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-}
-
-.ticket-display-container .position-info p {
-    margin: 8px 0;
-    font-size: 15px;
-    color: #475569;
-    text-align: center;
-}
-
-.ticket-display-container .position-info strong {
-    color: #3b82f6;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.ticket-display-container .waiting-message {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.ticket-display-container .waiting-message p {
-    color: #64748b;
-    font-size: 14px;
-    margin-bottom: 16px;
-}
-
-.ticket-display-container .status-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: #64748b;
-    font-size: 14px;
-}
-
-.ticket-display-container .spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #e2e8f0;
-    border-top-color: #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Статус вызван */
-.ticket-display-container .status-called {
-    background: #dcfce7;
-    border: 2px solid #86efac;
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-}
-
-.ticket-display-container .status-called h3 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #15803d;
-    margin-bottom: 20px;
-}
-
-.ticket-display-container .call-message {
-    font-size: 16px;
-    color: #166534;
-    margin-bottom: 16px;
-    line-height: 1.6;
-}
-
-.ticket-display-container .call-message strong {
-    color: #15803d;
-}
-
-.ticket-display-container .urgency-indicator {
-    margin-top: 20px;
-}
-
-.ticket-display-container .blink {
-    display: inline-block;
-    background: #fbbf24;
-    color: #92400e;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 14px;
-    animation: soft-blink 1.5s ease-in-out infinite;
-}
-
-@keyframes soft-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-/* Статус завершен */
-.ticket-display-container .status-completed {
-    background: #e0f2fe;
-    border: 1px solid #7dd3fc;
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-}
-
-.ticket-display-container .status-completed h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #0369a1;
-    margin-bottom: 12px;
-}
-
-.ticket-display-container .status-completed p {
-    color: #075985;
-    font-size: 14px;
-}
-
-/* Кнопки действий */
-.ticket-display-container .ticket-actions {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 30px;
-}
-
-.ticket-display-container .refresh-button,
-.ticket-display-container .home-button {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.ticket-display-container .refresh-button {
-    background: #3b82f6;
-    color: white;
-}
-
-.ticket-display-container .refresh-button:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
-}
-
-.ticket-display-container .home-button {
-    background: white;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-}
-
-.ticket-display-container .home-button:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    transform: translateY(-1px);
-}
-
-/* Футер */
-.ticket-display-container .ticket-footer {
-    text-align: center;
-    margin-top: auto;
-    padding: 24px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    max-width: 500px;
-    width: 100%;
-}
-
-.ticket-display-container .footer-text {
-    color: #64748b;
-    font-size: 14px;
-    margin-bottom: 8px;
-}
-
-.ticket-display-container .footer-warning {
-    color: #dc2626;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-/* Адаптивность */
-@media (max-width: 600px) {
+/* Адаптивный дизайн */
+@media (max-width: 768px) {
     .ticket-display-container {
         padding: 16px;
     }
 
-    .ticket-display-container .ticket-header h1 {
-        font-size: 20px;
+    .ticket-card {
+        padding: 32px 24px;
+        border-radius: 24px;
     }
 
-    .ticket-display-container .ticket-main-info {
-        padding: 20px;
+    .ticket-title {
+        font-size: 28px;
     }
 
-    .ticket-display-container .ticket-main-info p {
+    .ticket-main-info {
+        padding: 24px;
+    }
+
+    .info-item {
         flex-direction: column;
         align-items: flex-start;
-        gap: 4px;
+        gap: 8px;
+        padding: 12px 0;
     }
 
-    .ticket-display-container .ticket-actions {
-        flex-direction: column;
-        width: 100%;
+    .info-value {
+        font-size: 16px;
     }
 
-    .ticket-display-container .refresh-button,
-    .ticket-display-container .home-button {
-        width: 100%;
-        justify-content: center;
+    .status-waiting,
+    .status-called,
+    .status-completed,
+    .status-missed {
+        padding: 24px;
     }
 
-    .ticket-display-container .status-called h3 {
+    .position-highlight {
+        font-size: 24px;
+    }
+
+    .call-message {
         font-size: 18px;
     }
 
-    .ticket-display-container .call-message {
-        font-size: 15px;
+    .ticket-actions {
+        flex-direction: column;
+        width: 100%;
     }
-}
 
-/* Добавьте в TicketDisplayPage.css */
+    .refresh-button,
+    .home-button {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 24px;
+    }
 
-.status-missed {
-    background: linear-gradient(135deg, #ff6b6b, #ffa500);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    margin: 20px 0;
-    animation: shake 0.5s ease-in-out;
-}
-
-.status-missed h3 {
-    margin: 0 0 15px 0;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.missed-info {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    margin: 15px 0;
-    text-align: left;
-}
-
-.missed-info p {
-    margin: 0 0 10px 0;
-    font-weight: bold;
-}
-
-.missed-info ul {
-    margin: 10px 0 0 20px;
-    line-height: 1.6;
-}
-
-.missed-info li {
-    margin: 5px 0;
-}
-
-.missed-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.get-new-ticket-button,
-.contact-manager-button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 180px;
-}
-
-.get-new-ticket-button {
-    background: #28a745;
-    color: white;
-}
-
-.get-new-ticket-button:hover {
-    background: #218838;
-    transform: translateY(-2px);
-}
-
-.contact-manager-button {
-    background: #17a2b8;
-    color: white;
-}
-
-.contact-manager-button:hover {
-    background: #138496;
-    transform: translateY(-2px);
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-}
-
-/* Responsive для мобильных */
-@media (max-width: 768px) {
     .missed-actions {
         flex-direction: column;
         align-items: center;
@@ -449,6 +559,71 @@
     .get-new-ticket-button,
     .contact-manager-button {
         width: 100%;
-        max-width: 250px;
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ticket-card {
+        padding: 24px 20px;
+    }
+
+    .ticket-title {
+        font-size: 24px;
+    }
+
+    .ticket-display-logo {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+        left: 15px;
+    }
+
+    .status-waiting h3,
+    .status-called h3,
+    .status-completed h3,
+    .status-missed h3 {
+        font-size: 20px;
+    }
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .ticket-display-container {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    }
+
+    .ticket-card,
+    .ticket-main-info,
+    .status-waiting,
+    .ticket-footer {
+        background: rgba(45, 55, 72, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ticket-title {
+        color: #f7fafc;
+    }
+
+    .info-label {
+        color: #e2e8f0;
+    }
+
+    .info-value {
+        color: #f7fafc;
+    }
+
+    .waiting-message {
+        color: #e2e8f0;
+    }
+
+    .footer-text {
+        color: #e2e8f0;
+    }
+
+    .home-button {
+        background: rgba(45, 55, 72, 0.9);
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 }
