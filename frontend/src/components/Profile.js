@@ -31,8 +31,23 @@ function Profile() {
     const translatedRole = useMemo(() =>
         roleTranslations[userData.role] || userData.role, [userData.role]);
 
-    const allowedQueueTypes = useMemo(() =>
-        userData.allowed_queue_types || [], [userData.allowed_queue_types]);
+    // ОБНОВЛЕННАЯ логика для allowedQueueTypes с фоллбэком
+    const allowedQueueTypes = useMemo(() => {
+        // Новая логика - если есть allowed_queue_types, используем их
+        if (userData.allowed_queue_types && userData.allowed_queue_types.length > 0) {
+            console.log('Using allowed_queue_types:', userData.allowed_queue_types);
+            return userData.allowed_queue_types;
+        }
+
+        // Фоллбэк на старую логику - если есть manager_type
+        if (userData.manager_type) {
+            console.log('Fallback to manager_type:', userData.manager_type);
+            return [userData.manager_type];
+        }
+
+        console.log('No queue types found!');
+        return [];
+    }, [userData.allowed_queue_types, userData.manager_type]);
 
     const totalQueueCount = useMemo(() => {
         if (!userData.ticket_counts) return 0;
@@ -111,76 +126,100 @@ function Profile() {
         }
     }, [fetchProfileData]);
 
-    // Call next ticket - автоматически выбираем первую доступную очередь
-const handleCallNext = useCallback(async () => {
-    console.log('=== DEBUG handleCallNext ===');
-    console.log('isCallInProgress:', isCallInProgress);
-    console.log('allowedQueueTypes:', allowedQueueTypes);
-    console.log('allowedQueueTypes.length:', allowedQueueTypes.length);
-    console.log('userData.ticket_counts:', userData.ticket_counts);
-    console.log('userData:', userData);
+    // ОБНОВЛЕННАЯ функция handleCallNext с поддержкой конкретного типа очереди
+    const handleCallNext = useCallback(async (specificQueueType = null) => {
+        console.log('=== DEBUG handleCallNext ===');
+        console.log('isCallInProgress:', isCallInProgress);
+        console.log('allowedQueueTypes:', allowedQueueTypes);
+        console.log('specificQueueType:', specificQueueType);
 
-    if (isCallInProgress || allowedQueueTypes.length === 0) {
-        console.log('Early return - isCallInProgress:', isCallInProgress, 'allowedQueueTypes.length:', allowedQueueTypes.length);
-        return;
-    }
-
-    // Ищем очередь с талонами или берем первую доступную
-    let queueTypeToCall = allowedQueueTypes[0];
-    console.log('Initial queueTypeToCall:', queueTypeToCall);
-
-    if (userData.ticket_counts) {
-        for (const queueType of allowedQueueTypes) {
-            console.log(`Checking queue ${queueType}, count:`, userData.ticket_counts[queueType]);
-            if (userData.ticket_counts[queueType] > 0) {
-                queueTypeToCall = queueType;
-                console.log('Selected queueTypeToCall:', queueTypeToCall);
-                break;
-            }
-        }
-    }
-
-    console.log('Final queueTypeToCall:', queueTypeToCall);
-    console.log('About to make API call...');
-
-    setIsCallInProgress(true);
-    setError(null);
-
-    try {
-        const token = localStorage.getItem('access_token');
-        console.log('Token exists:', !!token);
-
-        const requestData = {
-            type: queueTypeToCall
-        };
-        console.log('Request data:', requestData);
-        console.log('API URL:', config.callNextUrl);
-
-        const response = await axios.post(config.callNextUrl, requestData, {
-            headers: {
-                'Authorization': `Token ${token}`
-            },
-            timeout: 10000
-        });
-
-        console.log('API Response:', response.data);
-
-        if (response.data.message === "Queue is empty.") {
-            console.log('Queue is empty response received');
-            setError(`Все ваши очереди пусты`);
-            setIsCallInProgress(false);
+        if (isCallInProgress || allowedQueueTypes.length === 0) {
+            console.log('Early return - isCallInProgress:', isCallInProgress, 'allowedQueueTypes.length:', allowedQueueTypes.length);
             return;
         }
 
-        // Остальная логика...
+        let queueTypeToCall;
 
-    } catch (error) {
-        console.error("Error calling the next ticket:", error);
-        console.error("Error response:", error.response?.data);
-        console.error("Error status:", error.response?.status);
-        // Остальная обработка ошибок...
-    }
-}, [isCallInProgress, allowedQueueTypes, userData.ticket_counts, fetchProfileData]);
+        if (specificQueueType) {
+            // Конкретная очередь выбрана
+            queueTypeToCall = specificQueueType;
+        } else if (allowedQueueTypes.length === 1) {
+            // Только одна доступная очередь
+            queueTypeToCall = allowedQueueTypes[0];
+        } else {
+            // Автовыбор очереди с талонами (для backward compatibility)
+            queueTypeToCall = allowedQueueTypes.find(type =>
+                userData.ticket_counts?.[type] > 0
+            ) || allowedQueueTypes[0];
+        }
+
+        console.log('Final queueTypeToCall:', queueTypeToCall);
+
+        setIsCallInProgress(true);
+        setError(null);
+
+        try {
+            const token = localStorage.getItem('access_token');
+            const response = await axios.post(config.callNextUrl, {
+                type: queueTypeToCall
+            }, {
+                headers: {
+                    'Authorization': `Token ${token}`
+                },
+                timeout: 10000
+            });
+
+            console.log('API Response:', response.data);
+
+            if (response.data.message === "Queue is empty.") {
+                setError(`Очередь ${getQueueDisplayName(queueTypeToCall)} пуста`);
+                setIsCallInProgress(false);
+                return;
+            }
+
+            setUserData(prevState => ({
+                ...prevState,
+                last_called_ticket: {
+                    number: response.data.ticket_number,
+                    full_name: response.data.full_name,
+                    queue_type: queueTypeToCall,
+                    queue_type_display: response.data.queue_type_display || getQueueDisplayName(queueTypeToCall)
+                }
+            }));
+
+            // Обновляем информацию
+            fetchProfileData();
+
+            // Haptic feedback для успеха
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 25, 50, 25, 50]);
+            }
+
+            // Fallback таймер
+            setTimeout(() => {
+                setIsCallInProgress(false);
+            }, 3000);
+
+        } catch (error) {
+            console.error("Error calling the next ticket:", error);
+            setIsCallInProgress(false);
+
+            // Haptic feedback для ошибки
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+            }
+
+            if (error.response && error.response.status === 403) {
+                setError(`У вас нет прав на обслуживание очереди ${getQueueDisplayName(queueTypeToCall)}`);
+            } else if (error.response && error.response.status === 401) {
+                localStorage.removeItem('access_token');
+                window.location.href = '/login';
+            } else {
+                setError("Ошибка при вызове следующего талона");
+            }
+        }
+    }, [isCallInProgress, allowedQueueTypes, userData.ticket_counts, fetchProfileData]);
+
     // Logout function
     const handleLogout = useCallback(async () => {
         try {
@@ -247,8 +286,8 @@ const handleCallNext = useCallback(async () => {
     // Keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (event) => {
-            // Space bar to call next ticket (if manager)
-            if (event.code === 'Space' && userData.role === "MANAGER" && !isCallInProgress) {
+            // Space bar to call next ticket (if manager and only one queue)
+            if (event.code === 'Space' && userData.role === "MANAGER" && !isCallInProgress && allowedQueueTypes.length === 1) {
                 event.preventDefault();
                 handleCallNext();
             }
@@ -261,12 +300,22 @@ const handleCallNext = useCallback(async () => {
 
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [userData.role, isCallInProgress, handleCallNext, error]);
+    }, [userData.role, isCallInProgress, handleCallNext, error, allowedQueueTypes.length]);
 
     // Set page title
     useEffect(() => {
         document.title = userData.username ? `Профиль - ${userData.username}` : "Профиль - IITU";
     }, [userData.username]);
+
+    // Debug log
+    useEffect(() => {
+        console.log('Profile Debug Info:');
+        console.log('userData:', userData);
+        console.log('allowedQueueTypes:', allowedQueueTypes);
+        console.log('userData.allowed_queue_types:', userData.allowed_queue_types);
+        console.log('userData.manager_type:', userData.manager_type);
+        console.log('userData.ticket_counts:', userData.ticket_counts);
+    }, [userData, allowedQueueTypes]);
 
     // Loading state
     if (isLoading) {
@@ -348,8 +397,8 @@ const handleCallNext = useCallback(async () => {
                     )}
                 </div>
 
-                {/* Секция вызова талонов */}
-                {userData.role === "MANAGER" && (
+                {/* ОБНОВЛЕННАЯ секция вызова талонов */}
+                {userData.role === "MANAGER" && allowedQueueTypes.length > 0 && (
                     <div className="call-next">
                         {userData.last_called_ticket ? (
                             <div className="current-serving">
@@ -372,51 +421,91 @@ const handleCallNext = useCallback(async () => {
                                 <div className="empty-queue">
                                     <span className="empty-queue-icon">👤</span>
                                     <div className="empty-queue-text">Талоны еще не вызывались</div>
-                                    <div className="empty-queue-subtitle">Нажмите кнопку для вызова следующего талона</div>
+                                    <div className="empty-queue-subtitle">
+                                        {allowedQueueTypes.length > 1 ? 'Выберите очередь для вызова талона' : 'Нажмите кнопку для вызова следующего талона'}
+                                    </div>
                                 </div>
                             </div>
                         )}
 
-                        {totalQueueCount > 0 ? (
-                            <button
-                                className={`call-next-button ${isCallInProgress ? 'loading' : ''}`}
-                                onClick={handleCallNext}
-                                disabled={isCallInProgress}
-                                aria-label={isCallInProgress ? 'Вызов талона в процессе' : 'Вызвать следующий талон'}
-                                title="Нажмите или используйте пробел для вызова"
-                            >
-                                {isCallInProgress ? (
-                                    <>
-                                        <span>⏳</span>
-                                        <span>Вызов...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>📢</span>
-                                        <span>Вызвать следующий талон</span>
-                                        <span style={{fontSize: '0.875rem', opacity: 0.8}}>
-                                            (Всего: {totalQueueCount})
-                                        </span>
-                                    </>
-                                )}
-                            </button>
-                        ) : (
-                            <div className="text-center">
-                                <div style={{
-                                    padding: 'var(--space-6)',
-                                    background: 'var(--gray-100)',
-                                    borderRadius: 'var(--radius-lg)',
-                                    color: 'var(--text-muted)'
-                                }}>
-                                    <div style={{fontSize: '2rem', marginBottom: 'var(--space-2)'}}>📭</div>
-                                    <div style={{fontSize: '1rem', fontWeight: '500'}}>
-                                        Все очереди пусты
-                                    </div>
-                                    <div style={{fontSize: '0.875rem', marginTop: 'var(--space-1)'}}>
-                                        Ожидайте новых талонов
-                                    </div>
+                        {/* НОВАЯ ЛОГИКА: Кнопки для каждой доступной очереди */}
+                        {allowedQueueTypes.length > 1 ? (
+                            // Множественные очереди - показываем отдельные кнопки
+                            <div className="queue-selection">
+                                <h3 className="queue-selection-title">Выберите очередь:</h3>
+                                <div className="queue-buttons">
+                                    {allowedQueueTypes.map(queueType => {
+                                        const count = userData.ticket_counts?.[queueType] || 0;
+                                        return (
+                                            <button
+                                                key={queueType}
+                                                className={`queue-call-button ${count === 0 ? 'disabled' : ''} ${isCallInProgress ? 'loading' : ''}`}
+                                                onClick={() => handleCallNext(queueType)}
+                                                disabled={isCallInProgress || count === 0}
+                                                title={`Вызвать следующий талон из очереди ${getQueueDisplayName(queueType)}`}
+                                            >
+                                                <div className="queue-button-content">
+                                                    <span className="queue-emoji">{getQueueEmoji(queueType)}</span>
+                                                    <div className="queue-info">
+                                                        <div className="queue-name">{getQueueDisplayName(queueType)}</div>
+                                                        <div className="queue-count">
+                                                            {count > 0 ? `${count} ${count === 1 ? 'талон' : count < 5 ? 'талона' : 'талонов'}` : 'Пусто'}
+                                                        </div>
+                                                    </div>
+                                                    {isCallInProgress ? (
+                                                        <span className="loading-icon">⏳</span>
+                                                    ) : (
+                                                        <span className="call-icon">📢</span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
+                        ) : (
+                            // Одна очередь - обычная кнопка
+                            totalQueueCount > 0 ? (
+                                <button
+                                    className={`call-next-button ${isCallInProgress ? 'loading' : ''}`}
+                                    onClick={() => handleCallNext()}
+                                    disabled={isCallInProgress}
+                                    aria-label={isCallInProgress ? 'Вызов талона в процессе' : 'Вызвать следующий талон'}
+                                    title="Нажмите или используйте пробел для вызова"
+                                >
+                                    {isCallInProgress ? (
+                                        <>
+                                            <span>⏳</span>
+                                            <span>Вызов...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>📢</span>
+                                            <span>Вызвать следующий талон</span>
+                                            <span style={{fontSize: '0.875rem', opacity: 0.8}}>
+                                                (Всего: {totalQueueCount})
+                                            </span>
+                                        </>
+                                    )}
+                                </button>
+                            ) : (
+                                <div className="text-center">
+                                    <div style={{
+                                        padding: 'var(--space-6)',
+                                        background: 'var(--gray-100)',
+                                        borderRadius: 'var(--radius-lg)',
+                                        color: 'var(--text-muted)'
+                                    }}>
+                                        <div style={{fontSize: '2rem', marginBottom: 'var(--space-2)'}}>📭</div>
+                                        <div style={{fontSize: '1rem', fontWeight: '500'}}>
+                                            Все очереди пусты
+                                        </div>
+                                        <div style={{fontSize: '0.875rem', marginTop: 'var(--space-1)'}}>
+                                            Ожидайте новых талонов
+                                        </div>
+                                    </div>
+                                </div>
+                            )
                         )}
                     </div>
                 )}

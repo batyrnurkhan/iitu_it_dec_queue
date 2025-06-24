@@ -983,3 +983,233 @@
         color: var(--primary-300);
     }
 }
+
+/* Добавьте эти стили в КОНЕЦ вашего profile.css файла */
+
+/* Стили для множественных очередей - кнопки выбора */
+.queue-selection {
+    margin-top: var(--space-6);
+}
+
+.queue-selection-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+.queue-selection-title::before {
+    content: "🎯";
+    font-size: 1rem;
+}
+
+.queue-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.queue-call-button {
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    color: white;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 2px solid transparent;
+}
+
+.queue-call-button:hover:not(.disabled):not(.loading) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.queue-call-button.disabled {
+    background: linear-gradient(135deg, var(--gray-400), var(--gray-500));
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.queue-call-button.loading {
+    cursor: wait;
+    animation: pulse 2s infinite;
+}
+
+.queue-button-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.queue-call-button .queue-emoji {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.queue-call-button .queue-info {
+    flex: 1;
+    text-align: left;
+}
+
+.queue-call-button .queue-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+    line-height: 1.2;
+    color: white;
+}
+
+.queue-call-button .queue-count {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.call-icon, .loading-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.loading-icon {
+    animation: spin 1s linear infinite;
+}
+
+/* Анимация пульсации для загрузки */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.01);
+    }
+}
+
+/* Дополнительные стили для serving-queue */
+.serving-queue {
+    font-size: 0.875rem;
+    color: #155724;
+    background: rgba(21, 87, 36, 0.1);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-2);
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid rgba(21, 87, 36, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+.serving-queue::before {
+    content: "📋";
+    font-size: 0.75rem;
+}
+
+/* Адаптивность для новых элементов */
+@media (max-width: 768px) {
+    .queue-selection-title {
+        font-size: 1.125rem;
+        flex-direction: column;
+        gap: var(--space-1);
+    }
+
+    .queue-call-button {
+        padding: var(--space-4);
+    }
+
+    .queue-button-content {
+        gap: var(--space-3);
+    }
+
+    .queue-call-button .queue-emoji {
+        font-size: 1.5rem;
+    }
+
+    .queue-call-button .queue-name {
+        font-size: 1rem;
+    }
+
+    .queue-call-button .queue-count {
+        font-size: 0.8rem;
+    }
+
+    .call-icon, .loading-icon {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .queue-call-button {
+        padding: var(--space-3);
+    }
+
+    .queue-button-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-2);
+    }
+
+    .queue-call-button .queue-info {
+        text-align: center;
+    }
+
+    .queue-call-button .queue-emoji {
+        font-size: 1.75rem;
+    }
+
+    .serving-queue {
+        font-size: 0.8rem;
+        padding: var(--space-1) var(--space-2);
+    }
+}
+
+/* Темная тема для новых элементов */
+@media (prefers-color-scheme: dark) {
+    .queue-selection-title {
+        color: var(--gray-100);
+    }
+
+    .queue-call-button.disabled {
+        background: linear-gradient(135deg, var(--gray-600), var(--gray-700));
+    }
+
+    .serving-queue {
+        background: rgba(52, 211, 153, 0.15);
+        color: #34d399;
+        border-color: rgba(52, 211, 153, 0.3);
+    }
+}
+
+/* Улучшения производительности */
+.queue-call-button {
+    will-change: transform;
+}
+
+/* Focus states для accessibility */
+.queue-call-button:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+}
+
+/* Для отключения анимаций при prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .queue-call-button,
+    .loading-icon {
+        animation: none !important;
+        transition: none !important;
+    }
+}
