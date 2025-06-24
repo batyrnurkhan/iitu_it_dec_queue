@@ -8,7 +8,7 @@ from .views import log_error
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v2/', include('accounts.urls')),
-    path('api/v2/', include('queue_qr.urls')),
+    path('api/v2/queue/', include('queue_qr.urls')),
     path('api/v2/log-error/', log_error, name='log_error'),
 ]
 
