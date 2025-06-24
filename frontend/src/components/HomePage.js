@@ -77,59 +77,79 @@ function HomePage() {
 
     // Handle WebSocket message
     const handleWebSocketMessage = useCallback((data) => {
-        if (data.type === 'ticket_called' && data.data && data.data.queue_type) {
-            // Обновляем очереди
-            setQueues(prevQueues => {
-                return prevQueues.map(queue => {
-                    if (queue['Очередь'] === data.data.queue_type) {
-                        const updatedRegisteredTickets = queue['Зарегестрированные талоны'].filter(ticket =>
-                            String(ticket.number || ticket) !== String(data.data.ticket_number)
-                        );
-                        return {
-                            ...queue,
-                            'Зарегестрированные талоны': updatedRegisteredTickets,
-                        };
-                    } else if (queue['Все обслуживаемые талоны']) {
-                        const updatedServedTickets = queue['Все обслуживаемые талоны'].filter(ticket =>
-                            ticket.manager_username !== data.data.manager_username
-                        );
-                        updatedServedTickets.push({
-                            ticket_number: data.data.ticket_number,
-                            full_name: data.data.full_name,
-                            manager_username: data.data.manager_username
-                        });
-                        return {
-                            ...queue,
-                            'Все обслуживаемые талоны': updatedServedTickets
-                        };
-                    }
-                    return queue;
-                });
+    console.log('WebSocket message received:', data);
+
+    if (data.type === 'ticket_called' && data.data && data.data.queue_type) {
+        console.log('Ticket called data:', data.data);
+
+        // Обновляем очереди - ИСПРАВЛЕНО: ищем по queue_type_code
+        setQueues(prevQueues => {
+            return prevQueues.map(queue => {
+                // Проверяем и по queue_type_code, и по queue_type_display
+                const queueMatches =
+                    queue['queue_type_code'] === data.data.queue_type ||
+                    queue['Очередь'] === data.data.queue_type_display;
+
+                if (queueMatches) {
+                    console.log('Updating queue:', queue['Очередь']);
+                    const updatedRegisteredTickets = queue['Зарегестрированные талоны'].filter(ticket =>
+                        String(ticket.number || ticket) !== String(data.data.ticket_number)
+                    );
+                    return {
+                        ...queue,
+                        'Зарегестрированные талоны': updatedRegisteredTickets,
+                    };
+                } else if (queue['Все обслуживаемые талоны']) {
+                    // Обновляем список обслуживаемых талонов
+                    const updatedServedTickets = queue['Все обслуживаемые талоны'].filter(ticket =>
+                        ticket.manager_username !== data.data.manager_username
+                    );
+
+                    // Добавляем новый обслуживаемый талон
+                    updatedServedTickets.push({
+                        ticket_number: data.data.ticket_number,
+                        full_name: data.data.full_name,
+                        manager_username: data.data.manager_username,
+                        queue_type: data.data.queue_type,
+                        queue_type_display: data.data.queue_type_display
+                    });
+
+                    console.log('Updated served tickets:', updatedServedTickets);
+
+                    return {
+                        ...queue,
+                        'Все обслуживаемые талоны': updatedServedTickets
+                    };
+                }
+                return queue;
             });
+        });
 
-            // Добавляем в очередь отображения
-            setTicketDisplayQueue(prevQueue => [...prevQueue, {
-                ticket_number: data.data.ticket_number,
-                full_name: data.data.full_name,
-                manager_username: data.data.manager_username
-            }]);
+        // Добавляем в очередь отображения - СОКРАЩАЕМ время показа
+        setTicketDisplayQueue(prevQueue => [...prevQueue, {
+            ticket_number: data.data.ticket_number,
+            full_name: data.data.full_name,
+            manager_username: data.data.manager_username,
+            queue_type: data.data.queue_type,
+            queue_type_display: data.data.queue_type_display
+        }]);
 
-            // Добавляем аудио в очередь
-            if (data.data.audio_url) {
-                setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
-            }
-
-            // Haptic feedback при вызове талона
-            if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]);
-            }
-
-        } else if (data.message && data.message.includes("New ticket")) {
-            fetchQueues();
-        } else if (data.type === "ticket_count_update") {
-            fetchQueues();
+        // Добавляем аудио в очередь
+        if (data.data.audio_url) {
+            setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
         }
-    }, [fetchQueues]);
+
+        // Haptic feedback при вызове талона
+        if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200]);
+        }
+
+    } else if (data.message && data.message.includes("New ticket")) {
+        fetchQueues();
+    } else if (data.type === "ticket_count_update") {
+        fetchQueues();
+    }
+}, [fetchQueues]);
 
     // WebSocket setup
     useEffect(() => {
@@ -214,14 +234,14 @@ function HomePage() {
 
     // Hide current ticket timer
     useEffect(() => {
-        if (currentTicket !== null) {
-            const timer = setTimeout(() => {
-                setCurrentTicket(null);
-            }, 8000);
+    if (currentTicket !== null) {
+        const timer = setTimeout(() => {
+            setCurrentTicket(null);
+        }, 4000);
 
-            return () => clearTimeout(timer);
-        }
-    }, [currentTicket]);
+        return () => clearTimeout(timer);
+    }
+}, [currentTicket]);
 
     // Loading state
     if (isLoading && queues.length === 0) {
