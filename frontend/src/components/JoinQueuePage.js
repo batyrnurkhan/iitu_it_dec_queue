@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/joinQueue.css';
 import { config, getQueueDisplayName, getQueueDescription, getQueueEmoji } from "../config";
 import logo from "../static/logo.png";
 import axiosInstance, { queueAPI } from "../axiosInstance";
 import notificationService from '../services/NotificationService';
+import '../styles/joinQueue.css'
 
 function JoinQueuePage() {
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ function JoinQueuePage() {
     const [isNotificationSupported, setIsNotificationSupported] = useState(false);
     const [queueTypes, setQueueTypes] = useState([]);
 
-    // Загружаем типы очередей с сервера
+    // Load queue types from server
     const loadQueueTypes = useCallback(async () => {
         try {
             setIsLoadingQueueTypes(true);
@@ -103,7 +103,6 @@ function JoinQueuePage() {
         e.preventDefault();
 
         if (!validateForm()) {
-            // Haptic feedback для ошибки валидации
             if (navigator.vibrate) {
                 navigator.vibrate([100, 50, 100]);
             }
@@ -125,12 +124,11 @@ function JoinQueuePage() {
             } else {
                 console.log("Response data:", response.data);
 
-                // Haptic feedback для успеха
                 if (navigator.vibrate) {
                     navigator.vibrate([50, 25, 50, 25, 50]);
                 }
 
-                // Сохраняем информацию о талоне для уведомлений
+                // Save ticket info for notifications
                 const ticketInfo = {
                     ticketId: response.data.ticket_id,
                     ticketNumber: response.data.ticket,
@@ -143,7 +141,6 @@ function JoinQueuePage() {
 
                 notificationService.setUserTicketInfo(ticketInfo);
 
-                // Плавный переход с задержкой для лучшего UX
                 setTimeout(() => {
                     navigate('/ticket', {
                         state: {
@@ -155,12 +152,11 @@ function JoinQueuePage() {
                             token: response.data.token
                         }
                     });
-                }, 600);
+                }, 300);
             }
         } catch (error) {
             console.error("Error joining queue:", error);
 
-            // Haptic feedback для ошибки
             if (navigator.vibrate) {
                 navigator.vibrate([200, 100, 200, 100, 200]);
             }
@@ -190,7 +186,6 @@ function JoinQueuePage() {
         setSelectedQueue('');
         setErrors({});
 
-        // Фокус на первое поле с задержкой
         setTimeout(() => {
             const firstInput = document.getElementById('fullName');
             if (firstInput) {
@@ -224,7 +219,7 @@ function JoinQueuePage() {
         loadQueueTypes();
     }, [loadQueueTypes]);
 
-    // Initialize form visibility animation
+    // Initialize form visibility
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsFormVisible(true);
@@ -244,7 +239,6 @@ function JoinQueuePage() {
                     setNotificationPermissionGranted(permission === 'granted');
 
                     if (permission === 'default') {
-                        // Запрашиваем разрешение с задержкой для лучшего UX
                         const timer = setTimeout(async () => {
                             try {
                                 const result = await notificationService.requestPermission();
@@ -272,14 +266,12 @@ function JoinQueuePage() {
     // Keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (event) => {
-            // ESC для сброса формы
             if (event.key === 'Escape' && !isLoading) {
                 if (message) {
                     handleRetry();
                 }
             }
 
-            // Enter в селекте для отправки формы
             if (event.key === 'Enter' && event.target.tagName === 'SELECT') {
                 event.preventDefault();
                 if (!isLoading && fullName && selectedQueue) {
@@ -376,7 +368,7 @@ function JoinQueuePage() {
                                 role="alert"
                                 aria-live="polite"
                             >
-                                {errors.fullName}
+                                ⚠️ {errors.fullName}
                             </span>
                         ) : (
                             <span id="fullName-help" className="sr-only">
@@ -431,7 +423,7 @@ function JoinQueuePage() {
                                 role="alert"
                                 aria-live="polite"
                             >
-                                {errors.selectedQueue}
+                                ⚠️ {errors.selectedQueue}
                             </span>
                         ) : (
                             <span id="queueType-help" className="sr-only">
@@ -473,11 +465,11 @@ function JoinQueuePage() {
                         {!notificationPermissionGranted && isNotificationSupported && (
                             <p style={{
                                 fontSize: '0.75rem',
-                                marginTop: 'var(--space-2)',
+                                marginTop: '0.5rem',
                                 opacity: 0.8,
                                 display: 'flex',
                                 alignItems: 'flex-start',
-                                gap: 'var(--space-1)'
+                                gap: '0.5rem'
                             }}>
                                 <span>💡</span>
                                 <span>Совет: Для лучшего опыта на мобильных устройствах добавьте сайт на домашний экран</span>
@@ -487,13 +479,14 @@ function JoinQueuePage() {
                         {selectedQueue && queueOptions.length > 0 && (
                             <div style={{
                                 fontSize: '0.75rem',
-                                marginTop: 'var(--space-3)',
-                                padding: 'var(--space-2)',
-                                background: 'rgba(102, 126, 234, 0.1)',
-                                borderRadius: 'var(--radius-md)',
+                                marginTop: '1rem',
+                                padding: '0.75rem',
+                                backgroundColor: '#f8fafc',
+                                borderRadius: '8px',
+                                border: '1px solid #e5e7eb',
                                 display: 'flex',
                                 alignItems: 'flex-start',
-                                gap: 'var(--space-1)'
+                                gap: '0.5rem'
                             }}>
                                 <span>ℹ️</span>
                                 <div>
@@ -515,13 +508,14 @@ function JoinQueuePage() {
                         {queueOptions.length === 0 && !isLoadingQueueTypes && (
                             <div style={{
                                 fontSize: '0.75rem',
-                                marginTop: 'var(--space-3)',
-                                padding: 'var(--space-2)',
-                                background: 'rgba(255, 193, 7, 0.1)',
-                                borderRadius: 'var(--radius-md)',
+                                marginTop: '1rem',
+                                padding: '0.75rem',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                borderRadius: '8px',
+                                border: '1px solid rgba(245, 158, 11, 0.2)',
                                 display: 'flex',
                                 alignItems: 'flex-start',
-                                gap: 'var(--space-1)'
+                                gap: '0.5rem'
                             }}>
                                 <span>⚠️</span>
                                 <span>Типы очередей временно недоступны. Попробуйте обновить страницу.</span>
@@ -531,7 +525,7 @@ function JoinQueuePage() {
                 </form>
             )}
 
-            {/* Скрытый элемент для screen readers */}
+            {/* Hidden element for screen readers */}
             <div className="sr-only" aria-live="polite" aria-atomic="true">
                 {isLoading && "Обрабатывается запрос на получение талона"}
                 {isLoadingQueueTypes && "Загружаются типы очередей"}

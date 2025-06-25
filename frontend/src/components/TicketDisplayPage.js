@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import '../styles/TicketDisplayPage.css';
 import { config, getQueueDisplayName } from "../config";
 import logo from "../static/logo.png";
+import '../styles/TicketDisplayPage.css';
 
-// Безопасный импорт NotificationService
+// Safe import of NotificationService
 let notificationService;
 try {
     notificationService = require('../services/NotificationService').default;
@@ -29,12 +29,12 @@ try {
         showTicketCalledNotification: (data) => {
             console.log('Fallback: showTicketCalledNotification', data);
 
-            // Вибрация
+            // Vibration
             if (navigator.vibrate) {
                 navigator.vibrate([200, 100, 200, 100, 200]);
             }
 
-            // Показываем confirm для воспроизведения аудио
+            // Show confirm for audio playback
             setTimeout(() => {
                 if (window.confirm(`🔔 ВАШ ТАЛОН ВЫЗВАН!\n${data.full_name}\nНажмите OK для воспроизведения аудио`)) {
                     if (data.audio_url) {
@@ -68,7 +68,7 @@ function TicketDisplayPage() {
     const [estimatedWaitTime, setEstimatedWaitTime] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Проверка валидности данных талона
+    // Check ticket data validity
     useEffect(() => {
         if (!ticketId || !ticketNumber || !fullName || !queueType) {
             console.warn('Missing ticket data, redirecting to home');
@@ -92,7 +92,7 @@ function TicketDisplayPage() {
                 return;
             }
 
-            // Ищем нашу очередь по типу или отображаемому имени
+            // Find our queue by type or display name
             const ourQueue = data.find(queue =>
                 queue['queue_type_code'] === queueType ||
                 queue['Очередь'] === (queueTypeDisplay || getQueueDisplayName(queueType))
@@ -108,7 +108,7 @@ function TicketDisplayPage() {
                     setQueuePosition(ourIndex + 1);
                     setEstimatedWaitTime(ourIndex * 2.5);
                 } else {
-                    // Проверяем сохраненный статус
+                    // Check saved status
                     const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
                     if (!savedStatus || !['called', 'missed'].includes(JSON.parse(savedStatus).status)) {
                         setQueueStatus('completed');
@@ -122,9 +122,9 @@ function TicketDisplayPage() {
         }
     };
 
-    // Основная логика инициализации
+    // Main initialization logic
     useEffect(() => {
-        // Очистка старых статусов
+        // Cleanup old ticket statuses
         const cleanupOldTicketStatuses = () => {
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
@@ -147,7 +147,7 @@ function TicketDisplayPage() {
 
         cleanupOldTicketStatuses();
 
-        // Восстановление состояния из localStorage
+        // Restore state from localStorage
         if (ticketId) {
             const savedStatus = localStorage.getItem(`ticket_${ticketId}_status`);
             if (savedStatus) {
@@ -157,7 +157,7 @@ function TicketDisplayPage() {
                     const now = new Date();
                     const hoursDiff = (now - actionTime) / (1000 * 60 * 60);
 
-                    if (hoursDiff < 4) { // Увеличили время актуальности до 4 часов
+                    if (hoursDiff < 4) {
                         setQueueStatus(statusData.status);
                         if (statusData.currentlyServing) {
                             setCurrentlyServing(statusData.currentlyServing);
@@ -170,7 +170,7 @@ function TicketDisplayPage() {
             }
         }
 
-        // Сохранение информации о талоне
+        // Save ticket info
         if (ticketId && ticketNumber && fullName && queueType) {
             const ticketInfo = {
                 ticketId,
@@ -184,7 +184,7 @@ function TicketDisplayPage() {
             notificationService.setUserTicketInfo(ticketInfo);
         }
 
-        // WebSocket соединение
+        // WebSocket connection
         const ws = new ReconnectingWebSocket(config.queuesSocketUrl);
 
         ws.onopen = () => {
@@ -206,7 +206,7 @@ function TicketDisplayPage() {
                         (data.data.ticket_number === ticketNumber && data.data.full_name === fullName);
 
                     if (isOurTicket) {
-                        // Наш талон вызван
+                        // Our ticket was called
                         const currentlyServingData = {
                             full_name: data.data.full_name,
                             ticket_number: data.data.ticket_number,
@@ -217,7 +217,7 @@ function TicketDisplayPage() {
                         setQueueStatus('called');
                         setCurrentlyServing(currentlyServingData);
 
-                        // Сохраняем статус
+                        // Save status
                         const ticketStatus = {
                             status: 'called',
                             currentlyServing: currentlyServingData,
@@ -225,10 +225,10 @@ function TicketDisplayPage() {
                         };
                         localStorage.setItem(`ticket_${ticketId}_status`, JSON.stringify(ticketStatus));
 
-                        // Показываем уведомление
+                        // Show notification
                         notificationService.showTicketCalledNotification(data.data);
 
-                        // Воспроизводим аудио
+                        // Play audio
                         if (data.data.audio_url) {
                             const audio = new Audio(data.data.audio_url);
                             audio.play().catch(error => {
@@ -244,7 +244,7 @@ function TicketDisplayPage() {
                         notificationService.clearUserTicketInfo();
 
                     } else if (queueStatus === 'called') {
-                        // Вызван другой талон, наш пропущен
+                        // Another ticket was called, ours was missed
                         console.log('Another ticket was called, marking our ticket as missed');
 
                         setQueueStatus('missed');
@@ -260,7 +260,7 @@ function TicketDisplayPage() {
                         };
                         localStorage.setItem(`ticket_${ticketId}_status`, JSON.stringify(missedStatus));
 
-                        // Уведомление о пропуске
+                        // Missed notification
                         if (navigator.vibrate) {
                             navigator.vibrate([100, 50, 100, 50, 100]);
                         }
@@ -270,7 +270,7 @@ function TicketDisplayPage() {
                     }
                 }
 
-                // Обработка события замещения талона (если реализовано в Django)
+                // Handle ticket superseded event
                 if (data.type === "ticket_superseded" && data.data) {
                     const isOurTicket = data.data.previous_ticket_id === ticketId ||
                         (data.data.previous_ticket_number === ticketNumber && data.data.previous_full_name === fullName);
@@ -310,7 +310,7 @@ function TicketDisplayPage() {
         };
     }, [ticketId, ticketNumber, fullName, queueType, token, queueStatus]);
 
-    // Утилитарные функции
+    // Utility functions
     const getDisplayQueueName = () => {
         return queueTypeDisplay || getQueueDisplayName(queueType) || queueType;
     };
@@ -360,7 +360,7 @@ function TicketDisplayPage() {
     };
 
     const handleContactManager = () => {
-        const phone = '+77172000000'; // Замените на реальный номер
+        const phone = '+77172000000'; // Replace with real number
         if (window.confirm('Позвонить администратору?')) {
             window.location.href = `tel:${phone}`;
         }
@@ -378,10 +378,11 @@ function TicketDisplayPage() {
             />
 
             <div className="ticket-card">
-                {/* Заголовок */}
+                {/* Header */}
                 <div className="ticket-header">
                     <h1 className="ticket-title">
-                        🎫 Ваш талон
+                        <span>🎫</span>
+                        <span>Ваш талон</span>
                     </h1>
                     {queueStatus === 'called' && (
                         <div className="status-badge called">
@@ -395,35 +396,41 @@ function TicketDisplayPage() {
                     )}
                 </div>
 
-                {/* Информация о талоне */}
+                {/* Ticket information */}
                 <div className="ticket-info">
                     <div className="ticket-main-info">
                         <div className="info-item">
                             <span className="info-label">
-                                👤 ФИО
+                                <span>👤</span>
+                                <span>ФИО</span>
                             </span>
                             <span className="info-value">{fullName}</span>
                         </div>
                         <div className="info-item">
                             <span className="info-label">
-                                🎫 Номер талона
+                                <span>🎫</span>
+                                <span>Номер талона</span>
                             </span>
                             <span className="info-value">{ticketNumber}</span>
                         </div>
                         <div className="info-item">
                             <span className="info-label">
-                                📋 Тип очереди
+                                <span>📋</span>
+                                <span>Тип очереди</span>
                             </span>
                             <span className="info-value">{getDisplayQueueName()}</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Статус очереди */}
+                {/* Queue status */}
                 <div className="queue-status">
                     {queueStatus === 'waiting' && (
                         <div className="status-waiting">
-                            <h3>Ожидание в очереди</h3>
+                            <h3>
+                                <span>⏳</span>
+                                <span>Ожидание в очереди</span>
+                            </h3>
                             {queuePosition && (
                                 <div className="position-info">
                                     <p>Ваша позиция в очереди:</p>
@@ -499,7 +506,7 @@ function TicketDisplayPage() {
                     )}
                 </div>
 
-                {/* Кнопки действий */}
+                {/* Action buttons */}
                 <div className="ticket-actions">
                     <button
                         className="refresh-button"
@@ -521,13 +528,13 @@ function TicketDisplayPage() {
                     </button>
                 </div>
 
-                {/* Футер */}
+                {/* Footer */}
                 <div className="ticket-footer">
                     <p className="footer-text">
                         💡 Сохраните эту страницу или сделайте скриншот для отслеживания статуса
                     </p>
                     <p className="footer-warning">
-                        Не покидайте здание до завершения обслуживания
+                        ⚠️ Не покидайте здание до завершения обслуживания
                     </p>
                 </div>
             </div>

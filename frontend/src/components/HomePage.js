@@ -4,12 +4,11 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import logo from '../static/logo.png';
 import { config } from "../config";
 import axiosInstance from "../axiosInstance";
-import '../styles/homePage.css';
-
+import '../styles/homePage.css'
 function HomePage() {
     document.title = "Электронная очередь - IITU";
 
-    // State management
+    // State
     const [queues, setQueues] = useState([]);
     const [audioQueue, setAudioQueue] = useState([]);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -20,7 +19,7 @@ function HomePage() {
     const [error, setError] = useState(null);
     const [connectionStatus, setConnectionStatus] = useState('connecting');
 
-    // Memoized values
+    // Get served tickets
     const servedTickets = useMemo(() => {
         return queues.flatMap(queue => (
             Array.isArray(queue["Все обслуживаемые талоны"])
@@ -29,7 +28,7 @@ function HomePage() {
         ));
     }, [queues]);
 
-    // Fetch queues function
+    // Fetch queues
     const fetchQueues = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -38,27 +37,24 @@ function HomePage() {
             setQueues(response.data);
             setConnectionStatus('connected');
         } catch (error) {
-            console.error("Error fetching queue data:", error);
-            setError("Ошибка загрузки данных очереди");
+            console.error("Error fetching queues:", error);
+            setError("Ошибка загрузки данных");
             setConnectionStatus('error');
         } finally {
             setIsLoading(false);
         }
     }, []);
 
-    // Enable audio function
+    // Enable audio
     const enableAudio = useCallback(() => {
         setAudioAllowed(true);
-        // Haptic feedback на мобильных
         if (navigator.vibrate) {
             navigator.vibrate(100);
         }
-
-        // Сохраняем предпочтение пользователя
         localStorage.setItem('audioAllowed', 'true');
     }, []);
 
-    // Получение форматированного имени менеджера
+    // Format manager name
     const getFormattedManagerName = useCallback((username) => {
         if (!username) return "Менеджер";
 
@@ -75,85 +71,101 @@ function HomePage() {
         return username.toUpperCase();
     }, []);
 
-    // Handle WebSocket message
+    // Handle WebSocket messages
     const handleWebSocketMessage = useCallback((data) => {
-    console.log('WebSocket message received:', data);
-
-    if (data.type === 'ticket_called' && data.data && data.data.queue_type) {
-        console.log('Ticket called data:', data.data);
-
-        // Обновляем очереди - ИСПРАВЛЕНО: ищем по queue_type_code
-        setQueues(prevQueues => {
-            return prevQueues.map(queue => {
-                // Проверяем и по queue_type_code, и по queue_type_display
-                const queueMatches =
-                    queue['queue_type_code'] === data.data.queue_type ||
-                    queue['Очередь'] === data.data.queue_type_display;
-
-                if (queueMatches) {
-                    console.log('Updating queue:', queue['Очередь']);
-                    const updatedRegisteredTickets = queue['Зарегестрированные талоны'].filter(ticket =>
-                        String(ticket.number || ticket) !== String(data.data.ticket_number)
-                    );
-                    return {
-                        ...queue,
-                        'Зарегестрированные талоны': updatedRegisteredTickets,
-                    };
-                } else if (queue['Все обслуживаемые талоны']) {
-                    // Обновляем список обслуживаемых талонов
-                    const updatedServedTickets = queue['Все обслуживаемые талоны'].filter(ticket =>
-                        ticket.manager_username !== data.data.manager_username
-                    );
-
-                    // Добавляем новый обслуживаемый талон
-                    updatedServedTickets.push({
-                        ticket_number: data.data.ticket_number,
-                        full_name: data.data.full_name,
-                        manager_username: data.data.manager_username,
-                        queue_type: data.data.queue_type,
-                        queue_type_display: data.data.queue_type_display
-                    });
-
-                    console.log('Updated served tickets:', updatedServedTickets);
-
-                    return {
-                        ...queue,
-                        'Все обслуживаемые талоны': updatedServedTickets
-                    };
+        try {
+            if (data.type === 'ticket_called' && data.data) {
+                if (!data.data.queue_type || !data.data.ticket_number || !data.data.manager_username) {
+                    return;
                 }
-                return queue;
-            });
-        });
 
-        // Добавляем в очередь отображения - СОКРАЩАЕМ время показа
-        setTicketDisplayQueue(prevQueue => [...prevQueue, {
-            ticket_number: data.data.ticket_number,
-            full_name: data.data.full_name,
-            manager_username: data.data.manager_username,
-            queue_type: data.data.queue_type,
-            queue_type_display: data.data.queue_type_display
-        }]);
+                // Update queues
+                setQueues(prevQueues => {
+                    if (!Array.isArray(prevQueues)) return [];
 
-        // Добавляем аудио в очередь
-        if (data.data.audio_url) {
-            setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
+                    return prevQueues.map(queue => {
+                        if (!queue || typeof queue !== 'object') return queue;
+
+                        // Remove from registered tickets
+                        if (queue['queue_type_code'] === data.data.queue_type) {
+                            const registeredTickets = Array.isArray(queue['Зарегестрированные талоны'])
+                                ? queue['Зарегестрированные талоны']
+                                : [];
+
+                            const updatedRegisteredTickets = registeredTickets.filter(ticket =>
+                                String(ticket?.number || '') !== String(data.data.ticket_number)
+                            );
+
+                            return {
+                                ...queue,
+                                'Зарегестрированные талоны': updatedRegisteredTickets,
+                            };
+                        }
+
+                        // Update served tickets
+                        if (queue['Все обслуживаемые талоны'] && Array.isArray(queue['Все обслуживаемые талоны'])) {
+                            const servedTickets = [...queue['Все обслуживаемые талоны']];
+
+                            // Remove previous ticket from this manager
+                            const filteredTickets = servedTickets.filter(ticket =>
+                                ticket?.manager_username !== data.data.manager_username
+                            );
+
+                            // Add new ticket
+                            const newTicket = {
+                                ticket_number: data.data.ticket_number || 'N/A',
+                                full_name: data.data.full_name || 'Неизвестно',
+                                manager_username: data.data.manager_username || 'Неизвестно',
+                                queue_type: data.data.queue_type || 'UNKNOWN',
+                                queue_type_display: data.data.queue_type_display || data.data.queue_type || 'Неизвестная очередь'
+                            };
+
+                            filteredTickets.push(newTicket);
+
+                            return {
+                                ...queue,
+                                'Все обслуживаемые талоны': filteredTickets
+                            };
+                        }
+
+                        return queue;
+                    });
+                });
+
+                // Add to popup queue
+                const popupTicket = {
+                    ticket_number: data.data.ticket_number || 'N/A',
+                    full_name: data.data.full_name || 'Неизвестно',
+                    manager_username: data.data.manager_username || 'Неизвестно',
+                    queue_type: data.data.queue_type || 'UNKNOWN',
+                    queue_type_display: data.data.queue_type_display || data.data.queue_type || 'Неизвестная очередь'
+                };
+
+                setTicketDisplayQueue(prevQueue => [...prevQueue, popupTicket]);
+
+                // Add audio
+                if (data.data.audio_url) {
+                    setAudioQueue(prevQueue => [...prevQueue, data.data.audio_url]);
+                }
+
+                // Vibration
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+
+            } else if (data.message?.includes("New ticket") ||
+                       data.type === "ticket_count_update" ||
+                       data.type === "new_ticket") {
+                fetchQueues();
+            }
+        } catch (error) {
+            console.error('Error handling WebSocket message:', error);
         }
-
-        // Haptic feedback при вызове талона
-        if (navigator.vibrate) {
-            navigator.vibrate([200, 100, 200]);
-        }
-
-    } else if (data.message && data.message.includes("New ticket")) {
-        fetchQueues();
-    } else if (data.type === "ticket_count_update") {
-        fetchQueues();
-    }
-}, [fetchQueues]);
+    }, [fetchQueues]);
 
     // WebSocket setup
     useEffect(() => {
-        // Проверяем сохраненные предпочтения пользователя
+        // Check saved audio preference
         const savedAudioPreference = localStorage.getItem('audioAllowed');
         if (savedAudioPreference === 'true') {
             setAudioAllowed(true);
@@ -161,41 +173,34 @@ function HomePage() {
 
         fetchQueues();
 
-        const queuesSocketUrl = config.queuesSocketUrl;
-        const queuesSocket = new ReconnectingWebSocket(queuesSocketUrl);
+        const ws = new ReconnectingWebSocket(config.queuesSocketUrl);
 
-        queuesSocket.onopen = () => {
+        ws.onopen = () => {
             console.log("WebSocket connected");
             setConnectionStatus('connected');
         };
 
-        queuesSocket.onerror = (errorEvent) => {
-            console.error("WebSocket error observed:", errorEvent);
+        ws.onerror = () => {
             setConnectionStatus('error');
         };
 
-        queuesSocket.onclose = () => {
+        ws.onclose = () => {
             setConnectionStatus('disconnected');
         };
 
-        queuesSocket.onmessage = (event) => {
-            console.log("WebSocket message received:", event.data);
-
+        ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                console.log("Parsed data:", data);
                 handleWebSocketMessage(data);
             } catch (error) {
-                console.error("Error handling WebSocket message:", error);
+                console.error("Error parsing WebSocket message:", error);
             }
         };
 
-        return () => {
-            queuesSocket.close();
-        };
+        return () => ws.close();
     }, [fetchQueues, handleWebSocketMessage]);
 
-    // Audio queue processing
+    // Audio processing
     useEffect(() => {
         if (audioAllowed && !isPlaying && audioQueue.length > 0) {
             setIsPlaying(true);
@@ -203,10 +208,8 @@ function HomePage() {
 
             const playPromise = audio.play();
             if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    console.log("Audio started playing");
-                }).catch(error => {
-                    console.error("Error playing the audio:", error);
+                playPromise.catch(error => {
+                    console.error("Error playing audio:", error);
                     setIsPlaying(false);
                 });
 
@@ -216,7 +219,6 @@ function HomePage() {
                 };
 
                 audio.onerror = () => {
-                    console.error("Audio playback error");
                     setAudioQueue(prevQueue => prevQueue.slice(1));
                     setIsPlaying(false);
                 };
@@ -224,7 +226,7 @@ function HomePage() {
         }
     }, [audioQueue, isPlaying, audioAllowed]);
 
-    // Ticket display processing
+    // Ticket popup processing
     useEffect(() => {
         if (ticketDisplayQueue.length > 0 && currentTicket === null) {
             setCurrentTicket(ticketDisplayQueue[0]);
@@ -232,16 +234,15 @@ function HomePage() {
         }
     }, [ticketDisplayQueue, currentTicket]);
 
-    // Hide current ticket timer
+    // Hide popup timer
     useEffect(() => {
-    if (currentTicket !== null) {
-        const timer = setTimeout(() => {
-            setCurrentTicket(null);
-        }, 4000);
-
-        return () => clearTimeout(timer);
-    }
-}, [currentTicket]);
+        if (currentTicket !== null) {
+            const timer = setTimeout(() => {
+                setCurrentTicket(null);
+            }, 4000);
+            return () => clearTimeout(timer);
+        }
+    }, [currentTicket]);
 
     // Loading state
     if (isLoading && queues.length === 0) {
@@ -249,9 +250,8 @@ function HomePage() {
             <div className="homepage-container">
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-center">
-                        <div className="text-6xl mb-4">⏳</div>
-                        <div className="text-xl text-white font-semibold">Загрузка...</div>
-                        <div className="text-white/80 mt-2">Получение данных о талонах</div>
+                        <div className="text-xl font-semibold mb-md">Загрузка...</div>
+                        <div className="text-gray-600">Получение данных о талонах</div>
                     </div>
                 </div>
             </div>
@@ -260,137 +260,127 @@ function HomePage() {
 
     return (
         <div className="homepage-container">
-            {/* Логотип */}
+            {/* Logo */}
             <img
                 src={logo}
                 alt="Логотип IITU"
                 className="homepage-logo"
-                onError={(e) => {
-                    e.target.style.display = 'none';
-                }}
+                onError={(e) => e.target.style.display = 'none'}
             />
 
-            {/* Connection status indicator */}
+            {/* Connection status */}
             {connectionStatus !== 'connected' && (
-                <div className={`fixed top-6 right-6 z-50 px-4 py-2 rounded-full text-sm font-medium ${
-                    connectionStatus === 'error' ? 'bg-red-500 text-white' :
-                    connectionStatus === 'disconnected' ? 'bg-yellow-500 text-white' :
-                    'bg-blue-500 text-white'
-                }`}>
-                    {connectionStatus === 'error' ? '❌ Ошибка подключения' :
-                     connectionStatus === 'disconnected' ? '⚠️ Подключение потеряно' :
-                     '🔄 Подключение...'}
+                <div className={`connection-status ${connectionStatus}`}>
+                    {connectionStatus === 'error' ? 'Ошибка подключения' :
+                     connectionStatus === 'disconnected' ? 'Подключение потеряно' :
+                     'Подключение...'}
                 </div>
             )}
 
             <div className="homepage-grid">
-                {/* QR код секция */}
-                <div className="homepage-card qr-section">
-                    <h2 className="card-title">
+                {/* QR Section */}
+                <div className="qr-section">
+                    <h2 className="qr-title">
                         📱 Получить талон
                     </h2>
-                    <p className="card-subtitle">
-                        Отсканируйте QR-код для быстрого получения талона или нажмите кнопку ниже
+                    <p className="qr-subtitle">
+                        Отсканируйте QR-код для быстрого получения талона
                     </p>
 
                     <div className="qr-container">
                         <img
                             src={`${config.apiBaseUrl}/queue/generate-qr/`}
-                            alt="QR код для получения талона"
+                            alt="QR код"
                             className="qr-image"
-                            onError={(e) => {
-                                e.target.alt = "QR код недоступен";
-                                e.target.style.opacity = 0.5;
-                            }}
+                            onError={(e) => e.target.style.opacity = 0.5}
                         />
                     </div>
 
-                    <Link to="/join-queue" className="join-queue-link">
-                        ✨ Получить талон онлайн
+                    <Link to="/join-queue" className="qr-button">
+                        ✨ Получить талон
                     </Link>
                 </div>
 
-                {/* Секция обслуживаемых талонов */}
-                <div className="homepage-card tickets-section">
+                {/* Tickets Section */}
+                <div className="tickets-section">
                     <div className="tickets-header">
-                        <h2 className="card-title">
+                        <h2 className="tickets-title">
                             🎫 Обслуживаемые талоны
                         </h2>
-                        <div className="ticket-counter">
-                            {servedTickets.length} активных
+                        <div className="tickets-count">
+                            {servedTickets.length}
                         </div>
                     </div>
 
                     {error ? (
                         <div className="empty-state">
-                            <div className="empty-state-icon">❌</div>
-                            <div className="empty-state-text">Ошибка загрузки</div>
-                            <div className="empty-state-subtitle">{error}</div>
-                            <button
-                                onClick={fetchQueues}
-                                className="btn btn-primary mt-4"
-                            >
-                                Повторить попытку
+                            <div className="empty-icon">❌</div>
+                            <div className="empty-title">Ошибка загрузки</div>
+                            <div className="empty-subtitle">{error}</div>
+                            <button onClick={fetchQueues} className="btn btn-primary mt-md">
+                                Повторить
                             </button>
                         </div>
                     ) : servedTickets.length === 0 ? (
                         <div className="empty-state">
-                            <div className="empty-state-icon">📭</div>
-                            <div className="empty-state-text">Нет активных талонов</div>
-                            <div className="empty-state-subtitle">Обслуживаемые талоны появятся здесь</div>
+                            <div className="empty-icon">📭</div>
+                            <div className="empty-title">Нет активных талонов</div>
+                            <div className="empty-subtitle">Талоны появятся здесь при вызове</div>
                         </div>
                     ) : (
                         <div className="tickets-list">
-                            {servedTickets.map((ticket, index) => (
-                                <div
-                                    key={`${ticket.ticket_number}-${ticket.manager_username}-${index}`}
-                                    className="ticket-item"
-                                >
-                                    <div className="ticket-info">
-                                        <div className="ticket-number">
-                                            №{ticket.ticket_number}
+                            {servedTickets.map((ticket, index) => {
+                                if (!ticket || typeof ticket !== 'object') return null;
+
+                                const ticketNumber = ticket.ticket_number || 'N/A';
+                                const fullName = ticket.full_name || 'Неизвестно';
+                                const managerUsername = ticket.manager_username || 'unknown';
+                                const queueTypeDisplay = ticket.queue_type_display || ticket.queue_type || 'Неизвестная очередь';
+
+                                return (
+                                    <div key={`${ticketNumber}-${managerUsername}-${index}`} className="ticket-item">
+                                        <div className="ticket-info">
+                                            <div className="ticket-number">№{ticketNumber}</div>
+                                            <div className="ticket-name">{fullName}</div>
+                                            <div className="ticket-queue-type">{queueTypeDisplay}</div>
                                         </div>
-                                        <div className="ticket-name">
-                                            {ticket.full_name}
+                                        <div className="manager-info">
+                                            {getFormattedManagerName(managerUsername)}
                                         </div>
                                     </div>
-                                    <div className="manager-info">
-                                        {getFormattedManagerName(ticket.manager_username)}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Popup для отображения вызванного талона */}
+            {/* Ticket Popup */}
             {currentTicket && (
-                <div className="ticket-popup" role="alert" aria-live="assertive">
-                    <div className="ticket-popup-content">
-                        <div className="ticket-header">
-                            <div className="ticket-number">
-                                №{currentTicket.ticket_number}
-                            </div>
-                            <div className="manager-info">
-                                {getFormattedManagerName(currentTicket.manager_username)}
-                            </div>
+                <div className="ticket-popup">
+                    <div className="popup-header">
+                        <div className="popup-ticket-number">
+                            №{currentTicket.ticket_number || 'N/A'}
                         </div>
-                        <div className="ticket-name">
-                        {currentTicket.full_name}
-            </div>
-        </div>
-    </div>
-)}
+                        <div className="popup-manager">
+                            {getFormattedManagerName(currentTicket.manager_username || 'unknown')}
+                        </div>
+                    </div>
+                    <div className="popup-name">
+                        {currentTicket.full_name || 'Неизвестно'}
+                    </div>
+                    {(currentTicket.queue_type_display || currentTicket.queue_type) && (
+                        <div className="popup-queue-type">
+                            {currentTicket.queue_type_display || currentTicket.queue_type}
+                        </div>
+                    )}
+                </div>
+            )}
 
-            {/* Кнопка включения звука */}
+            {/* Audio Button */}
             {!audioAllowed && (
-                <button
-                    onClick={enableAudio}
-                    className="audio-enable-btn"
-                    aria-label="Включить звуковые уведомления"
-                >
-                    Включить звук
+                <button onClick={enableAudio} className="audio-button">
+                    🔊 Включить звук
                 </button>
             )}
         </div>

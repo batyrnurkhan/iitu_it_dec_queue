@@ -4,7 +4,7 @@ import '../styles/profile.css';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { config, getQueueDisplayName, getQueueEmoji } from "../config";
 import logo from "../static/logo.png";
-
+import '../styles/profile.css'
 const roleTranslations = {
     "MANAGER": "Менеджер",
     "ADMIN": "Администратор",

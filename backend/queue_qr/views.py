@@ -148,7 +148,7 @@ def get_queues(request):
     queue_types = QueueType.objects.all()
     result = []
 
-    latest_tickets_per_manager = {}
+    # Сначала собираем данные по каждому типу очереди
     for queue_type in queue_types:
         # Получаем необслуженные талоны для этого типа очереди
         waiting_tickets = QueueTicket.objects.filter(
@@ -158,32 +158,49 @@ def get_queues(request):
 
         ticket_info = [{"number": ticket['number'], "full_name": ticket['full_name']} for ticket in waiting_tickets]
 
-        # Получаем обслуживаемые талоны - ИСПРАВЛЕНО: добавляем full_name
-        serving_tickets = QueueTicket.objects.filter(
-            queue_type=queue_type,
-            served=True
-        ).select_related('serving_manager').order_by('-id')
-
-        for serving_ticket in serving_tickets:
-            manager_username = serving_ticket.serving_manager.username if serving_ticket.serving_manager else 'Unknown'
-            if manager_username not in latest_tickets_per_manager:
-                latest_tickets_per_manager[manager_username] = {
-                    'ticket_number': serving_ticket.number,
-                    'full_name': serving_ticket.full_name,  # ✅ ФИО уже есть!
-                    'manager_username': manager_username,
-                    'queue_type': serving_ticket.queue_type.name,
-                    'queue_type_display': serving_ticket.queue_type.get_name_display()
-                }
-
         result.append({
             'Очередь': queue_type.get_name_display(),
             'queue_type_code': queue_type.name,
             'Зарегестрированные талоны': ticket_info,
         })
 
+    # ИСПРАВЛЕННАЯ ЛОГИКА: Получаем последний обслуженный талон каждого менеджера
+    # независимо от типа очереди
+    from django.db.models import Max
+
+    # Получаем ID последнего талона для каждого менеджера
+    latest_ticket_subquery = QueueTicket.objects.filter(
+        served=True,
+        serving_manager__isnull=False
+    ).values('serving_manager').annotate(
+        latest_id=Max('id')
+    ).values_list('latest_id', flat=True)
+
+    # Получаем актуальные последние талоны каждого менеджера
+    latest_served_tickets = QueueTicket.objects.filter(
+        id__in=latest_ticket_subquery
+    ).select_related('serving_manager', 'queue_type').order_by('-id')
+
+    # Формируем список обслуживаемых талонов
+    served_tickets_data = []
+    for ticket in latest_served_tickets:
+        served_tickets_data.append({
+            'ticket_number': ticket.number,
+            'full_name': ticket.full_name,
+            'manager_username': ticket.serving_manager.username,
+            'queue_type': ticket.queue_type.name,
+            'queue_type_display': ticket.queue_type.get_name_display()
+        })
+
     result.append({
-        'Все обслуживаемые талоны': list(latest_tickets_per_manager.values())
+        'Все обслуживаемые талоны': served_tickets_data
     })
+
+    # DEBUG: выводим что получилось
+    print("🔍 Latest served tickets:")
+    for ticket in served_tickets_data:
+        print(
+            f"  - Менеджер {ticket['manager_username']}: Талон {ticket['ticket_number']} ({ticket['queue_type_display']})")
 
     return Response(result)
 

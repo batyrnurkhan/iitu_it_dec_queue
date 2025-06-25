@@ -1,446 +1,39 @@
-/* profile.css - Modern Clean Design */
+/* Simple, Minimal Profile Styles */
 
 .profile-container {
     min-height: 100vh;
-    background: var(--gradient-primary);
-    padding: var(--space-6);
+    background: #f8fafc;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
-    overflow-x: hidden;
 }
 
-/* Логотип */
 .logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: var(--space-8);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-xl);
-    transition: var(--transition-normal);
-    border: 3px solid rgba(255, 255, 255, 0.2);
+    width: 100px;
+    height: auto;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
 }
 
 .logo:hover {
-    transform: scale(1.05) rotate(2deg);
-    box-shadow: var(--shadow-2xl);
+    transform: scale(1.02);
 }
 
-/* Основная карточка профиля */
+/* Main profile card */
 .profile-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: var(--radius-2xl);
-    padding: var(--space-10);
-    box-shadow: var(--shadow-xl);
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 600px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid #e5e7eb;
     position: relative;
-    overflow: hidden;
     animation: slideUp 0.6s ease-out;
-}
-
-.profile-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--gradient-primary);
-}
-
-/* Заголовок профиля */
-.profile-header {
-    text-align: center;
-    margin-bottom: var(--space-8);
-    padding-bottom: var(--space-6);
-    border-bottom: 2px solid var(--gray-200);
-}
-
-.profile-username {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: var(--space-2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-}
-
-.profile-username::before {
-    content: "👤";
-    font-size: 1.5rem;
-}
-
-.profile-status {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    background: linear-gradient(135deg, var(--success), #38a169);
-    color: white;
-    border-radius: var(--radius-full);
-    font-size: 0.875rem;
-    font-weight: 600;
-    box-shadow: var(--shadow-md);
-}
-
-.profile-status::before {
-    content: "🟢";
-    font-size: 0.75rem;
-}
-
-/* Детали профиля */
-.profile-details {
-    margin-bottom: var(--space-8);
-}
-
-.profile-detail {
-    background: var(--gray-50);
-    padding: var(--space-5);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-4);
-    border: 1px solid var(--gray-200);
-    transition: var(--transition-normal);
-    position: relative;
-    overflow: hidden;
-}
-
-.profile-detail:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary-300);
-}
-
-.profile-detail::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--gradient-primary);
-}
-
-.detail-label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: var(--space-2);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.detail-value {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    line-height: 1.4;
-}
-
-/* Специальные иконки для лейблов */
-.detail-label[data-type="role"]::before {
-    content: "🎯";
-}
-
-.detail-label[data-type="type"]::before {
-    content: "📋";
-}
-
-.detail-label[data-type="queue"]::before {
-    content: "🎫";
-}
-
-/* Информация о следующем талоне */
-.next-ticket-info {
-    margin-bottom: var(--space-8);
-    padding: var(--space-6);
-    background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(0, 123, 255, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.next-ticket-info::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, var(--info), #2563eb);
-}
-
-.next-ticket-info h3 {
-    color: var(--info);
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: var(--space-4);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.next-ticket-info h3::before {
-    content: "⏭️";
-    font-size: 1rem;
-}
-
-.next-ticket-details {
-    display: grid;
-    gap: var(--space-3);
-}
-
-.next-ticket-details p {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
-.next-ticket-details strong {
-    color: var(--info);
-    font-weight: 600;
-    min-width: 120px;
-}
-
-/* Текущее обслуживание */
-.current-serving {
-    text-align: center;
-    margin-bottom: var(--space-8);
-}
-
-.current-serving .detail-label {
-    justify-content: center;
-    margin-bottom: var(--space-4);
-    font-size: 0.875rem;
-}
-
-.serving-info {
-    margin: var(--space-6) 0;
-    padding: var(--space-6);
-    background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%);
-    border-radius: var(--radius-xl);
-    border: 1px solid rgba(21, 87, 36, 0.2);
-    box-shadow: var(--shadow-md);
-    position: relative;
-    overflow: hidden;
-}
-
-.serving-info::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(135deg, var(--success), #38a169);
-}
-
-.serving-name {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #155724;
-    margin-bottom: var(--space-2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-}
-
-.serving-name::before {
-    content: "👤";
-    font-size: 1.25rem;
-}
-
-.serving-ticket {
-    color: #155724;
-    font-size: 1rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-}
-
-.serving-ticket::before {
-    content: "🎫";
-    font-size: 0.875rem;
-}
-
-/* Кнопки */
-.call-next-button {
-    width: 100%;
-    padding: var(--space-5) var(--space-6);
-    background: var(--gradient-primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-lg);
-    font-size: 1.125rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-3);
-    box-shadow: var(--shadow-lg);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: var(--space-6);
-}
-
-.call-next-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-}
-
-.call-next-button:hover:not(:disabled) {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
-}
-
-.call-next-button:hover:not(:disabled)::before {
-    left: 100%;
-}
-
-.call-next-button:active:not(:disabled) {
-    transform: translateY(-1px);
-}
-
-.call-next-button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.call-next-button.loading {
-    pointer-events: none;
-    background: linear-gradient(135deg, var(--gray-500), var(--gray-600));
-}
-
-.call-next-button.loading::after {
-    content: '';
-    position: absolute;
-    right: var(--space-6);
-    width: 20px;
-    height: 20px;
-    border: 2px solid transparent;
-    border-top: 2px solid white;
-    border-right: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-/* Кнопка выхода */
-.logout-section {
-    width: 100%;
-    text-align: center;
-    padding-top: var(--space-6);
-    border-top: 2px solid var(--gray-200);
-}
-
-.logout-button {
-    padding: var(--space-3) var(--space-8);
-    background: linear-gradient(135deg, var(--error), #c53030);
-    color: white;
-    border: none;
-    border-radius: var(--radius-lg);
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    box-shadow: var(--shadow-md);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.logout-button::before {
-    content: "🚪";
-    font-size: 1rem;
-}
-
-.logout-button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-    background: linear-gradient(135deg, #c53030, #9b2c2c);
-}
-
-/* Состояние загрузки профиля */
-.profile-container.calling .serving-info {
-    opacity: 0.8;
-    position: relative;
-}
-
-.profile-container.calling .serving-info::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: var(--radius-xl);
-    backdrop-filter: blur(2px);
-}
-
-/* Пустая очередь */
-.empty-queue {
-    text-align: center;
-    padding: var(--space-8);
-    color: var(--text-muted);
-}
-
-.empty-queue-icon {
-    font-size: 3rem;
-    margin-bottom: var(--space-4);
-    opacity: 0.6;
-}
-
-.empty-queue-text {
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin-bottom: var(--space-2);
-}
-
-.empty-queue-subtitle {
-    font-size: 0.875rem;
-    opacity: 0.8;
-}
-
-/* Анимации */
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
 }
 
 @keyframes slideUp {
@@ -454,144 +47,367 @@
     }
 }
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.02);
-    }
+/* Profile header */
+.profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
 }
 
-.call-next-button.loading {
+.profile-username {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.profile-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #10b981;
+    color: white;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile details */
+.profile-details {
+    margin-bottom: 2rem;
+}
+
+.profile-detail {
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.profile-detail:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.detail-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #374151;
+    line-height: 1.4;
+}
+
+/* Queue management */
+.call-next {
+    margin-bottom: 2rem;
+}
+
+.current-serving {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.serving-info {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #d1fae5;
+    border-radius: 12px;
+    border: 1px solid #a7f3d0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.serving-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #065f46;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.serving-ticket {
+    color: #065f46;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.serving-queue {
+    font-size: 0.875rem;
+    color: #065f46;
+    background: rgba(5, 150, 105, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    margin-top: 0.75rem;
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid rgba(5, 150, 105, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Queue selection for multiple queues */
+.queue-selection {
+    margin-top: 1.5rem;
+}
+
+.queue-selection-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.queue-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.queue-call-button {
+    background: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    padding: 1.25rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.queue-call-button:hover:not(.disabled):not(.loading) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: #2563eb;
+}
+
+.queue-call-button.disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.queue-call-button.loading {
+    cursor: wait;
     animation: pulse 2s infinite;
 }
 
-/* Адаптивный дизайн для планшетов */
-@media (max-width: 1024px) {
-    .profile-card {
-        max-width: 550px;
-        padding: var(--space-8);
-    }
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
 }
 
-/* Адаптивный дизайн для мобильных устройств */
-@media (max-width: 768px) {
-    .profile-container {
-        padding: var(--space-4);
-    }
-
-    .logo {
-        width: 64px;
-        height: 64px;
-        margin-bottom: var(--space-6);
-    }
-
-    .profile-card {
-        padding: var(--space-6);
-        border-radius: var(--radius-xl);
-        max-width: 100%;
-    }
-
-    .profile-username {
-        font-size: 1.5rem;
-        flex-direction: column;
-        gap: var(--space-1);
-    }
-
-    .profile-header {
-        margin-bottom: var(--space-6);
-        padding-bottom: var(--space-4);
-    }
-
-    .profile-detail {
-        padding: var(--space-4);
-    }
-
-    .detail-label {
-        font-size: 0.7rem;
-    }
-
-    .detail-value {
-        font-size: 0.875rem;
-    }
-
-    .next-ticket-info,
-    .serving-info {
-        padding: var(--space-4);
-    }
-
-    .next-ticket-info h3 {
-        font-size: 1.125rem;
-        flex-direction: column;
-        gap: var(--space-1);
-    }
-
-    .next-ticket-details strong {
-        min-width: 100px;
-        font-size: 0.8125rem;
-    }
-
-    .serving-name {
-        font-size: 1.25rem;
-        flex-direction: column;
-        gap: var(--space-1);
-    }
-
-    .serving-ticket {
-        font-size: 0.875rem;
-    }
-
-    .call-next-button {
-        padding: var(--space-4) var(--space-5);
-        font-size: 1rem;
-        gap: var(--space-2);
-    }
-
-    .logout-button {
-        padding: var(--space-2) var(--space-6);
-        font-size: 0.8125rem;
-    }
+.queue-button-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-/* Очень маленькие экраны */
-@media (max-width: 480px) {
-    .profile-container {
-        padding: var(--space-3);
-    }
+.queue-emoji {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
 
-    .logo {
-        width: 56px;
-        height: 56px;
-        margin-bottom: var(--space-4);
-    }
+.queue-info {
+    flex: 1;
+    text-align: left;
+}
 
-    .profile-card {
-        padding: var(--space-5);
-        border-radius: var(--radius-lg);
-    }
+.queue-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+    color: white;
+}
 
-    .profile-username {
-        font-size: 1.375rem;
-    }
+.queue-count {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+}
 
-    .profile-detail {
-        padding: var(--space-3);
-    }
+.call-icon, .loading-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
 
-    .next-ticket-info,
-    .serving-info {
-        padding: var(--space-3);
-    }
+.loading-icon {
+    animation: spin 1s linear infinite;
+}
 
-    .serving-name {
-        font-size: 1.125rem;
-    }
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
-    .call-next-button {
-        padding: var(--space-3) var(--space-4);
-        font-size: 0.875rem;
-    }
+/* Single queue call button */
+.call-next-button {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.call-next-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: #2563eb;
+}
+
+.call-next-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.call-next-button.loading {
+    pointer-events: none;
+    background: #6b7280;
+    animation: pulse 2s infinite;
+}
+
+/* Queue badges */
+.allowed-queues-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.queue-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #dbeafe;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.queue-badge .queue-emoji {
+    font-size: 1rem;
+}
+
+.queue-badge .queue-name {
+    font-weight: 500;
+    color: #1e40af;
+}
+
+.queue-badge .queue-count {
+    background: #3b82f6;
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Empty state */
+.empty-queue {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+}
+
+.empty-queue-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+}
+
+.empty-queue-text {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.empty-queue-subtitle {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+/* Logout section */
+.logout-section {
+    width: 100%;
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f3f4f6;
+}
+
+.logout-button {
+    padding: 0.75rem 2rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logout-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: #dc2626;
 }
 
 /* Screen reader only class */
@@ -607,226 +423,71 @@
     border: 0;
 }
 
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
+/* Mobile responsive */
+@media (max-width: 768px) {
     .profile-container {
-        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        padding: 1rem;
+    }
+
+    .logo {
+        width: 80px;
+        margin-bottom: 1.5rem;
     }
 
     .profile-card {
-        background: rgba(45, 55, 72, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        max-width: 100%;
     }
 
     .profile-username {
-        color: var(--gray-100);
+        font-size: 1.5rem;
+    }
+
+    .profile-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
     }
 
     .profile-detail {
-        background: rgba(55, 65, 81, 0.5);
-        border-color: var(--gray-600);
+        padding: 1rem;
     }
 
     .detail-label {
-        color: var(--gray-300);
+        font-size: 0.7rem;
     }
 
     .detail-value {
-        color: var(--gray-100);
-    }
-
-    .next-ticket-info {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
-        border-color: rgba(59, 130, 246, 0.3);
-    }
-
-    .next-ticket-info h3 {
-        color: #60a5fa;
-    }
-
-    .next-ticket-details p {
-        color: var(--gray-300);
-    }
-
-    .next-ticket-details strong {
-        color: #60a5fa;
+        font-size: 0.875rem;
     }
 
     .serving-info {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
-        border-color: rgba(16, 185, 129, 0.3);
+        padding: 1rem;
     }
 
-    .serving-name,
+    .serving-name {
+        font-size: 1.25rem;
+    }
+
     .serving-ticket {
-        color: #34d399;
+        font-size: 0.875rem;
     }
 
-    .logout-section {
-        border-top-color: var(--gray-600);
-    }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-    .profile-card,
-    .call-next-button,
-    .logout-button,
-    .profile-detail {
-        animation: none !important;
-        transition: none !important;
+    .call-next-button {
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        gap: 0.5rem;
     }
 
-    .call-next-button.loading {
-        animation: none !important;
+    .queue-selection-title {
+        font-size: 1.125rem;
     }
 
-    .call-next-button.loading::after {
-        animation: none !important;
-    }
-}
-
-/* Focus states */
-.call-next-button:focus-visible,
-.logout-button:focus-visible {
-    outline: 3px solid rgba(255, 255, 255, 0.8);
-    outline-offset: 2px;
-}
-
-/* Улучшения производительности */
-.call-next-button,
-.profile-detail,
-.logo {
-    will-change: transform;
-}
-
-.profile-card {
-    will-change: opacity, transform;
-}
-
-/* Добавьте эти стили в конец вашего profile.css */
-
-/* Стили для множественных очередей */
-.queue-types-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-3);
-    margin-top: var(--space-3);
-}
-
-.queue-type-card {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    background: rgba(255, 255, 255, 0.8);
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    cursor: pointer;
-    transition: var(--transition-normal);
-    position: relative;
-}
-
-.queue-type-card:hover {
-    border-color: var(--primary-300);
-    background: rgba(255, 255, 255, 1);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.queue-type-card.selected {
-    border-color: var(--primary-500);
-    background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
-}
-
-.queue-type-card.selected::before {
-    content: '✓';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: var(--primary-500);
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.queue-emoji {
-    font-size: 1.5rem;
-    min-width: 24px;
-    text-align: center;
-}
-
-.queue-info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    flex: 1;
-}
-
-.queue-name {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-}
-
-.queue-count {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    background: var(--gray-100);
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
-    width: fit-content;
-}
-
-.queue-type-card.selected .queue-count {
-    background: var(--primary-100);
-    color: var(--primary-700);
-}
-
-.queue-hotkey {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    background: var(--gray-200);
-    padding: 1px 6px;
-    border-radius: var(--radius-sm);
-    width: fit-content;
-    font-weight: 500;
-}
-
-.queue-type-card.selected .queue-hotkey {
-    background: var(--primary-200);
-    color: var(--primary-600);
-}
-
-/* Обновленные стили для обслуживаемого талона */
-.serving-queue {
-    font-size: 0.8rem;
-    color: #155724;
-    background: rgba(21, 87, 36, 0.1);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-sm);
-    margin-top: var(--space-2);
-    text-align: center;
-    font-weight: 500;
-}
-
-/* Адаптивные стили */
-@media (max-width: 768px) {
-    .queue-types-grid {
-        grid-template-columns: 1fr;
-        gap: var(--space-2);
+    .queue-call-button {
+        padding: 1rem;
     }
 
-    .queue-type-card {
-        padding: var(--space-3);
-        gap: var(--space-2);
+    .queue-button-content {
+        gap: 0.75rem;
     }
 
     .queue-emoji {
@@ -834,130 +495,22 @@
     }
 
     .queue-name {
-        font-size: 0.85rem;
+        font-size: 1rem;
     }
 
     .queue-count {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
     }
 
-    .queue-hotkey {
-        font-size: 0.65rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .queue-type-card {
-        flex-direction: column;
-        text-align: center;
-        gap: var(--space-2);
+    .call-icon, .loading-icon {
+        font-size: 1rem;
     }
 
-    .queue-emoji {
-        font-size: 1.5rem;
+    .logout-button {
+        padding: 0.625rem 1.5rem;
+        font-size: 0.8125rem;
     }
 
-    .queue-info {
-        align-items: center;
-    }
-}
-
-/* Темная тема для новых элементов */
-@media (prefers-color-scheme: dark) {
-    .queue-type-card {
-        background: rgba(55, 65, 81, 0.8);
-        border-color: var(--gray-600);
-    }
-
-    .queue-type-card:hover {
-        background: rgba(55, 65, 81, 1);
-        border-color: var(--primary-400);
-    }
-
-    .queue-type-card.selected {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.25));
-        border-color: var(--primary-400);
-    }
-
-    .queue-name {
-        color: var(--gray-100);
-    }
-
-    .queue-count {
-        background: var(--gray-700);
-        color: var(--gray-300);
-    }
-
-    .queue-type-card.selected .queue-count {
-        background: rgba(102, 126, 234, 0.3);
-        color: var(--primary-300);
-    }
-
-    .queue-hotkey {
-        background: var(--gray-700);
-        color: var(--gray-400);
-    }
-
-    .queue-type-card.selected .queue-hotkey {
-        background: rgba(102, 126, 234, 0.3);
-        color: var(--primary-300);
-    }
-
-    .serving-queue {
-        background: rgba(52, 211, 153, 0.15);
-        color: #34d399;
-    }
-}
-
-/* Дополнительный лейбл для workplace */
-.detail-label[data-type="workplace"]::before {
-    content: "🏢";
-}
-
-.allowed-queues-display {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-top: var(--space-3);
-}
-
-.queue-badge {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    background: var(--primary-50);
-    border: 1px solid var(--primary-200);
-    border-radius: var(--radius-md);
-    font-size: 0.8rem;
-}
-
-.queue-badge .queue-emoji {
-    font-size: 1rem;
-}
-
-.queue-badge .queue-name {
-    font-weight: 500;
-    color: var(--primary-700);
-}
-
-.queue-badge .queue-count {
-    background: var(--primary-100);
-    color: var(--primary-600);
-    padding: 1px 6px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    min-width: 20px;
-    text-align: center;
-}
-
-/* Лейбл для рабочего места */
-.detail-label[data-type="workplace"]::before {
-    content: "🏢";
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
     .allowed-queues-display {
         flex-direction: column;
     }
@@ -967,249 +520,65 @@
     }
 }
 
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-    .queue-badge {
-        background: rgba(102, 126, 234, 0.15);
-        border-color: rgba(102, 126, 234, 0.3);
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 0.75rem;
     }
 
-    .queue-badge .queue-name {
-        color: var(--primary-300);
+    .logo {
+        width: 60px;
+        margin-bottom: 1rem;
     }
 
-    .queue-badge .queue-count {
-        background: rgba(102, 126, 234, 0.3);
-        color: var(--primary-300);
+    .profile-card {
+        padding: 1.5rem;
     }
-}
 
-/* Добавьте эти стили в КОНЕЦ вашего profile.css файла */
-
-/* Стили для множественных очередей - кнопки выбора */
-.queue-selection {
-    margin-top: var(--space-6);
-}
-
-.queue-selection-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--space-4);
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-}
-
-.queue-selection-title::before {
-    content: "🎯";
-    font-size: 1rem;
-}
-
-.queue-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.queue-call-button {
-    background: var(--gradient-primary);
-    border: none;
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    color: white;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    border: 2px solid transparent;
-}
-
-.queue-call-button:hover:not(.disabled):not(.loading) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-xl);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.queue-call-button.disabled {
-    background: linear-gradient(135deg, var(--gray-400), var(--gray-500));
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.queue-call-button.loading {
-    cursor: wait;
-    animation: pulse 2s infinite;
-}
-
-.queue-button-content {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-}
-
-.queue-call-button .queue-emoji {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.queue-call-button .queue-info {
-    flex: 1;
-    text-align: left;
-}
-
-.queue-call-button .queue-name {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: var(--space-1);
-    line-height: 1.2;
-    color: white;
-}
-
-.queue-call-button .queue-count {
-    font-size: 0.875rem;
-    opacity: 0.9;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.call-icon, .loading-icon {
-    font-size: 1.5rem;
-    flex-shrink: 0;
-}
-
-.loading-icon {
-    animation: spin 1s linear infinite;
-}
-
-/* Анимация пульсации для загрузки */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
+    .profile-username {
+        font-size: 1.375rem;
+        flex-direction: column;
+        gap: 0.5rem;
     }
-    50% {
-        opacity: 0.8;
-        transform: scale(1.01);
+
+    .profile-detail {
+        padding: 0.875rem;
     }
-}
 
-/* Дополнительные стили для serving-queue */
-.serving-queue {
-    font-size: 0.875rem;
-    color: #155724;
-    background: rgba(21, 87, 36, 0.1);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    margin-top: var(--space-2);
-    text-align: center;
-    font-weight: 500;
-    border: 1px solid rgba(21, 87, 36, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-}
+    .serving-info {
+        padding: 1rem;
+    }
 
-.serving-queue::before {
-    content: "📋";
-    font-size: 0.75rem;
-}
-
-/* Адаптивность для новых элементов */
-@media (max-width: 768px) {
-    .queue-selection-title {
+    .serving-name {
         font-size: 1.125rem;
         flex-direction: column;
-        gap: var(--space-1);
+        gap: 0.25rem;
+    }
+
+    .call-next-button {
+        padding: 0.875rem 1rem;
+        font-size: 0.875rem;
     }
 
     .queue-call-button {
-        padding: var(--space-4);
+        padding: 0.875rem;
     }
 
     .queue-button-content {
-        gap: var(--space-3);
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
     }
 
-    .queue-call-button .queue-emoji {
+    .queue-info {
+        text-align: center;
+    }
+
+    .queue-emoji {
         font-size: 1.5rem;
     }
 
-    .queue-call-button .queue-name {
-        font-size: 1rem;
-    }
-
-    .queue-call-button .queue-count {
-        font-size: 0.8rem;
-    }
-
-    .call-icon, .loading-icon {
-        font-size: 1.25rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .queue-call-button {
-        padding: var(--space-3);
-    }
-
-    .queue-button-content {
-        flex-direction: column;
-        text-align: center;
-        gap: var(--space-2);
-    }
-
-    .queue-call-button .queue-info {
-        text-align: center;
-    }
-
-    .queue-call-button .queue-emoji {
-        font-size: 1.75rem;
-    }
-
     .serving-queue {
         font-size: 0.8rem;
-        padding: var(--space-1) var(--space-2);
-    }
-}
-
-/* Темная тема для новых элементов */
-@media (prefers-color-scheme: dark) {
-    .queue-selection-title {
-        color: var(--gray-100);
-    }
-
-    .queue-call-button.disabled {
-        background: linear-gradient(135deg, var(--gray-600), var(--gray-700));
-    }
-
-    .serving-queue {
-        background: rgba(52, 211, 153, 0.15);
-        color: #34d399;
-        border-color: rgba(52, 211, 153, 0.3);
-    }
-}
-
-/* Улучшения производительности */
-.queue-call-button {
-    will-change: transform;
-}
-
-/* Focus states для accessibility */
-.queue-call-button:focus-visible {
-    outline: 3px solid rgba(255, 255, 255, 0.8);
-    outline-offset: 2px;
-}
-
-/* Для отключения анимаций при prefers-reduced-motion */
-@media (prefers-reduced-motion: reduce) {
-    .queue-call-button,
-    .loading-icon {
-        animation: none !important;
-        transition: none !important;
+        padding: 0.375rem 0.75rem;
     }
 }
