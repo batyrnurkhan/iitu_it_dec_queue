@@ -145,6 +145,9 @@ def broadcast_new_ticket(ticket):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_queues(request):
+    from django.utils import timezone
+    from datetime import date
+
     queue_types = QueueType.objects.all()
     result = []
 
@@ -165,18 +168,22 @@ def get_queues(request):
         })
 
     # ИСПРАВЛЕННАЯ ЛОГИКА: Получаем последний обслуженный талон каждого менеджера
-    # независимо от типа очереди
+    # ТОЛЬКО за сегодняшний день
     from django.db.models import Max
 
-    # Получаем ID последнего талона для каждого менеджера
+    # Получаем сегодняшнюю дату
+    today = timezone.now().date()
+
+    # Получаем ID последнего талона для каждого менеджера ЗА СЕГОДНЯ
     latest_ticket_subquery = QueueTicket.objects.filter(
         served=True,
-        serving_manager__isnull=False
+        serving_manager__isnull=False,
+        created_at__date=today  # Добавляем фильтр по сегодняшней дате
     ).values('serving_manager').annotate(
         latest_id=Max('id')
     ).values_list('latest_id', flat=True)
 
-    # Получаем актуальные последние талоны каждого менеджера
+    # Получаем актуальные последние талоны каждого менеджера за сегодня
     latest_served_tickets = QueueTicket.objects.filter(
         id__in=latest_ticket_subquery
     ).select_related('serving_manager', 'queue_type').order_by('-id')
@@ -197,7 +204,7 @@ def get_queues(request):
     })
 
     # DEBUG: выводим что получилось
-    print("🔍 Latest served tickets:")
+    print(f"🔍 Latest served tickets for {today}:")
     for ticket in served_tickets_data:
         print(
             f"  - Менеджер {ticket['manager_username']}: Талон {ticket['ticket_number']} ({ticket['queue_type_display']})")
@@ -228,13 +235,20 @@ def generate_qr(request):
 @permission_classes([AllowAny])
 @api_enabled_required
 def current_serving(request):
+    from django.utils import timezone
+
     queue_types = QueueType.objects.all()
     data = {}
+
+    # Получаем сегодняшнюю дату
+    today = timezone.now().date()
+
     for queue_type in queue_types:
-        # Находим последний обслуженный талон для этого типа
+        # Находим последний обслуженный талон для этого типа ЗА СЕГОДНЯ
         last_served = QueueTicket.objects.filter(
             queue_type=queue_type,
-            served=True
+            served=True,
+            created_at__date=today  # Добавляем фильтр по сегодняшней дате
         ).order_by('-id').first()
 
         data[queue_type.name] = {
@@ -242,7 +256,6 @@ def current_serving(request):
             'queue_type_display': queue_type.get_name_display()
         }
     return Response(data)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
