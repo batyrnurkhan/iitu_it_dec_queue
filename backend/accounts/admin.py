@@ -30,7 +30,8 @@ class CustomUserAdmin(ExportActionMixin, UserAdmin):
             'BACHELOR_PAID': '💳',
             'MASTER': '📚',
             'PHD': '🔬',
-            'PLATONUS': '💻'
+            'PLATONUS': '💻',
+            'COLLEGE_GRANT': '🏫'  # Новый эмодзи для колледжа
         }
 
         result = []
@@ -78,7 +79,8 @@ class WorkplaceTypeAdmin(admin.ModelAdmin):
             'BACHELOR_PAID': '💳',
             'MASTER': '📚',
             'PHD': '🔬',
-            'PLATONUS': '💻'
+            'PLATONUS': '💻',
+            'COLLEGE_GRANT': '🏫'  # Новый эмодзи для колледжа
         }
 
         display_names = {
@@ -86,7 +88,8 @@ class WorkplaceTypeAdmin(admin.ModelAdmin):
             'BACHELOR_PAID': 'Бакалавр платное',
             'MASTER': 'Магистратура',
             'PHD': 'PhD',
-            'PLATONUS': 'Platonus'
+            'PLATONUS': 'Platonus',
+            'COLLEGE_GRANT': 'Колледж грант'  # Новое отображаемое имя
         }
 
         result = []
