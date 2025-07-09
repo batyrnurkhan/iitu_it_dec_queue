@@ -45,7 +45,8 @@ export const config = {
         PHD: 'PHD',
         PLATONUS: 'PLATONUS',
         // Оставляем старые для совместимости
-        BACHELOR: 'BACHELOR_GRANT', // Алиас для старого кода
+        BACHELOR: 'BACHELOR_GRANT',
+        COLLEGE_GRANT: 'COLLEGE_GRANT',
     },
 
     // ОБНОВЛЕННЫЕ Display names
@@ -57,6 +58,7 @@ export const config = {
         PLATONUS: 'Platonus',
         // Алиасы для старого кода
         BACHELOR: 'Бакалавр грант',
+        COLLEGE_GRANT: 'Колледж Грант',
     },
 
     // Queue descriptions

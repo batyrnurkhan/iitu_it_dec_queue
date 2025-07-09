@@ -21,7 +21,8 @@ class JoinQueueSerializer(serializers.Serializer):
         'BACHELOR_PAID',
         'MASTER',
         'PHD',
-        'PLATONUS'
+        'PLATONUS',
+        'COLLEGE_GRANT'
     ]
 
     type = serializers.ChoiceField(choices=VALID_QUEUE_TYPES)

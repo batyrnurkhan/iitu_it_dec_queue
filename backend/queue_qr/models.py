@@ -12,6 +12,7 @@ class QueueType(models.Model):
     MASTER = 'MASTER'
     PHD = 'PHD'
     PLATONUS = 'PLATONUS'
+    COLLEGE_GRANT = 'COLLEGE_GRANT'  # Новый тип
 
     QUEUE_TYPE_CHOICES = [
         (BACHELOR_GRANT, 'Бакалавр грант'),
@@ -19,6 +20,7 @@ class QueueType(models.Model):
         (MASTER, 'Магистратура'),
         (PHD, 'PhD'),
         (PLATONUS, 'Platonus'),
+        (COLLEGE_GRANT, 'Колледж грант'),  # Новый выбор
     ]
 
     name = models.CharField(max_length=255, choices=QUEUE_TYPE_CHOICES, unique=True)
@@ -53,11 +55,13 @@ class Queue(models.Model):
     BACHELOR = 'BACHELOR'
     MASTER = 'MASTER'
     PHD = 'PHD'
+    COLLEGE = 'COLLEGE'  # Новый тип для совместимости
 
     QUEUE_CHOICES = [
         (BACHELOR, 'Bachelor'),
         (MASTER, 'Master'),
         (PHD, 'PhD'),
+        (COLLEGE, 'College'),  # Новый выбор
     ]
 
     type = models.CharField(max_length=10, choices=QUEUE_CHOICES)
