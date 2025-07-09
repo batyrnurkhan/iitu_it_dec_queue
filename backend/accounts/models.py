@@ -57,7 +57,7 @@ class CustomUser(AbstractUser):
     MASTER = 'MASTER'
     PHD = 'PHD'
     PLATONUS = 'PLATONUS'
-
+    COLLEGE_GRANT = 'COLLEGE_GRANT'
     # Для совместимости со старой системой
     BACHELOR = 'BACHELOR_GRANT'  # Алиас
 
@@ -67,6 +67,7 @@ class CustomUser(AbstractUser):
         (MASTER, 'Магистратура'),
         (PHD, 'PhD'),
         (PLATONUS, 'Platonus'),
+        (COLLEGE_GRANT, 'Колледж грант'),
     ]
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=TERMINAL)
@@ -135,6 +136,7 @@ class CustomUser(AbstractUser):
             'MASTER': 'Магистратура',
             'PHD': 'PhD',
             'PLATONUS': 'Platonus',
+            'COLLEGE_GRANT': 'Колледж грант',
         }
         return type_names.get(self.manager_type, self.manager_type)
 
