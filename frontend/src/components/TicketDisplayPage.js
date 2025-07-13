@@ -310,29 +310,24 @@ function TicketDisplayPage() {
         };
     }, [ticketId, ticketNumber, fullName, queueType, token, queueStatus]);
 
-    // Utility functions
-    const getDisplayQueueName = () => {
-        return queueTypeDisplay || getQueueDisplayName(queueType) || queueType;
-    };
 
-    const getManagerLocation = (managerUsername) => {
-        if (!managerUsername) return 'менеджеру';
+const getManagerLocation = (managerUsername) => {
+    if (!managerUsername) return 'менеджеру';
 
-        const username = managerUsername.toLowerCase();
+    const username = managerUsername.toLowerCase();
 
-        if (username.includes('auditoria111') || username.includes('aauditoria111')) {
-            return 'аудитории 111';
-        } else if (username.includes('auditoria303')) {
-            return 'аудитории 303';
-        } else if (username.includes('auditoria305')) {
-            return 'аудитории 305';
-        } else if (username.includes('auditoria306')) {
-            return 'аудитории 306';
-        } else {
-            const stolNumber = username.charAt(username.length - 1);
-            return `столу ${stolNumber}`;
-        }
-    };
+    if (username.startsWith('stol')) {
+        const stolNumber = username.replace('stol', '');
+        return `столу ${stolNumber}`;
+    } else if (username.startsWith('cabinet')) {
+        const cabinetNumber = username.replace('cabinet', '');
+        return `кабинет ${cabinetNumber}`;
+    } else {
+        const match = username.match(/\d+$/);
+        const number = match ? match[0] : '';
+        return number ? `столу ${number}` : 'менеджеру';
+    }
+};
 
     const formatWaitTime = (minutes) => {
         if (minutes < 60) {
