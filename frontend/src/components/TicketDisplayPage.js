@@ -413,7 +413,7 @@ const getManagerLocation = (managerUsername) => {
                                 <span>📋</span>
                                 <span>Тип очереди</span>
                             </span>
-                            <span className="info-value">{getDisplayQueueName()}</span>
+                            <span className="info-value">{queueTypeDisplay || getQueueDisplayName(queueType) || queueType}</span>
                         </div>
                     </div>
                 </div>
