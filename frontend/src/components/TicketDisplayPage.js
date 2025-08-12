@@ -316,16 +316,47 @@ const getManagerLocation = (managerUsername) => {
 
     const username = managerUsername.toLowerCase();
 
-    if (username.startsWith('stol')) {
+    // Проверяем кабинеты (новый формат)
+    if (username.includes('cabinet305')) {
+        return 'кабинету 305';
+    } else if (username.includes('cabinet306')) {
+        return 'кабинету 306';
+    } else if (username.includes('cabinet307')) {
+        return 'кабинету 307';
+    }
+    // Добавьте другие кабинеты по мере необходимости
+    else if (username.startsWith('cabinet')) {
+        // Извлекаем номер кабинета из названия
+        const cabinetNumber = username.replace('cabinet', '');
+        return `кабинету ${cabinetNumber}`;
+    }
+
+    // Старые форматы аудиторий (для совместимости, если есть)
+    else if (username.includes('auditoria111') || username.includes('aauditoria111')) {
+        return 'аудитории 111';
+    } else if (username.includes('auditoria303')) {
+        return 'аудитории 303';
+    } else if (username.includes('auditoria305')) {
+        return 'аудитории 305';
+    } else if (username.includes('auditoria306')) {
+        return 'аудитории 306';
+    }
+
+    // Столы
+    else if (username.startsWith('stol')) {
         const stolNumber = username.replace('stol', '');
         return `столу ${stolNumber}`;
-    } else if (username.startsWith('cabinet')) {
-        const cabinetNumber = username.replace('cabinet', '');
-        return `кабинет ${cabinetNumber}`;
-    } else {
-        const match = username.match(/\d+$/);
-        const number = match ? match[0] : '';
-        return number ? `столу ${number}` : 'менеджеру';
+    }
+
+    // Fallback для других форматов
+    else {
+        // Если есть число в конце - считаем что это номер стола
+        const match = username.match(/(\d+)$/);
+        if (match) {
+            const number = match[1];
+            return `столу ${number}`;
+        }
+        return 'менеджеру';
     }
 };
 
